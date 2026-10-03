@@ -1,4 +1,4 @@
-@props(['title' => 'HAFIS — Hospital APAR & Fire Inspection System'])
+@props(['title' => 'HAFIS : Hospital APAR & Fire Inspection System'])
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-50">

@@ -1,4 +1,4 @@
-<x-layouts.app :title="request()->has('preview_print') ? 'HAFIS — Cetak Lembar' : 'HAFIS — Detail Riwayat'">
+<x-layouts.app :title="request()->has('preview_print') ? 'HAFIS : Cetak Lembar' : 'HAFIS : Detail Riwayat'">
     @php
     $isPrintPreview = request()->has('preview_print');
 

@@ -1,4 +1,4 @@
-<x-layouts.app title="HAFIS — Hospital APAR & Fire Inspection System">
+<x-layouts.app title="HAFIS : Hospital APAR & Fire Inspection System">
     <!-- Page Header Komponen -->
     <x-page-header
         title="Fondasi Antarmuka UI"
