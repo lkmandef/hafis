@@ -6,28 +6,28 @@ Route::get('/', function () {
     return view('dashboard');
 });
 
-Route::get('/apar', function () {
-    return view('apar.index');
-});
+use App\Http\Controllers\AparController;
+use App\Models\Apar;
 
-Route::get('/apar/create', function () {
-    return view('apar.create');
-});
+Route::prefix('apar')->name('apar.')->group(function () {
+    Route::get('/', [AparController::class, 'index'])->name('index');
+    Route::get('/create', [AparController::class, 'create'])->name('create');
+    Route::post('/', [AparController::class, 'store'])->name('store');
 
-Route::get('/apar/edit', function () {
-    return view('apar.edit');
-});
+    // Kompatibilitas link statis lama (/apar/detail dan /apar/edit)
+    Route::get('/detail', function () {
+        $first = Apar::first();
+        return $first ? redirect()->route('apar.show', $first->id) : redirect()->route('apar.index');
+    });
+    Route::get('/edit', function () {
+        $first = Apar::first();
+        return $first ? redirect()->route('apar.edit', $first->id) : redirect()->route('apar.index');
+    });
 
-Route::get('/apar/{id}/edit', function ($id = 'APAR-IGD-01') {
-    return view('apar.edit', ['id' => $id]);
-});
-
-Route::get('/apar/detail', function () {
-    return view('apar.show');
-});
-
-Route::get('/apar/{id}', function ($id = 'APAR-IGD-01') {
-    return view('apar.show', ['id' => $id]);
+    Route::get('/{id}', [AparController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [AparController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AparController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AparController::class, 'destroy'])->name('destroy');
 });
 
 Route::get('/jadwal', function () {

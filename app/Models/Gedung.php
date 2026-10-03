@@ -35,4 +35,12 @@ class Gedung extends Model
     {
         return $this->hasManyThrough(Ruangan::class, Lantai::class, 'gedung_id', 'lantai_id');
     }
+
+    /**
+     * Jumlah unit APAR di gedung ini melalui ruangan
+     */
+    public function getAparsCountAttribute(): int
+    {
+        return Apar::whereHas('ruangan.lantai', fn($q) => $q->where('gedung_id', $this->id))->count();
+    }
 }

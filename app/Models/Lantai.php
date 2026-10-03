@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Lantai extends Model
 {
@@ -34,5 +35,13 @@ class Lantai extends Model
     public function ruangans(): HasMany
     {
         return $this->hasMany(Ruangan::class, 'lantai_id')->orderBy('nama', 'asc');
+    }
+
+    /**
+     * Relasi: Lantai memiliki banyak APAR melalui Ruangan
+     */
+    public function apars(): HasManyThrough
+    {
+        return $this->hasManyThrough(Apar::class, Ruangan::class, 'lantai_id', 'ruangan_id');
     }
 }
