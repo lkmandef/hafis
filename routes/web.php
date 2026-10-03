@@ -28,9 +28,13 @@ Route::prefix('apar')->name('apar.')->group(function () {
     Route::get('/{id}/edit', [AparController::class, 'edit'])->name('edit');
     Route::put('/{id}', [AparController::class, 'update'])->name('update');
     Route::delete('/{id}', [AparController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/cetak-qr', [AparController::class, 'cetakQr'])->name('cetak_qr');
+    Route::get('/{id}/download-qr', [AparController::class, 'downloadQr'])->name('download_qr');
 });
 
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\PemeriksaanController;
+use App\Http\Controllers\ScanController;
 
 // Modul Jadwal Inspeksi APAR (Tahap 4)
 Route::prefix('jadwal')->name('jadwal.')->group(function () {
@@ -40,12 +44,21 @@ Route::prefix('jadwal')->name('jadwal.')->group(function () {
     Route::get('/{jadwal}', [JadwalController::class, 'show'])->name('show');
     Route::get('/{jadwal}/edit', [JadwalController::class, 'edit'])->name('edit');
     Route::put('/{jadwal}', [JadwalController::class, 'update'])->name('update');
+    Route::post('/{jadwal}/batalkan', [JadwalController::class, 'batalkan'])->name('batalkan');
     Route::delete('/{jadwal}', [JadwalController::class, 'destroy'])->name('destroy');
-    Route::patch('/{jadwal}/batalkan', [JadwalController::class, 'batalkan'])->name('batalkan');
 });
 
-Route::get('/pemeriksaan', function () {
-    return view('pemeriksaan.create');
+// Modul Scan QR APAR (Tahap 5)
+Route::prefix('scan')->name('scan.')->group(function () {
+    Route::get('/', [ScanController::class, 'index'])->name('index');
+    Route::get('/cari', [ScanController::class, 'cari'])->name('cari');
+    Route::post('/cari', [ScanController::class, 'cari'])->name('cari.post');
+});
+
+// Modul Pemeriksaan APAR (Tahap 5: Mulai Pemeriksaan)
+Route::prefix('pemeriksaan')->name('pemeriksaan.')->group(function () {
+    Route::get('/', [PemeriksaanController::class, 'index'])->name('index');
+    Route::get('/mulai', [PemeriksaanController::class, 'mulai'])->name('mulai');
 });
 
 Route::get('/riwayat', function () {
@@ -58,10 +71,6 @@ Route::get('/riwayat/detail', function () {
 
 Route::get('/riwayat/{id}', function ($id = 'INS-2026-001') {
     return view('riwayat.show', ['id' => $id]);
-});
-
-Route::get('/scan', function () {
-    return view('scan.index');
 });
 
 use App\Http\Controllers\DenahController;

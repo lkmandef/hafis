@@ -308,4 +308,34 @@ class AparController extends Controller
 
         return redirect()->route('apar.index')->with('success', "Unit APAR {$kode} berhasil dihapus dari data aktif.");
     }
+
+    /**
+     * Tampilan cetak label stiker QR APAR untuk fisik di lapangan
+     */
+    public function cetakQr($id)
+    {
+        $apar = is_numeric($id)
+            ? Apar::with(['ruangan.lantai.gedung'])->findOrFail($id)
+            : Apar::with(['ruangan.lantai.gedung'])->where('kode', $id)->firstOrFail();
+
+        return view('apar.cetak-qr', compact('apar'));
+    }
+
+    /**
+     * Download file QR Code SVG
+     */
+    public function downloadQr($id)
+    {
+        $apar = is_numeric($id)
+            ? Apar::findOrFail($id)
+            : Apar::where('kode', $id)->firstOrFail();
+
+        $svg = $apar->qr_svg;
+        $fileName = 'QR-' . $apar->kode . '.svg';
+
+        return response($svg, 200, [
+            'Content-Type' => 'image/svg+xml',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
+    }
 }

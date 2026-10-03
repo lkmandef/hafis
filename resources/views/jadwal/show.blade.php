@@ -241,11 +241,36 @@
                                         </a>
                                     @endif
                                     <a 
-                                        href="{{ route('apar.show', $a->id) }}" 
+                                        href="{{ route('apar.show', ['id' => $a->id, 'jadwal_id' => $jadwal->id]) }}" 
                                         class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-[11px]"
                                     >
                                         Lihat APAR
                                     </a>
+
+                                    @if($a->pivot->status_pemeriksaan === 'sudah_diperiksa')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[11px] cursor-default">
+                                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <span>Sudah Diperiksa</span>
+                                        </span>
+                                    @else
+                                        @if($a->status === 'tidak_aktif')
+                                            <span class="px-2.5 py-1 rounded bg-slate-100 text-slate-400 font-semibold text-[11px] cursor-not-allowed" title="APAR Tidak Aktif">
+                                                Tidak Aktif
+                                            </span>
+                                        @else
+                                            <a 
+                                                href="{{ route('pemeriksaan.mulai', ['apar_id' => $a->id, 'jadwal_id' => $jadwal->id]) }}" 
+                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-white font-semibold text-[11px] transition shadow-2xs"
+                                            >
+                                                <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <span>Mulai Pemeriksaan</span>
+                                            </a>
+                                        @endif
+                                    @endif
                                 </div>
                             </td>
                         </tr>

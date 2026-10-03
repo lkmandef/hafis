@@ -21,8 +21,33 @@
                 </x-badge>
             </div>
 
-            <!-- Header Actions: Edit, Titik Denah, Kembali -->
+            <!-- Header Actions: Mulai Pemeriksaan, Cetak QR, Edit, Titik Denah, Kembali -->
             <div class="flex flex-wrap items-center gap-2">
+                @if($apar->status === 'tidak_aktif')
+                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed min-h-[44px]" title="APAR berstatus tidak aktif tidak dapat diperiksa">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                        </svg>
+                        <span>Tidak Aktif</span>
+                    </span>
+                @else
+                    <a href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id, 'jadwal_id' => request('jadwal_id') ?? $apar->active_jadwal?->id]) }}" 
+                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[44px]">
+                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Mulai Pemeriksaan</span>
+                    </a>
+                @endif
+
+                <a href="{{ route('apar.cetak_qr', $apar->id) }}" target="_blank"
+                   class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[44px]">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    <span>Cetak QR</span>
+                </a>
+
                 <a href="{{ url('/penempatan?lantai=' . ($apar->lantai?->nomor_lantai ?? 1) . '&highlight=' . $apar->kode) }}" 
                    class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[44px]">
                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -51,7 +76,7 @@
         </div>
     </div>
 
-    <!-- Notifikasi Sukses / Feedback -->
+    <!-- Feedback Alerts: Sukses, Warning, Error -->
     @if(session('success'))
         <div class="mb-6 p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
             <div class="flex items-center gap-2.5">
@@ -66,6 +91,105 @@
                 &times;
             </button>
         </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="mb-6 p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+            <div class="flex items-center gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </span>
+                <span class="font-medium">{{ session('warning') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-amber-700 hover:text-amber-900 font-bold text-sm leading-none focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Tutup notifikasi">
+                &times;
+            </button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="mb-6 p-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+            <div class="flex items-center gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </span>
+                <span class="font-medium">{{ session('error') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-700 hover:text-rose-900 font-bold text-sm leading-none focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Tutup notifikasi">
+                &times;
+            </button>
+        </div>
+    @endif
+
+    @if($apar->status === 'tidak_aktif')
+        <!-- Status Tidak Aktif Banner (Section 5) -->
+        <div class="mb-6 p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-900 text-xs flex items-start gap-3 shadow-2xs" role="alert">
+            <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <div>
+                <h4 class="font-bold text-rose-900">Perhatian: APAR Berstatus Tidak Aktif</h4>
+                <p class="text-rose-700 mt-0.5 leading-relaxed">
+                    Unit tabung ini dinonaktifkan atau dalam status afkir/gudang, sehingga tidak dapat diperiksa dan tidak dianggap sebagai target pemeriksaan aktif.
+                </p>
+            </div>
+        </div>
+    @else
+        <!-- Banner Status Jadwal Inspeksi Aktif (Section 7) -->
+        @php
+            $activeJadwalUnit = $apar->active_jadwal;
+        @endphp
+        @if($activeJadwalUnit)
+            <div class="mb-6 p-3.5 rounded-xl border border-sky-200 bg-sky-50 text-sky-950 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </span>
+                    <div>
+                        <span class="font-bold text-sky-950">Jadwal Inspeksi Aktif: {{ $activeJadwalUnit->nama }}</span>
+                        <span class="text-sky-700 block text-[11px] font-mono mt-0.5">
+                            Periode {{ $activeJadwalUnit->tanggal_mulai->format('d/m/Y') }} - {{ $activeJadwalUnit->tanggal_selesai->format('d/m/Y') }}
+                        </span>
+                    </div>
+                </div>
+                <a href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id, 'jadwal_id' => $activeJadwalUnit->id]) }}" 
+                   class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs transition shrink-0 min-h-[44px]">
+                    <span>Mulai Pemeriksaan Jadwal</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        @else
+            <div class="mb-6 p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-950 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </span>
+                    <div>
+                        <span class="font-bold text-amber-950">APAR ini belum memiliki jadwal inspeksi aktif.</span>
+                        <span class="text-amber-700 block text-[11px] mt-0.5">
+                            Pemeriksaan mandiri (ad-hoc) tetap dapat dimulai jika diperlukan oleh SOP K3RS Rumah Sakit.
+                        </span>
+                    </div>
+                </div>
+                <a href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id]) }}" 
+                   class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs transition shrink-0 min-h-[44px]">
+                    <span>Mulai Pemeriksaan Mandiri</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        @endif
     @endif
 
     <!-- Grid Detail Informasi: Kolom Kiri (Spesifikasi & Lokasi) & Kolom Kanan (QR Identifier & Status) -->
@@ -244,57 +368,42 @@
         <!-- Kolom Kanan (1 Kolom Samping) -->
         <div class="lg:col-span-1 space-y-6">
 
-            <!-- Card QR Code Identifier -->
-            <x-card title="QR Code Identifier" subtitle="Struktur data unik untuk verifikasi scan di lapangan.">
+            <!-- Card QR Code Identifier (Tahap 5) -->
+            <x-card title="QR Code APAR" subtitle="Identitas fisik unik untuk verifikasi scan di lapangan.">
                 <div class="text-center p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <!-- SVG QR Matrix Placeholder Realistis Berdasarkan Token -->
-                    <div class="mx-auto w-36 h-36 bg-white p-2.5 rounded-lg border border-slate-300 shadow-2xs flex flex-col items-center justify-center relative">
-                        <svg class="w-full h-full text-slate-900" viewBox="0 0 100 100" fill="currentColor">
-                            <!-- Sudut Kiri Atas -->
-                            <rect x="5" y="5" width="28" height="28" fill="none" stroke="currentColor" stroke-width="4" />
-                            <rect x="11" y="11" width="16" height="16" />
-                            <!-- Sudut Kanan Atas -->
-                            <rect x="67" y="5" width="28" height="28" fill="none" stroke="currentColor" stroke-width="4" />
-                            <rect x="73" y="11" width="16" height="16" />
-                            <!-- Sudut Kiri Bawah -->
-                            <rect x="5" y="67" width="28" height="28" fill="none" stroke="currentColor" stroke-width="4" />
-                            <rect x="11" y="73" width="16" height="16" />
-                            <!-- Pola Matrix Data Realistis -->
-                            <rect x="40" y="8" width="6" height="6" />
-                            <rect x="52" y="8" width="6" height="6" />
-                            <rect x="40" y="20" width="6" height="6" />
-                            <rect x="46" y="26" width="6" height="6" />
-                            <rect x="8" y="40" width="6" height="6" />
-                            <rect x="20" y="40" width="6" height="6" />
-                            <rect x="14" y="46" width="6" height="6" />
-                            <rect x="26" y="52" width="6" height="6" />
-                            <rect x="40" y="40" width="8" height="8" />
-                            <rect x="52" y="46" width="6" height="6" />
-                            <rect x="62" y="40" width="6" height="6" />
-                            <rect x="74" y="46" width="6" height="6" />
-                            <rect x="86" y="40" width="6" height="6" />
-                            <rect x="40" y="60" width="6" height="6" />
-                            <rect x="52" y="60" width="6" height="6" />
-                            <rect x="46" y="72" width="6" height="6" />
-                            <rect x="40" y="84" width="6" height="6" />
-                            <rect x="58" y="84" width="6" height="6" />
-                            <rect x="68" y="66" width="6" height="6" />
-                            <rect x="80" y="72" width="6" height="6" />
-                            <rect x="74" y="84" width="6" height="6" />
-                            <rect x="86" y="84" width="6" height="6" />
-                        </svg>
+                    <!-- Dynamic Vector QR SVG -->
+                    <div class="mx-auto w-40 h-40 bg-white p-2.5 rounded-lg border border-slate-300 shadow-2xs flex items-center justify-center">
+                        {!! $apar->qr_svg !!}
                     </div>
 
                     <div class="mt-3">
                         <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Identifier Unik</span>
-                        <div class="font-mono text-xs font-extrabold text-slate-800 break-all select-all mt-0.5 bg-white py-1 px-2 rounded border border-slate-200">
+                        <div class="font-mono text-xs font-extrabold text-slate-800 break-all select-all mt-0.5 bg-white py-1.5 px-2 rounded border border-slate-200">
                             {{ $apar->qr_code }}
                         </div>
                     </div>
 
                     <p class="text-[11px] text-slate-500 mt-2.5 leading-relaxed text-left">
-                        Token unik ini akan menjadi kunci validasi fisik saat pemindaian kamera pada Tahap 3 (Workflow Scan APAR).
+                        QR Code ini dicetak dan ditempelkan pada fisik tabung APAR untuk mempermudah identifikasi saat inspeksi.
                     </p>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200 flex flex-wrap items-center justify-center gap-2">
+                        <a href="{{ route('apar.cetak_qr', $apar->id) }}" target="_blank"
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[44px]">
+                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                            </svg>
+                            <span>Cetak Label QR</span>
+                        </a>
+
+                        <a href="{{ route('apar.download_qr', $apar->id) }}"
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[44px]">
+                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            <span>Download SVG</span>
+                        </a>
+                    </div>
                 </div>
             </x-card>
 

@@ -135,4 +135,20 @@ class Apar extends Model
             ->withPivot('status_pemeriksaan', 'catatan')
             ->withTimestamps();
     }
+
+    /**
+     * Accessor: Cari jadwal inspeksi aktif (status berjalan) untuk APAR ini
+     */
+    public function getActiveJadwalAttribute(): ?Jadwal
+    {
+        return $this->jadwals()->where('jadwals.status', 'berjalan')->first();
+    }
+
+    /**
+     * Accessor: Generate representasi SVG QR Code untuk APAR ini
+     */
+    public function getQrSvgAttribute(): string
+    {
+        return \App\Services\QrCodeService::generateSvg($this->qr_code ?: $this->kode);
+    }
 }
