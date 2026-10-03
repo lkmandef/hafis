@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Apar extends Model
@@ -123,5 +124,15 @@ class Apar extends Model
             self::STATUS_RUSAK => 'danger',
             default => 'neutral',
         };
+    }
+
+    /**
+     * Relasi: Jadwal inspeksi yang mencakup APAR ini
+     */
+    public function jadwals(): BelongsToMany
+    {
+        return $this->belongsToMany(Jadwal::class, 'jadwal_apars')
+            ->withPivot('status_pemeriksaan', 'catatan')
+            ->withTimestamps();
     }
 }
