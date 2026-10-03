@@ -91,16 +91,30 @@ Route::prefix('penggantian')->name('penggantian.')->group(function () {
     Route::get('/{penggantian}', [PenggantianAparController::class, 'show'])->name('show');
 });
 
-Route::get('/riwayat', function () {
-    return view('riwayat.index');
+use App\Http\Controllers\LaporanController;
+
+// Modul Laporan & Rekapitulasi (Tahap 9)
+Route::prefix('laporan')->name('laporan.')->group(function () {
+    Route::get('/', [LaporanController::class, 'index'])->name('index');
+    Route::get('/apar', [LaporanController::class, 'apar'])->name('apar');
+    Route::get('/pemeriksaan', [LaporanController::class, 'pemeriksaan'])->name('pemeriksaan');
+    Route::get('/temuan', [LaporanController::class, 'temuan'])->name('temuan');
+    Route::get('/tindak-lanjut', [LaporanController::class, 'tindakLanjut'])->name('tindak_lanjut');
+    Route::get('/tindak-lanjut-alias', [LaporanController::class, 'tindakLanjut'])->name('tindak-lanjut');
+    Route::get('/penggantian', [LaporanController::class, 'penggantian'])->name('penggantian');
 });
+
+// Kompatibilitas link lama /riwayat -> /laporan
+Route::get('/riwayat', function () {
+    return redirect()->route('laporan.index');
+})->name('riwayat.index');
 
 Route::get('/riwayat/detail', function () {
-    return view('riwayat.show');
+    return redirect()->route('laporan.pemeriksaan');
 });
 
-Route::get('/riwayat/{id}', function ($id = 'INS-2026-001') {
-    return view('riwayat.show', ['id' => $id]);
+Route::get('/riwayat/{id}', function () {
+    return redirect()->route('laporan.pemeriksaan');
 });
 
 use App\Http\Controllers\DenahController;
