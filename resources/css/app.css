@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   Print Stylesheet for Official Hospital APAR Reports
+   ========================================================================== */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 12mm 12mm 15mm 12mm;
+    }
+
+    /* Reset background and layout for paper */
+    html, body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 9.5pt !important;
+        line-height: 1.35 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide web navigation, headers, and interactive UI */
+    #app-sidebar,
+    #sidebar-backdrop,
+    header,
+    nav,
+    .no-print,
+    .print\:hidden {
+        display: none !important;
+    }
+
+    /* Expand main content area to full paper width */
+    main {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .print\:block {
+        display: block !important;
+    }
+
+    .print\:table {
+        display: table !important;
+    }
+
+    /* Print Table Layout */
+    .print-table {
+        width: 100% !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto !important;
+        margin-top: 8px !important;
+    }
+
+    .print-table thead {
+        display: table-header-group !important;
+    }
+
+    .print-table tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+
+    .print-table th,
+    .print-table td {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        text-overflow: clip !important;
+        overflow: visible !important;
+    }
+
+    /* Avoid page-breaks inside signatures or summaries */
+    .print-avoid-break {
+        page-break-inside: avoid !important;
+    }
+}
