@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Jadwal extends Model
 {
@@ -60,7 +61,7 @@ class Jadwal extends Model
     /**
      * Relasi: Semua pemeriksaan APAR yang dilakukan dalam jadwal ini
      */
-    public function pemeriksaans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function pemeriksaans(): HasMany
     {
         return $this->hasMany(Pemeriksaan::class, 'jadwal_id');
     }

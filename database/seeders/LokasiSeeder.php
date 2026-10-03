@@ -28,9 +28,9 @@ class LokasiSeeder extends Seeder
                         'ruangans' => [
                             ['kode' => 'IGD-01', 'nama' => 'Ruang IGD', 'kategori' => 'Pelayanan Gawat Darurat'],
                             ['kode' => 'IGD-02', 'nama' => 'Stroke Center', 'kategori' => 'Pelayanan Khusus'],
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ],
             [
                 'kode' => 'GDG-IRJ',
@@ -43,7 +43,7 @@ class LokasiSeeder extends Seeder
                         'keterangan' => 'Draft: Area Poliklinis rawat jalan',
                         'ruangans' => [
                             ['kode' => 'IRJ-POLI', 'nama' => 'Poliklinis', 'kategori' => 'Pelayanan Rawat Jalan'],
-                        ]
+                        ],
                     ],
                     [
                         'nomor_lantai' => 2,
@@ -51,9 +51,9 @@ class LokasiSeeder extends Seeder
                         'keterangan' => 'Draft: Area Manajemen / Administrasi',
                         'ruangans' => [
                             ['kode' => 'IRJ-MNJ', 'nama' => 'Manajemen', 'kategori' => 'Administrasi & Manajemen'],
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ],
             [
                 'kode' => 'GDG-EMR',
@@ -65,7 +65,7 @@ class LokasiSeeder extends Seeder
                     ['nomor_lantai' => 3, 'nama' => 'Lantai 3', 'keterangan' => null],
                     ['nomor_lantai' => 4, 'nama' => 'Lantai 4', 'keterangan' => null],
                     ['nomor_lantai' => 5, 'nama' => 'Lantai 5', 'keterangan' => null],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-NLM',
@@ -75,7 +75,7 @@ class LokasiSeeder extends Seeder
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => null],
                     ['nomor_lantai' => 2, 'nama' => 'Lantai 2', 'keterangan' => null],
                     ['nomor_lantai' => 3, 'nama' => 'Lantai 3', 'keterangan' => null],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-ALX',
@@ -86,7 +86,7 @@ class LokasiSeeder extends Seeder
                     ['nomor_lantai' => 2, 'nama' => 'Lantai 2', 'keterangan' => null],
                     ['nomor_lantai' => 3, 'nama' => 'Lantai 3', 'keterangan' => null],
                     ['nomor_lantai' => 4, 'nama' => 'Lantai 4', 'keterangan' => null],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-GIK',
@@ -95,7 +95,7 @@ class LokasiSeeder extends Seeder
                 'lantais' => [
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => null],
                     ['nomor_lantai' => 2, 'nama' => 'Lantai 2', 'keterangan' => null],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-LOG',
@@ -103,7 +103,7 @@ class LokasiSeeder extends Seeder
                 'keterangan' => 'Draft konsultasi: 1 lantai.',
                 'lantais' => [
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => 'Gudang penyimpanan logistik'],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-IPS',
@@ -111,7 +111,7 @@ class LokasiSeeder extends Seeder
                 'keterangan' => 'Draft konsultasi: 1 lantai (Instalasi Pemeliharaan Sarana RS).',
                 'lantais' => [
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => 'Bengkel teknis dan pemeliharaan sarana'],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-GIZ',
@@ -120,7 +120,7 @@ class LokasiSeeder extends Seeder
                 'lantais' => [
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => 'Instalasi Dapur & Pengolahan Makanan'],
                     ['nomor_lantai' => 2, 'nama' => 'Lantai 2', 'keterangan' => 'Ruang Ahli Gizi & Penyimpanan'],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-CSD',
@@ -130,7 +130,7 @@ class LokasiSeeder extends Seeder
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => null],
                     ['nomor_lantai' => 2, 'nama' => 'Lantai 2', 'keterangan' => null],
                     ['nomor_lantai' => 3, 'nama' => 'Lantai 3', 'keterangan' => null],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-IBS',
@@ -141,7 +141,7 @@ class LokasiSeeder extends Seeder
                     ['nomor_lantai' => 2, 'nama' => 'Lantai 2', 'keterangan' => null],
                     ['nomor_lantai' => 3, 'nama' => 'Lantai 3', 'keterangan' => null],
                     ['nomor_lantai' => 4, 'nama' => 'Lantai 4', 'keterangan' => null],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-KML',
@@ -153,7 +153,7 @@ class LokasiSeeder extends Seeder
                     ['nomor_lantai' => 3, 'nama' => 'Lantai 3', 'keterangan' => null],
                     ['nomor_lantai' => 4, 'nama' => 'Lantai 4', 'keterangan' => null],
                     ['nomor_lantai' => 5, 'nama' => 'Lantai 5', 'keterangan' => null],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-DGN',
@@ -167,9 +167,9 @@ class LokasiSeeder extends Seeder
                         'ruangans' => [
                             ['kode' => 'DGN-RAD', 'nama' => 'Radiologi', 'kategori' => 'Penunjang Medis (Draft)'],
                             ['kode' => 'DGN-LAB', 'nama' => 'Laboratorium', 'kategori' => 'Penunjang Medis (Draft)'],
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ],
             [
                 'kode' => 'GDG-FRM',
@@ -178,7 +178,7 @@ class LokasiSeeder extends Seeder
                 'lantais' => [
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => 'Depo Farmasi & Pelayanan Resep'],
                     ['nomor_lantai' => 2, 'nama' => 'Lantai 2', 'keterangan' => 'Gudang Farmasi & Ruang Racik'],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-JNZ',
@@ -186,7 +186,7 @@ class LokasiSeeder extends Seeder
                 'keterangan' => 'Draft konsultasi: 1 lantai.',
                 'lantais' => [
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => 'Instalasi Forensik & Pemulasaraan Jenazah'],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-DNS',
@@ -194,7 +194,7 @@ class LokasiSeeder extends Seeder
                 'keterangan' => 'Draft konsultasi: 1 lantai.',
                 'lantais' => [
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => 'Mess / Rumah Dinas Staf'],
-                ]
+                ],
             ],
             [
                 'kode' => 'GDG-INS',
@@ -202,7 +202,7 @@ class LokasiSeeder extends Seeder
                 'keterangan' => 'Draft konsultasi: 1 lantai (Area Pengolahan Limbah B3).',
                 'lantais' => [
                     ['nomor_lantai' => 1, 'nama' => 'Lantai 1', 'keterangan' => 'Area Insinerator & Pengolahan Limbah Medis'],
-                ]
+                ],
             ],
         ];
 
@@ -223,7 +223,7 @@ class LokasiSeeder extends Seeder
                 $lantai = Lantai::updateOrCreate(
                     [
                         'gedung_id' => $gedung->id,
-                        'nomor_lantai' => $lData['nomor_lantai']
+                        'nomor_lantai' => $lData['nomor_lantai'],
                     ],
                     $lData
                 );
@@ -233,7 +233,7 @@ class LokasiSeeder extends Seeder
                     Ruangan::updateOrCreate(
                         [
                             'lantai_id' => $lantai->id,
-                            'nama' => $rData['nama']
+                            'nama' => $rData['nama'],
                         ],
                         $rData
                     );

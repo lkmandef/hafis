@@ -17,7 +17,7 @@ class PenempatanController extends Controller
     {
         // 1. Ambil seluruh data gedung dan lantai untuk navigasi
         $gedungs = Gedung::with([
-            'lantais' => fn($q) => $q->orderBy('nomor_lantai', 'asc'),
+            'lantais' => fn ($q) => $q->orderBy('nomor_lantai', 'asc'),
             'lantais.denah',
         ])->orderBy('nama', 'asc')->get();
 
@@ -39,7 +39,7 @@ class PenempatanController extends Controller
         }
 
         // Jika ada parameter lantai_id terlebih dahulu
-        if (!$selectedGedung && $request->filled('lantai_id')) {
+        if (! $selectedGedung && $request->filled('lantai_id')) {
             $targetLantai = Lantai::find($request->lantai_id);
             if ($targetLantai) {
                 $selectedGedung = $gedungs->firstWhere('id', $targetLantai->gedung_id);
@@ -60,7 +60,7 @@ class PenempatanController extends Controller
         }
 
         // Default ke gedung pertama jika belum terpilih
-        if (!$selectedGedung) {
+        if (! $selectedGedung) {
             $selectedGedung = $gedungs->first();
         }
 
@@ -78,7 +78,7 @@ class PenempatanController extends Controller
             }
 
             // Default ke lantai pertama gedung
-            if (!$selectedLantai) {
+            if (! $selectedLantai) {
                 $selectedLantai = $selectedGedung->lantais->first();
             }
         }
@@ -88,12 +88,12 @@ class PenempatanController extends Controller
         $unplacedApars = collect();
 
         if ($selectedLantai) {
-            $selectedLantai->load(['denah', 'ruangans.apars' => fn($q) => $q->orderBy('kode', 'asc')]);
+            $selectedLantai->load(['denah', 'ruangans.apars' => fn ($q) => $q->orderBy('kode', 'asc')]);
 
             $allApars = $selectedLantai->ruangans->flatMap->apars;
 
-            $placedApars = $allApars->filter(fn($a) => $a->has_titik)->values();
-            $unplacedApars = $allApars->filter(fn($a) => !$a->has_titik)->values();
+            $placedApars = $allApars->filter(fn ($a) => $a->has_titik)->values();
+            $unplacedApars = $allApars->filter(fn ($a) => ! $a->has_titik)->values();
         }
 
         return view('penempatan.index', compact(

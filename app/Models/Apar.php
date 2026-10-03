@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Services\QrCodeService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Apar extends Model
@@ -15,8 +17,11 @@ class Apar extends Model
     protected $table = 'apars';
 
     public const STATUS_BAIK = 'baik';
+
     public const STATUS_PERHATIAN = 'perhatian';
+
     public const STATUS_RUSAK = 'rusak';
+
     public const STATUS_TIDAK_AKTIF = 'tidak_aktif';
 
     public const STATUS_LABELS = [
@@ -66,7 +71,7 @@ class Apar extends Model
      */
     public function getHasTitikAttribute(): bool
     {
-        return !is_null($this->koordinat_x) && !is_null($this->koordinat_y);
+        return ! is_null($this->koordinat_x) && ! is_null($this->koordinat_y);
     }
 
     /**
@@ -147,9 +152,17 @@ class Apar extends Model
     /**
      * Relasi: Log riwayat pemeriksaan fisik untuk APAR ini
      */
-    public function pemeriksaans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function pemeriksaans(): HasMany
     {
         return $this->hasMany(Pemeriksaan::class, 'apar_id')->orderBy('tanggal_pemeriksaan', 'desc');
+    }
+
+    /**
+     * Relasi: Riwayat tindak lanjut dan pemeliharaan untuk APAR ini
+     */
+    public function tindakLanjuts(): HasMany
+    {
+        return $this->hasMany(TindakLanjut::class, 'apar_id')->orderBy('tanggal_tindakan', 'desc');
     }
 
     /**
@@ -157,6 +170,6 @@ class Apar extends Model
      */
     public function getQrSvgAttribute(): string
     {
-        return \App\Services\QrCodeService::generateSvg($this->qr_code ?: $this->kode);
+        return QrCodeService::generateSvg($this->qr_code ?: $this->kode);
     }
 }

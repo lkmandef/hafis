@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Apar;
 use App\Models\Jadwal;
 use App\Models\Pemeriksaan;
-use App\Models\PemeriksaanDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class PemeriksaanController extends Controller
 {
@@ -28,7 +26,7 @@ class PemeriksaanController extends Controller
         }
 
         $apar = Apar::with(['ruangan.lantai.gedung'])->find($aparId);
-        if (!$apar) {
+        if (! $apar) {
             return redirect()->route('scan.index')
                 ->with('error', 'Data APAR yang dipilih tidak ditemukan.');
         }
@@ -41,12 +39,12 @@ class PemeriksaanController extends Controller
 
         // Tentukan jadwal inspeksi terkait
         $jadwal = null;
-        if (!empty($jadwalId)) {
+        if (! empty($jadwalId)) {
             $jadwal = Jadwal::find($jadwalId);
         }
 
         // Fallback: periksa apakah APAR memiliki jadwal aktif
-        if (!$jadwal) {
+        if (! $jadwal) {
             $jadwal = $apar->active_jadwal;
         }
 
@@ -83,7 +81,7 @@ class PemeriksaanController extends Controller
         }
 
         $apar = Apar::with(['ruangan.lantai.gedung'])->find($aparId);
-        if (!$apar) {
+        if (! $apar) {
             return redirect()->route('scan.index')
                 ->with('error', 'Data unit APAR tidak ditemukan.');
         }
@@ -94,10 +92,10 @@ class PemeriksaanController extends Controller
         }
 
         $jadwal = null;
-        if (!empty($jadwalId)) {
+        if (! empty($jadwalId)) {
             $jadwal = Jadwal::find($jadwalId);
         }
-        if (!$jadwal) {
+        if (! $jadwal) {
             $jadwal = $apar->active_jadwal;
         }
 
@@ -156,7 +154,7 @@ class PemeriksaanController extends Controller
 
         // Cegah duplicate pemeriksaan untuk APAR + Jadwal yang sama (Section 3 & 17)
         $jadwal = null;
-        if (!empty($validated['jadwal_id'])) {
+        if (! empty($validated['jadwal_id'])) {
             $jadwal = Jadwal::find($validated['jadwal_id']);
             if ($jadwal) {
                 $existing = Pemeriksaan::where('apar_id', $apar->id)
@@ -226,7 +224,7 @@ class PemeriksaanController extends Controller
                     $apar->id => [
                         'status_pemeriksaan' => 'sudah_diperiksa',
                         'catatan' => $validated['catatan_pemeriksaan'] ?? null,
-                    ]
+                    ],
                 ]);
             }
 
@@ -242,7 +240,13 @@ class PemeriksaanController extends Controller
      */
     public function show(Pemeriksaan $pemeriksaan)
     {
-        $pemeriksaan->load(['apar.ruangan.lantai.gedung', 'jadwal', 'user', 'details']);
+        $pemeriksaan->load([
+            'apar.ruangan.lantai.gedung',
+            'jadwal',
+            'user',
+            'details.tindakLanjuts',
+            'tindakLanjuts',
+        ]);
 
         return view('pemeriksaan.show', compact('pemeriksaan'));
     }

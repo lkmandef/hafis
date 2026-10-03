@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PemeriksaanDetail extends Model
 {
@@ -13,7 +14,9 @@ class PemeriksaanDetail extends Model
     protected $table = 'pemeriksaan_details';
 
     public const HASIL_BAIK = 'baik';
+
     public const HASIL_TIDAK_BAIK = 'tidak_baik';
+
     public const HASIL_TIDAK_DIPERIKSA = 'tidak_diperiksa';
 
     public const HASIL_LABELS = [
@@ -47,5 +50,21 @@ class PemeriksaanDetail extends Model
             self::HASIL_TIDAK_BAIK => 'danger',
             default => 'neutral',
         };
+    }
+
+    /**
+     * Relasi ke tindak lanjut / pemeliharaan yang dibuat khusus untuk temuan item ini
+     */
+    public function tindakLanjuts(): HasMany
+    {
+        return $this->hasMany(TindakLanjut::class, 'pemeriksaan_detail_id');
+    }
+
+    /**
+     * Accessor: Ambil tindak lanjut terbaru untuk item checklist ini
+     */
+    public function getTindakLanjutAttribute(): ?TindakLanjut
+    {
+        return $this->tindakLanjuts()->latest()->first();
     }
 }

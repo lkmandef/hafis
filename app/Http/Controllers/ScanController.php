@@ -33,7 +33,7 @@ class ScanController extends Controller
             $parsed = parse_url($raw);
             if (isset($parsed['query'])) {
                 parse_str($parsed['query'], $queryParams);
-                if (!empty($queryParams['kode'])) {
+                if (! empty($queryParams['kode'])) {
                     $cleanInput = $queryParams['kode'];
                 }
             } elseif (isset($parsed['path'])) {
@@ -57,7 +57,7 @@ class ScanController extends Controller
             ->first();
 
         // 1. Jika QR / Kode TIDAK DITEMUKAN (Section 5)
-        if (!$apar) {
+        if (! $apar) {
             return redirect()->route('scan.index')
                 ->withInput()
                 ->with('error', "APAR tidak ditemukan untuk kode: '{$raw}'. Pastikan label QR atau kode yang dimasukkan valid.");

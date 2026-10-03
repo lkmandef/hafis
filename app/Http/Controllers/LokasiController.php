@@ -23,15 +23,15 @@ class LokasiController extends Controller
         if ($search) {
             $gedungsQuery->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('kode', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%")
-                  ->orWhereHas('lantais', function ($lq) use ($search) {
-                      $lq->where('nama', 'like', "%{$search}%")
-                         ->orWhereHas('ruangans', function ($rq) use ($search) {
-                             $rq->where('nama', 'like', "%{$search}%")
-                                ->orWhere('kode', 'like', "%{$search}%");
-                         });
-                  });
+                    ->orWhere('kode', 'like', "%{$search}%")
+                    ->orWhere('keterangan', 'like', "%{$search}%")
+                    ->orWhereHas('lantais', function ($lq) use ($search) {
+                        $lq->where('nama', 'like', "%{$search}%")
+                            ->orWhereHas('ruangans', function ($rq) use ($search) {
+                                $rq->where('nama', 'like', "%{$search}%")
+                                    ->orWhere('kode', 'like', "%{$search}%");
+                            });
+                    });
             });
         }
 
@@ -90,14 +90,14 @@ class LokasiController extends Controller
             foreach ($words as $w) {
                 $abbr .= strtoupper(substr($w, 0, 1));
             }
-            $validated['kode'] = 'GDG-' . ($abbr ?: rand(100, 999));
+            $validated['kode'] = 'GDG-'.($abbr ?: rand(100, 999));
         }
 
         $validated['status'] = $validated['status'] ?? 'aktif';
 
         Gedung::create($validated);
 
-        return redirect()->back()->with('success', 'Gedung ' . $validated['nama'] . ' berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Gedung '.$validated['nama'].' berhasil ditambahkan.');
     }
 
     public function updateGedung(Request $request, Gedung $gedung)
@@ -116,7 +116,7 @@ class LokasiController extends Controller
 
         $gedung->update($validated);
 
-        return redirect()->back()->with('success', 'Data gedung ' . $gedung->nama . ' berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Data gedung '.$gedung->nama.' berhasil diperbarui.');
     }
 
     public function destroyGedung(Gedung $gedung)
@@ -124,7 +124,7 @@ class LokasiController extends Controller
         $nama = $gedung->nama;
         $gedung->delete();
 
-        return redirect()->route('lokasi.index')->with('success', 'Gedung ' . $nama . ' beserta lantai dan ruangannya berhasil dihapus.');
+        return redirect()->route('lokasi.index')->with('success', 'Gedung '.$nama.' beserta lantai dan ruangannya berhasil dihapus.');
     }
 
     // ==========================================
@@ -138,7 +138,7 @@ class LokasiController extends Controller
             'nomor_lantai' => [
                 'required',
                 'integer',
-                Rule::unique('lantais', 'nomor_lantai')->where(fn ($query) => $query->where('gedung_id', $request->gedung_id))
+                Rule::unique('lantais', 'nomor_lantai')->where(fn ($query) => $query->where('gedung_id', $request->gedung_id)),
             ],
             'nama' => ['required', 'string', 'max:100'],
             'keterangan' => ['nullable', 'string'],
@@ -152,7 +152,7 @@ class LokasiController extends Controller
 
         Lantai::create($validated);
 
-        return redirect()->back()->with('success', 'Lantai ' . $validated['nama'] . ' berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Lantai '.$validated['nama'].' berhasil ditambahkan.');
     }
 
     public function updateLantai(Request $request, Lantai $lantai)
@@ -163,7 +163,7 @@ class LokasiController extends Controller
                 'integer',
                 Rule::unique('lantais', 'nomor_lantai')
                     ->where(fn ($query) => $query->where('gedung_id', $lantai->gedung_id))
-                    ->ignore($lantai->id)
+                    ->ignore($lantai->id),
             ],
             'nama' => ['required', 'string', 'max:100'],
             'keterangan' => ['nullable', 'string'],
@@ -175,7 +175,7 @@ class LokasiController extends Controller
 
         $lantai->update($validated);
 
-        return redirect()->back()->with('success', 'Data lantai ' . $lantai->nama . ' berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Data lantai '.$lantai->nama.' berhasil diperbarui.');
     }
 
     public function destroyLantai(Lantai $lantai)
@@ -183,7 +183,7 @@ class LokasiController extends Controller
         $nama = $lantai->nama;
         $lantai->delete();
 
-        return redirect()->back()->with('success', 'Lantai ' . $nama . ' berhasil dihapus.');
+        return redirect()->back()->with('success', 'Lantai '.$nama.' berhasil dihapus.');
     }
 
     // ==========================================
@@ -198,7 +198,7 @@ class LokasiController extends Controller
                 'required',
                 'string',
                 'max:150',
-                Rule::unique('ruangans', 'nama')->where(fn ($query) => $query->where('lantai_id', $request->lantai_id))
+                Rule::unique('ruangans', 'nama')->where(fn ($query) => $query->where('lantai_id', $request->lantai_id)),
             ],
             'kode' => ['nullable', 'string', 'max:50'],
             'kategori' => ['nullable', 'string', 'max:60'],
@@ -212,7 +212,7 @@ class LokasiController extends Controller
 
         Ruangan::create($validated);
 
-        return redirect()->back()->with('success', 'Ruangan/Area ' . $validated['nama'] . ' berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Ruangan/Area '.$validated['nama'].' berhasil ditambahkan.');
     }
 
     public function updateRuangan(Request $request, Ruangan $ruangan)
@@ -224,7 +224,7 @@ class LokasiController extends Controller
                 'max:150',
                 Rule::unique('ruangans', 'nama')
                     ->where(fn ($query) => $query->where('lantai_id', $ruangan->lantai_id))
-                    ->ignore($ruangan->id)
+                    ->ignore($ruangan->id),
             ],
             'kode' => ['nullable', 'string', 'max:50'],
             'kategori' => ['nullable', 'string', 'max:60'],
@@ -236,7 +236,7 @@ class LokasiController extends Controller
 
         $ruangan->update($validated);
 
-        return redirect()->back()->with('success', 'Data ruangan ' . $ruangan->nama . ' berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Data ruangan '.$ruangan->nama.' berhasil diperbarui.');
     }
 
     public function destroyRuangan(Ruangan $ruangan)
@@ -244,6 +244,6 @@ class LokasiController extends Controller
         $nama = $ruangan->nama;
         $ruangan->delete();
 
-        return redirect()->back()->with('success', 'Ruangan/Area ' . $nama . ' berhasil dihapus.');
+        return redirect()->back()->with('success', 'Ruangan/Area '.$nama.' berhasil dihapus.');
     }
 }

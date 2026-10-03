@@ -41,6 +41,6 @@ class Gedung extends Model
      */
     public function getAparsCountAttribute(): int
     {
-        return Apar::whereHas('ruangan.lantai', fn($q) => $q->where('gedung_id', $this->id))->count();
+        return Apar::whereHas('ruangan.lantai', fn ($q) => $q->where('gedung_id', $this->id))->count();
     }
 }

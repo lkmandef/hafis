@@ -17,10 +17,12 @@ Route::prefix('apar')->name('apar.')->group(function () {
     // Kompatibilitas link statis lama (/apar/detail dan /apar/edit)
     Route::get('/detail', function () {
         $first = Apar::first();
+
         return $first ? redirect()->route('apar.show', $first->id) : redirect()->route('apar.index');
     });
     Route::get('/edit', function () {
         $first = Apar::first();
+
         return $first ? redirect()->route('apar.edit', $first->id) : redirect()->route('apar.index');
     });
 
@@ -62,6 +64,20 @@ Route::prefix('pemeriksaan')->name('pemeriksaan.')->group(function () {
     Route::get('/create', [PemeriksaanController::class, 'create'])->name('create');
     Route::post('/', [PemeriksaanController::class, 'store'])->name('store');
     Route::get('/{pemeriksaan}', [PemeriksaanController::class, 'show'])->name('show');
+});
+
+use App\Http\Controllers\TindakLanjutController;
+
+// Modul Tindak Lanjut & Pemeliharaan APAR (Tahap 7)
+Route::prefix('tindak-lanjut')->name('tindak-lanjut.')->group(function () {
+    Route::get('/', [TindakLanjutController::class, 'index'])->name('index');
+    Route::get('/create', [TindakLanjutController::class, 'create'])->name('create');
+    Route::post('/', [TindakLanjutController::class, 'store'])->name('store');
+    Route::get('/{tindakLanjut}', [TindakLanjutController::class, 'show'])->name('show');
+    Route::get('/{tindakLanjut}/edit', [TindakLanjutController::class, 'edit'])->name('edit');
+    Route::put('/{tindakLanjut}', [TindakLanjutController::class, 'update'])->name('update');
+    Route::patch('/{tindakLanjut}/status', [TindakLanjutController::class, 'updateStatus'])->name('status');
+    Route::delete('/{tindakLanjut}', [TindakLanjutController::class, 'destroy'])->name('destroy');
 });
 
 Route::get('/riwayat', function () {

@@ -512,6 +512,58 @@
                     @endif
                 </div>
             </x-card>
+
+            <!-- Widget Ringkasan Riwayat Tindak Lanjut (Tahap 7) -->
+            <x-card title="Riwayat Tindak Lanjut" subtitle="Pekerjaan perbaikan & pemeliharaan.">
+                @php
+                    $totalTl = $apar->tindakLanjuts()->count();
+                    $lastTl = $apar->tindakLanjuts()->first();
+                    $pendingTl = $apar->tindakLanjuts()->where('status', '!=', 'selesai')->count();
+                @endphp
+                <div class="space-y-3 text-xs">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Total Tindakan</span>
+                        <span class="font-mono font-bold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200 tabular-nums">
+                            {{ $totalTl }} Kali
+                        </span>
+                    </div>
+
+                    @if($pendingTl > 0)
+                        <div class="p-2 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-between">
+                            <span class="text-amber-800 font-bold text-[11px]">Perlu Diselesaikan</span>
+                            <span class="font-mono font-extrabold text-amber-900 bg-amber-200/70 px-2 py-0.5 rounded text-[11px]">
+                                {{ $pendingTl }}
+                            </span>
+                        </div>
+                    @endif
+
+                    @if($lastTl)
+                        <div>
+                            <span class="text-slate-500 font-medium block mb-1">Tindakan Terakhir:</span>
+                            <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-mono text-[11px] text-slate-800 font-medium tabular-nums">
+                                        {{ $lastTl->tanggal_tindakan->format('d/m/Y') }}
+                                    </span>
+                                    <x-badge :variant="$lastTl->status_badge_variant">
+                                        {{ $lastTl->status_label }}
+                                    </x-badge>
+                                </div>
+                                <span class="text-[11px] font-bold text-slate-800 block truncate">
+                                    {{ $lastTl->jenis_label }}
+                                </span>
+                                <span class="text-[10px] text-slate-500 block truncate">
+                                    Oleh: {{ $lastTl->petugas_pelaksana }}
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-slate-400 italic text-[11px] text-center py-1">
+                            Belum ada catatan pemeliharaan.
+                        </p>
+                    @endif
+                </div>
+            </x-card>
         </div>
     </div>
 
@@ -578,6 +630,98 @@
                             <tr>
                                 <td colspan="6" class="px-4 py-8 text-center text-slate-400 italic">
                                     Belum ada log pemeriksaan fisik untuk unit APAR ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </x-card>
+    </div>
+
+    <!-- ==================================================================
+         TABEL RIWAYAT TINDAK LANJUT & PEMELIHARAAN APAR (Tahap 7, Section 9 & 20)
+         ================================================================== -->
+    <div class="mt-6">
+        <x-card title="Riwayat Tindak Lanjut & Pemeliharaan APAR" subtitle="Catatan historis seluruh perbaikan, pembersihan, dan pemeliharaan komponen unit APAR ini.">
+            <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600">
+                            <th class="px-4 py-3 font-bold whitespace-nowrap">Tanggal Tindakan</th>
+                            <th class="px-4 py-3 font-bold whitespace-nowrap">Jenis Tindakan</th>
+                            <th class="px-4 py-3 font-bold">Sumber Pemeriksaan</th>
+                            <th class="px-4 py-3 font-bold">Temuan Masalah</th>
+                            <th class="px-4 py-3 font-bold text-center whitespace-nowrap">Status</th>
+                            <th class="px-4 py-3 font-bold whitespace-nowrap">Pelaksana</th>
+                            <th class="px-4 py-3 font-bold whitespace-nowrap">Tanggal Selesai</th>
+                            <th class="px-4 py-3 font-bold text-right whitespace-nowrap">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white text-slate-700">
+                        @php
+                            $riwayatTindakLanjuts = $apar->tindakLanjuts()->with(['pemeriksaan'])->get();
+                        @endphp
+                        @forelse($riwayatTindakLanjuts as $tl)
+                            <tr class="hover:bg-slate-50/70 transition-colors">
+                                <td class="px-4 py-3 font-mono font-medium text-slate-900 whitespace-nowrap tabular-nums">
+                                    {{ $tl->tanggal_tindakan->format('d/m/Y') }}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap font-bold text-slate-900">
+                                    {{ $tl->jenis_label }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if($tl->pemeriksaan)
+                                        <a href="{{ route('pemeriksaan.show', $tl->pemeriksaan_id) }}" class="font-semibold text-sky-800 hover:underline">
+                                            Inspeksi {{ $tl->pemeriksaan->tanggal_pemeriksaan->format('d/m/Y') }}
+                                        </a>
+                                        <span class="text-slate-400 block text-[10px]">Oleh: {{ $tl->pemeriksaan->pemeriksa_nama }}</span>
+                                    @else
+                                        <span class="text-slate-400 italic text-[11px]">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 max-w-xs">
+                                    <span class="font-medium text-slate-900 block truncate" title="{{ $tl->temuan_teks }}">
+                                        {{ $tl->temuan_teks }}
+                                    </span>
+                                    <span class="text-slate-500 block text-[10px] truncate" title="{{ $tl->uraian_tindakan }}">
+                                        Tindakan: {{ $tl->uraian_tindakan }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                    <x-badge :variant="$tl->status_badge_variant" :dot="true">
+                                        {{ $tl->status_label }}
+                                    </x-badge>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap font-medium text-slate-800">
+                                    {{ $tl->petugas_pelaksana }}
+                                </td>
+                                <td class="px-4 py-3 font-mono text-slate-700 whitespace-nowrap tabular-nums">
+                                    @if($tl->tanggal_selesai)
+                                        <span class="text-emerald-700 font-semibold">{{ $tl->tanggal_selesai->format('d/m/Y') }}</span>
+                                    @else
+                                        <span class="text-slate-400 italic text-[11px]">Belum selesai</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-right whitespace-nowrap">
+                                    <div class="inline-flex items-center gap-1.5">
+                                        <a href="{{ route('tindak-lanjut.show', $tl->id) }}"
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-2xs min-h-[36px]">
+                                            <span>Lihat Detail</span>
+                                        </a>
+                                        @if($tl->status !== 'selesai')
+                                            <a href="{{ route('tindak-lanjut.edit', $tl->id) }}"
+                                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition min-h-[36px]">
+                                                <span>Update</span>
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="px-4 py-8 text-center text-slate-400 italic">
+                                    Belum ada riwayat tindak lanjut atau pemeliharaan untuk unit APAR ini.
                                 </td>
                             </tr>
                         @endforelse

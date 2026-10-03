@@ -23,8 +23,8 @@ class JadwalController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('deskripsi', 'like', "%{$search}%")
-                  ->orWhere('dibuat_oleh', 'like', "%{$search}%");
+                    ->orWhere('deskripsi', 'like', "%{$search}%")
+                    ->orWhere('dibuat_oleh', 'like', "%{$search}%");
             });
         }
 
@@ -134,7 +134,7 @@ class JadwalController extends Controller
         $jadwal->apars()->sync($syncData);
 
         return redirect()->route('jadwal.show', $jadwal->id)
-            ->with('success', "Jadwal '{$jadwal->nama}' berhasil dibuat dengan " . count($syncData) . ' unit APAR sebagai target.');
+            ->with('success', "Jadwal '{$jadwal->nama}' berhasil dibuat dengan ".count($syncData).' unit APAR sebagai target.');
     }
 
     /**
@@ -153,16 +153,16 @@ class JadwalController extends Controller
         if ($searchApar) {
             $aparsQuery->where(function ($q) use ($searchApar) {
                 $q->where('kode', 'like', "%{$searchApar}%")
-                  ->orWhere('jenis_media', 'like', "%{$searchApar}%")
-                  ->orWhereHas('ruangan', function ($rq) use ($searchApar) {
-                      $rq->where('nama', 'like', "%{$searchApar}%")
-                         ->orWhereHas('lantai', function ($lq) use ($searchApar) {
-                             $lq->where('nama', 'like', "%{$searchApar}%")
-                                ->orWhereHas('gedung', function ($gq) use ($searchApar) {
-                                    $gq->where('nama', 'like', "%{$searchApar}%");
-                                });
-                         });
-                  });
+                    ->orWhere('jenis_media', 'like', "%{$searchApar}%")
+                    ->orWhereHas('ruangan', function ($rq) use ($searchApar) {
+                        $rq->where('nama', 'like', "%{$searchApar}%")
+                            ->orWhereHas('lantai', function ($lq) use ($searchApar) {
+                                $lq->where('nama', 'like', "%{$searchApar}%")
+                                    ->orWhereHas('gedung', function ($gq) use ($searchApar) {
+                                        $gq->where('nama', 'like', "%{$searchApar}%");
+                                    });
+                            });
+                    });
             });
         }
 

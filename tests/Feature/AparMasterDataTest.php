@@ -97,12 +97,12 @@ class AparMasterDataTest extends TestCase
         $lantaiGedung2 = Lantai::create([
             'gedung_id' => $gedung2->id,
             'nomor_lantai' => 1,
-            'nama' => 'Lantai 1 Gedung 2'
+            'nama' => 'Lantai 1 Gedung 2',
         ]);
 
         $ruangan = Ruangan::create([
             'lantai_id' => $lantaiGedung2->id,
-            'nama' => 'Ruangan Test'
+            'nama' => 'Ruangan Test',
         ]);
 
         $payload = [

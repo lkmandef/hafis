@@ -37,6 +37,7 @@
             $isDashboard = request()->is('/') || request()->is('dashboard');
             $isApar = request()->is('apar*');
             $isJadwal = request()->is('jadwal*');
+            $isTindakLanjut = request()->is('tindak-lanjut*');
             $isRiwayat = request()->is('riwayat*');
             $isPenempatan = request()->is('penempatan*');
             @endphp
@@ -63,6 +64,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
                 <span>Jadwal Inspeksi</span>
+            </a>
+
+            <!-- Tindak Lanjut & Pemeliharaan (Tahap 7) -->
+            <a href="{{ url('/tindak-lanjut') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] {{ $isTindakLanjut ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }} focus:outline-none focus:ring-2 focus:ring-slate-900">
+                <svg class="w-4 h-4 shrink-0 {{ $isTindakLanjut ? 'text-slate-900' : 'text-slate-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                <span>Tindak Lanjut APAR</span>
             </a>
 
             <!-- Riwayat & Laporan -->

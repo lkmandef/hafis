@@ -29,22 +29,22 @@ class AparController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('kode', 'like', "%{$search}%")
-                  ->orWhere('nomor_register', 'like', "%{$search}%")
-                  ->orWhere('merek', 'like', "%{$search}%")
-                  ->orWhere('tipe_model', 'like', "%{$search}%")
-                  ->orWhere('posisi_detail', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%")
-                  ->orWhereHas('ruangan', function ($rq) use ($search) {
-                      $rq->where('nama', 'like', "%{$search}%")
-                         ->orWhere('kode', 'like', "%{$search}%")
-                         ->orWhereHas('lantai', function ($lq) use ($search) {
-                             $lq->where('nama', 'like', "%{$search}%")
-                                ->orWhereHas('gedung', function ($gq) use ($search) {
-                                    $gq->where('nama', 'like', "%{$search}%")
-                                       ->orWhere('kode', 'like', "%{$search}%");
-                                });
-                         });
-                  });
+                    ->orWhere('nomor_register', 'like', "%{$search}%")
+                    ->orWhere('merek', 'like', "%{$search}%")
+                    ->orWhere('tipe_model', 'like', "%{$search}%")
+                    ->orWhere('posisi_detail', 'like', "%{$search}%")
+                    ->orWhere('keterangan', 'like', "%{$search}%")
+                    ->orWhereHas('ruangan', function ($rq) use ($search) {
+                        $rq->where('nama', 'like', "%{$search}%")
+                            ->orWhere('kode', 'like', "%{$search}%")
+                            ->orWhereHas('lantai', function ($lq) use ($search) {
+                                $lq->where('nama', 'like', "%{$search}%")
+                                    ->orWhereHas('gedung', function ($gq) use ($search) {
+                                        $gq->where('nama', 'like', "%{$search}%")
+                                            ->orWhere('kode', 'like', "%{$search}%");
+                                    });
+                            });
+                    });
             });
         }
 
@@ -75,7 +75,7 @@ class AparController extends Controller
         $apars = $query->orderBy('kode', 'asc')->paginate(12)->withQueryString();
 
         // Data pendukung filter
-        $gedungs = Gedung::with(['lantais' => fn($q) => $q->orderBy('nomor_lantai')])
+        $gedungs = Gedung::with(['lantais' => fn ($q) => $q->orderBy('nomor_lantai')])
             ->orderBy('nama', 'asc')
             ->get();
 
@@ -116,8 +116,8 @@ class AparController extends Controller
     public function create()
     {
         $gedungs = Gedung::with([
-            'lantais' => fn($q) => $q->orderBy('nomor_lantai', 'asc'),
-            'lantais.ruangans' => fn($q) => $q->orderBy('nama', 'asc'),
+            'lantais' => fn ($q) => $q->orderBy('nomor_lantai', 'asc'),
+            'lantais.ruangans' => fn ($q) => $q->orderBy('nama', 'asc'),
         ])->orderBy('nama', 'asc')->get();
 
         $mediaOptions = Apar::JENIS_MEDIA_OPTIONS;
@@ -140,7 +140,7 @@ class AparController extends Controller
                 'exists:lantais,id',
                 function ($attribute, $value, $fail) use ($request) {
                     $lantai = Lantai::find($value);
-                    if (!$lantai || $lantai->gedung_id != $request->gedung_id) {
+                    if (! $lantai || $lantai->gedung_id != $request->gedung_id) {
                         $fail('Lantai yang dipilih tidak sesuai dengan gedung yang dipilih.');
                     }
                 },
@@ -150,7 +150,7 @@ class AparController extends Controller
                 'exists:ruangans,id',
                 function ($attribute, $value, $fail) use ($request) {
                     $ruangan = Ruangan::find($value);
-                    if (!$ruangan || $ruangan->lantai_id != $request->lantai_id) {
+                    if (! $ruangan || $ruangan->lantai_id != $request->lantai_id) {
                         $fail('Ruangan/Area yang dipilih tidak sesuai dengan lantai yang dipilih.');
                     }
                 },
@@ -187,7 +187,7 @@ class AparController extends Controller
 
         // Buat identifier unik QR Code yang siap digunakan untuk scan
         $cleanKode = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $validated['kode']));
-        $validated['qr_code'] = 'HAFIS-QR-' . $cleanKode . '-' . strtoupper(Str::random(6));
+        $validated['qr_code'] = 'HAFIS-QR-'.$cleanKode.'-'.strtoupper(Str::random(6));
 
         $apar = Apar::create($validated);
 
@@ -200,8 +200,8 @@ class AparController extends Controller
     public function show($id)
     {
         $apar = is_numeric($id)
-            ? Apar::with(['ruangan.lantai.gedung'])->findOrFail($id)
-            : Apar::with(['ruangan.lantai.gedung'])->where('kode', $id)->firstOrFail();
+            ? Apar::with(['ruangan.lantai.gedung', 'tindakLanjuts.pemeriksaan'])->findOrFail($id)
+            : Apar::with(['ruangan.lantai.gedung', 'tindakLanjuts.pemeriksaan'])->where('kode', $id)->firstOrFail();
 
         return view('apar.show', compact('apar'));
     }
@@ -216,8 +216,8 @@ class AparController extends Controller
             : Apar::with(['ruangan.lantai.gedung'])->where('kode', $id)->firstOrFail();
 
         $gedungs = Gedung::with([
-            'lantais' => fn($q) => $q->orderBy('nomor_lantai', 'asc'),
-            'lantais.ruangans' => fn($q) => $q->orderBy('nama', 'asc'),
+            'lantais' => fn ($q) => $q->orderBy('nomor_lantai', 'asc'),
+            'lantais.ruangans' => fn ($q) => $q->orderBy('nama', 'asc'),
         ])->orderBy('nama', 'asc')->get();
 
         $mediaOptions = Apar::JENIS_MEDIA_OPTIONS;
@@ -244,7 +244,7 @@ class AparController extends Controller
                 'exists:lantais,id',
                 function ($attribute, $value, $fail) use ($request) {
                     $lantai = Lantai::find($value);
-                    if (!$lantai || $lantai->gedung_id != $request->gedung_id) {
+                    if (! $lantai || $lantai->gedung_id != $request->gedung_id) {
                         $fail('Lantai yang dipilih tidak sesuai dengan gedung yang dipilih.');
                     }
                 },
@@ -254,7 +254,7 @@ class AparController extends Controller
                 'exists:ruangans,id',
                 function ($attribute, $value, $fail) use ($request) {
                     $ruangan = Ruangan::find($value);
-                    if (!$ruangan || $ruangan->lantai_id != $request->lantai_id) {
+                    if (! $ruangan || $ruangan->lantai_id != $request->lantai_id) {
                         $fail('Ruangan/Area yang dipilih tidak sesuai dengan lantai yang dipilih.');
                     }
                 },
@@ -331,11 +331,11 @@ class AparController extends Controller
             : Apar::where('kode', $id)->firstOrFail();
 
         $svg = $apar->qr_svg;
-        $fileName = 'QR-' . $apar->kode . '.svg';
+        $fileName = 'QR-'.$apar->kode.'.svg';
 
         return response($svg, 200, [
             'Content-Type' => 'image/svg+xml',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
         ]);
     }
 }

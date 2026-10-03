@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +14,7 @@ class Pemeriksaan extends Model
     protected $table = 'pemeriksaans';
 
     public const HASIL_BAIK = 'baik';
+
     public const HASIL_PERLU_TINDAKAN = 'perlu_tindakan';
 
     public const HASIL_LABELS = [
@@ -104,5 +104,13 @@ class Pemeriksaan extends Model
             self::HASIL_PERLU_TINDAKAN => 'danger',
             default => 'neutral',
         };
+    }
+
+    /**
+     * Relasi ke tindak lanjut / pemeliharaan yang bersumber dari pemeriksaan ini
+     */
+    public function tindakLanjuts(): HasMany
+    {
+        return $this->hasMany(TindakLanjut::class, 'pemeriksaan_id')->orderBy('created_at', 'desc');
     }
 }

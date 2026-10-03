@@ -87,13 +87,21 @@ SVG;
     private static function isReserved(int $r, int $c, int $size): bool
     {
         // Top-left finder + separator
-        if ($r <= 7 && $c <= 7) return true;
+        if ($r <= 7 && $c <= 7) {
+            return true;
+        }
         // Top-right finder + separator
-        if ($r <= 7 && $c >= $size - 8) return true;
+        if ($r <= 7 && $c >= $size - 8) {
+            return true;
+        }
         // Bottom-left finder + separator
-        if ($r >= $size - 8 && $c <= 7) return true;
+        if ($r >= $size - 8 && $c <= 7) {
+            return true;
+        }
         // Timing patterns
-        if ($r === 6 || $c === 6) return true;
+        if ($r === 6 || $c === 6) {
+            return true;
+        }
 
         return false;
     }

@@ -164,7 +164,74 @@
             </div>
         </x-card>
 
-        <!-- 3. Tabel Hasil Checklist Pemeriksaan Fisik (Section 12) -->
+        <!-- 3. Panel Temuan Pemeriksaan & Tindak Lanjut (Tahap 7) -->
+        @php
+            $temuanDetails = $pemeriksaan->details->where('hasil', 'tidak_baik');
+        @endphp
+        @if($temuanDetails->isNotEmpty() || $pemeriksaan->hasil_keseluruhan === 'perlu_tindakan')
+            <x-card title="Temuan Pemeriksaan & Tindak Lanjut" subtitle="Rincian masalah fisik yang memerlukan penanganan atau pemeliharaan unit.">
+                <div class="space-y-3">
+                    @forelse($temuanDetails as $td)
+                        @php
+                            $tl = $td->tindak_lanjut;
+                        @endphp
+                        <div class="p-3.5 rounded-xl border border-rose-200 bg-rose-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-rose-950 text-sm">{{ $td->item_nama }}</span>
+                                    <x-badge variant="danger" :dot="true">{{ $td->hasil_label }}</x-badge>
+                                </div>
+                                <p class="text-rose-800 leading-relaxed font-medium">
+                                    Catatan: {{ $td->catatan ?: 'Ditemukan ketidaksesuaian kondisi fisik pada komponen ini.' }}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                @if($tl)
+                                    <div class="flex items-center gap-2">
+                                        <x-badge :variant="$tl->status_badge_variant" :dot="true">
+                                            {{ $tl->status_label }}
+                                        </x-badge>
+                                        <a href="{{ route('tindak-lanjut.show', $tl->id) }}"
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-2xs min-h-[36px]">
+                                            <span>Lihat Tindak Lanjut</span>
+                                        </a>
+                                    </div>
+                                @else
+                                    <a href="{{ route('tindak-lanjut.create', ['pemeriksaan_id' => $pemeriksaan->id, 'detail_id' => $td->id]) }}"
+                                       class="inline-flex items-center gap-1 px-3.5 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs transition shadow-2xs min-h-[44px]">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                        <span>Buat Tindak Lanjut</span>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                            <div>
+                                <span class="font-bold text-amber-950 text-sm block">Pemeriksaan Ditandai Perlu Tindakan</span>
+                                <p class="text-amber-800 mt-0.5">
+                                    Catatan: {{ $pemeriksaan->catatan ?: 'Hasil evaluasi pemeriksaan menandai perlunya tindakan pemeliharaan.' }}
+                                </p>
+                            </div>
+                            <div class="shrink-0">
+                                <a href="{{ route('tindak-lanjut.create', ['pemeriksaan_id' => $pemeriksaan->id]) }}"
+                                   class="inline-flex items-center gap-1 px-3.5 py-2 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs transition shadow-2xs min-h-[44px]">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    <span>Buat Tindak Lanjut</span>
+                                </a>
+                            </div>
+                        </div>
+                    @endforelse
+                </div>
+            </x-card>
+        @endif
+
+        <!-- 4. Tabel Hasil Checklist Pemeriksaan Fisik (Section 12) -->
         <x-card title="Hasil Checklist Pemeriksaan Fisik" subtitle="Rincian evaluasi terhadap setiap parameter kondisi fisik APAR.">
             <div class="overflow-x-auto border border-slate-200 rounded-lg">
                 <table class="w-full text-left border-collapse text-xs">
@@ -174,11 +241,15 @@
                             <th class="px-4 py-3 font-bold">Item Kriteria Pemeriksaan</th>
                             <th class="w-36 px-4 py-3 text-center font-bold">Hasil Evaluasi</th>
                             <th class="px-4 py-3 font-bold">Catatan Temuan</th>
+                            <th class="w-48 px-4 py-3 text-right font-bold whitespace-nowrap">Tindak Lanjut</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white text-slate-700">
                         @forelse($pemeriksaan->details as $index => $detail)
-                        <tr class="hover:bg-slate-50/70 transition-colors">
+                        @php
+                            $detailTl = $detail->tindak_lanjut;
+                        @endphp
+                        <tr class="hover:bg-slate-50/70 transition-colors {{ $detail->hasil === 'tidak_baik' ? 'bg-rose-50/20' : '' }}">
                             <td class="px-3.5 py-3 text-center font-mono text-slate-400 font-medium tabular-nums text-[11px]">
                                 {{ sprintf('%02d', $index + 1) }}
                             </td>
@@ -197,10 +268,35 @@
                                     <span class="text-slate-400 italic text-[11px]">-</span>
                                 @endif
                             </td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap">
+                                @if($detail->hasil === 'tidak_baik')
+                                    @if($detailTl)
+                                        <div class="inline-flex items-center gap-1.5">
+                                            <x-badge :variant="$detailTl->status_badge_variant" :dot="true">
+                                                {{ $detailTl->status_label }}
+                                            </x-badge>
+                                            <a href="{{ route('tindak-lanjut.show', $detailTl->id) }}"
+                                               class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-white font-semibold text-[11px] transition shadow-2xs min-h-[32px]">
+                                                <span>Lihat</span>
+                                            </a>
+                                        </div>
+                                    @else
+                                        <a href="{{ route('tindak-lanjut.create', ['pemeriksaan_id' => $pemeriksaan->id, 'detail_id' => $detail->id]) }}"
+                                           class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs transition shadow-2xs min-h-[36px]">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            <span>Buat Tindak Lanjut</span>
+                                        </a>
+                                    @endif
+                                @else
+                                    <span class="text-slate-300">-</span>
+                                @endif
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-6 text-center text-slate-400 italic">
+                            <td colspan="5" class="px-4 py-6 text-center text-slate-400 italic">
                                 Belum ada detail checklist tercatat untuk pemeriksaan ini.
                             </td>
                         </tr>
