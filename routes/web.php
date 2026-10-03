@@ -54,18 +54,23 @@ Route::get('/scan', function () {
     return view('scan.index');
 });
 
-Route::get('/penempatan', function () {
-    return view('penempatan.index');
-});
-
-Route::get('/penempatan/atur', function () {
-    return view('penempatan.atur');
-});
-
+use App\Http\Controllers\DenahController;
 use App\Http\Controllers\LokasiController;
+use App\Http\Controllers\PenempatanController;
 
-Route::get('/penempatan/atur/{id}', function ($id = 'APAR-IGD-01') {
-    return view('penempatan.atur', ['id' => $id]);
+// Modul Titik Penempatan APAR pada Denah (Gedung -> Lantai -> Denah -> Marker APAR)
+Route::prefix('penempatan')->name('penempatan.')->group(function () {
+    Route::get('/', [PenempatanController::class, 'index'])->name('index');
+    Route::post('/apar/{apar}/titik', [PenempatanController::class, 'simpanTitik'])->name('titik.simpan');
+    Route::delete('/apar/{apar}/titik', [PenempatanController::class, 'hapusTitik'])->name('titik.hapus');
+
+    // Kompatibilitas link atur lama
+    Route::get('/atur', function () {
+        return redirect()->route('penempatan.index');
+    });
+    Route::get('/atur/{id}', function ($id = 'APAR-IGD-01') {
+        return redirect()->route('penempatan.index', ['highlight' => $id]);
+    });
 });
 
 // Modul Struktur Lokasi Rumah Sakit (Gedung -> Lantai -> Ruangan/Area)
@@ -82,6 +87,10 @@ Route::prefix('lokasi')->name('lokasi.')->group(function () {
     Route::post('/lantai', [LokasiController::class, 'storeLantai'])->name('lantai.store');
     Route::put('/lantai/{lantai}', [LokasiController::class, 'updateLantai'])->name('lantai.update');
     Route::delete('/lantai/{lantai}', [LokasiController::class, 'destroyLantai'])->name('lantai.destroy');
+
+    // Denah Lantai (Upload & Hapus)
+    Route::post('/lantai/{lantai}/denah', [DenahController::class, 'store'])->name('lantai.denah.store');
+    Route::delete('/lantai/{lantai}/denah', [DenahController::class, 'destroy'])->name('lantai.denah.destroy');
 
     // Ruangan / Area
     Route::post('/ruangan', [LokasiController::class, 'storeRuangan'])->name('ruangan.store');

@@ -161,6 +161,48 @@
                         {{ $apar->posisi_detail ?: 'Belum ada catatan detail posisi bracket/dinding.' }}
                     </p>
                 </div>
+
+                <!-- Status & Titik Penempatan Denah (Tahap 3) -->
+                <div class="pt-3 border-t border-slate-100 text-xs">
+                    <div class="flex items-center justify-between pb-1.5">
+                        <span class="font-semibold text-slate-700">Posisi Titik pada Denah Lantai</span>
+                        @if($apar->has_titik)
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                Titik Ditentukan
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                                Posisi denah belum ditentukan
+                            </span>
+                        @endif
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <div>
+                            @if($apar->has_titik)
+                                <span class="text-slate-700 font-medium">Koordinat Denah:</span>
+                                <span class="font-mono text-slate-900 font-bold ml-1">X: {{ $apar->koordinat_x }}%, Y: {{ $apar->koordinat_y }}%</span>
+                                <span class="text-slate-400 block text-[11px] mt-0.5">Relatif terhadap container denah lantai {{ $apar->lantai?->nama }}.</span>
+                            @else
+                                <span class="text-slate-600 font-medium">Posisi denah belum ditentukan</span>
+                                <span class="text-slate-400 block text-[11px] mt-0.5">APAR ini belum ditempatkan pada denah lantai {{ $apar->lantai?->nama ?? 'terkait' }}.</span>
+                            @endif
+                        </div>
+                        <div>
+                            <a
+                                href="{{ route('penempatan.index', ['gedung_id' => $apar->gedung_id, 'lantai_id' => $apar->lantai_id, 'highlight' => $apar->kode_apar]) }}"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg {{ $apar->has_titik ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-emerald-700 hover:bg-emerald-800 text-white' }} font-semibold text-xs transition"
+                            >
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>{{ $apar->has_titik ? 'Lihat di Denah' : 'Atur Titik pada Denah' }}</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </x-card>
 
             <!-- Card 3: Informasi Waktu & Catatan -->

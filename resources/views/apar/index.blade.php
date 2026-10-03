@@ -214,6 +214,21 @@
                                         {{ $apar->posisi_detail }}
                                     </div>
                                 @endif
+                                <div class="mt-1">
+                                    @if($apar->has_titik)
+                                        <a href="{{ route('penempatan.index', ['gedung_id' => $apar->gedung_id, 'lantai_id' => $apar->lantai_id, 'highlight' => $apar->kode_apar]) }}" class="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-semibold hover:underline">
+                                            <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                            </svg>
+                                            <span>Denah: ({{ round($apar->koordinat_x) }}%, {{ round($apar->koordinat_y) }}%)</span>
+                                        </a>
+                                    @else
+                                        <a href="{{ route('penempatan.index', ['gedung_id' => $apar->gedung_id, 'lantai_id' => $apar->lantai_id, 'selected_apar' => $apar->id]) }}" class="text-[10px] text-slate-400 hover:text-slate-600 inline-flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                            <span>Denah: Belum ditentukan</span>
+                                        </a>
+                                    @endif
+                                </div>
                             </td>
 
                             <!-- Media & Kapasitas -->

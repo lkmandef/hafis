@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Lantai extends Model
 {
@@ -27,6 +28,22 @@ class Lantai extends Model
     public function gedung(): BelongsTo
     {
         return $this->belongsTo(Gedung::class, 'gedung_id');
+    }
+
+    /**
+     * Relasi: Lantai memiliki satu gambar Denah
+     */
+    public function denah(): HasOne
+    {
+        return $this->hasOne(Denah::class, 'lantai_id');
+    }
+
+    /**
+     * Helper: Mengecek apakah lantai sudah memiliki denah
+     */
+    public function getHasDenahAttribute(): bool
+    {
+        return $this->denah !== null;
     }
 
     /**

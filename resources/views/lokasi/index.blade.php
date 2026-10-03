@@ -188,7 +188,12 @@
                         </span>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-slate-900 text-sm tracking-tight">{{ $g->nama }}</h3>
+                                <a href="{{ route('lokasi.gedung.show', $g->id) }}" class="font-bold text-slate-900 text-sm tracking-tight hover:underline flex items-center gap-1.5" title="Buka Detail & Denah Gedung">
+                                    <span>{{ $g->nama }}</span>
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                    </svg>
+                                </a>
                                 <span class="font-mono text-[11px] text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded">{{ $g->kode }}</span>
                                 <x-badge :variant="$g->status === 'aktif' ? 'success' : 'default'">
                                     {{ ucfirst($g->status) }}
@@ -205,6 +210,17 @@
                             <strong class="text-slate-800">{{ $g->lantais_count }}</strong> Lantai · 
                             <strong class="text-slate-800">{{ $g->ruangans_count }}</strong> Ruangan
                         </span>
+
+                        <a 
+                            href="{{ route('lokasi.gedung.show', $g->id) }}" 
+                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition"
+                            title="Lihat Detail & Denah Gedung"
+                        >
+                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                            </svg>
+                            <span>Denah &amp; Detail</span>
+                        </a>
 
                         <button 
                             type="button" 

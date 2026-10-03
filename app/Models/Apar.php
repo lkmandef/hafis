@@ -39,6 +39,8 @@ class Apar extends Model
         'qr_code',
         'ruangan_id',
         'posisi_detail',
+        'koordinat_x',
+        'koordinat_y',
         'jenis_media',
         'kapasitas',
         'merek',
@@ -54,7 +56,17 @@ class Apar extends Model
         'tanggal_pemasangan' => 'date',
         'tanggal_kadaluarsa' => 'date',
         'tanggal_pemeriksaan_terakhir' => 'date',
+        'koordinat_x' => 'float',
+        'koordinat_y' => 'float',
     ];
+
+    /**
+     * Helper: Cek apakah APAR sudah memiliki titik koordinat pada denah
+     */
+    public function getHasTitikAttribute(): bool
+    {
+        return !is_null($this->koordinat_x) && !is_null($this->koordinat_y);
+    }
 
     /**
      * Relasi: APAR berada di satu Ruangan / Area
