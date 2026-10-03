@@ -198,14 +198,13 @@
                         &larr; Kembali ke Detail APAR
                     </a>
 
-                    <button type="button" 
-                            onclick="document.getElementById('modal-tahap6-info').classList.remove('hidden')"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs text-center transition shadow-2xs min-h-[44px] inline-flex items-center justify-center gap-2">
+                    <a href="{{ route('pemeriksaan.create', ['apar_id' => $apar->id, 'jadwal_id' => $jadwal?->id]) }}"
+                       class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs text-center transition shadow-2xs min-h-[44px] inline-flex items-center justify-center gap-2">
                         <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                         </svg>
-                        <span>Lanjutkan ke Checklist Fisik (Tahap 6)</span>
-                    </button>
+                        <span>Lanjutkan ke Checklist Fisik</span>
+                    </a>
                 </div>
             </div>
         </div>

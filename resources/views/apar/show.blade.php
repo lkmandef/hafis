@@ -474,20 +474,116 @@
                 </div>
             </x-card>
 
-            <!-- Placeholder Ramah Riwayat Pemeriksaan -->
-            <div class="p-4 rounded-xl border border-slate-200 bg-white text-xs">
-                <div class="flex items-center gap-2 mb-1.5 text-slate-700">
-                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <h4 class="font-bold uppercase tracking-wider text-[11px]">
-                        Log Riwayat Pemeriksaan
-                    </h4>
+            <!-- Widget Ringkasan Log Pemeriksaan (Tahap 6) -->
+            <x-card title="Log Pemeriksaan" subtitle="Catatan riwayat inspeksi unit ini.">
+                @php
+                    $totalLog = $apar->pemeriksaans()->count();
+                    $lastLog = $apar->pemeriksaans()->first();
+                @endphp
+                <div class="space-y-3 text-xs">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Total Pemeriksaan</span>
+                        <span class="font-mono font-bold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200 tabular-nums">
+                            {{ $totalLog }} Kali
+                        </span>
+                    </div>
+
+                    @if($lastLog)
+                        <div>
+                            <span class="text-slate-500 font-medium block mb-1">Pemeriksaan Terakhir:</span>
+                            <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-mono text-[11px] text-slate-800 font-medium tabular-nums">
+                                        {{ $lastLog->tanggal_pemeriksaan->format('d/m/Y') }}
+                                    </span>
+                                    <x-badge :variant="$lastLog->hasil_badge_variant">
+                                        {{ $lastLog->hasil_label }}
+                                    </x-badge>
+                                </div>
+                                <span class="text-[10px] text-slate-500 block truncate">
+                                    Oleh: {{ $lastLog->pemeriksa_nama }}
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-slate-400 italic text-[11px] text-center py-1">
+                            Belum ada catatan inspeksi fisik.
+                        </p>
+                    @endif
                 </div>
-                <p class="text-slate-500 text-[11px] leading-relaxed">
-                    Checklist fisik, riwayat inspeksi bulanan, dan tindak lanjut pemeliharaan untuk unit ini akan terhubung pada Tahap 5.
-                </p>
-            </div>
+            </x-card>
         </div>
+    </div>
+
+    <!-- ==================================================================
+         TABEL LOG PEMERIKSAAN APAR LENGKAP (Section 11)
+         ================================================================== -->
+    <div class="mt-6">
+        <x-card title="Log Pemeriksaan APAR" subtitle="Riwayat seluruh verifikasi fisik berkala yang pernah dilakukan untuk unit ini.">
+            <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600">
+                            <th class="px-4 py-3 font-bold whitespace-nowrap">Tanggal Pemeriksaan</th>
+                            <th class="px-4 py-3 font-bold">Jadwal Inspeksi</th>
+                            <th class="px-4 py-3 font-bold whitespace-nowrap">Pemeriksa</th>
+                            <th class="px-4 py-3 font-bold text-center whitespace-nowrap">Hasil</th>
+                            <th class="px-4 py-3 font-bold">Catatan Singkat</th>
+                            <th class="px-4 py-3 font-bold text-right whitespace-nowrap">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white text-slate-700">
+                        @php
+                            $logPemeriksaans = $apar->pemeriksaans()->with(['jadwal'])->get();
+                        @endphp
+                        @forelse($logPemeriksaans as $p)
+                            <tr class="hover:bg-slate-50/70 transition-colors">
+                                <td class="px-4 py-3 font-mono font-medium text-slate-900 whitespace-nowrap tabular-nums">
+                                    {{ $p->tanggal_pemeriksaan->format('d/m/Y H:i') }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if($p->jadwal)
+                                        <a href="{{ route('jadwal.show', $p->jadwal->id) }}" class="font-semibold text-sky-800 hover:underline">
+                                            {{ $p->jadwal->nama }}
+                                        </a>
+                                    @else
+                                        <span class="text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[11px] font-medium">
+                                            Pemeriksaan Mandiri (Ad-Hoc)
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">
+                                    {{ $p->pemeriksa_nama }}
+                                </td>
+                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                    <x-badge :variant="$p->hasil_badge_variant" :dot="true">
+                                        {{ $p->hasil_label }}
+                                    </x-badge>
+                                </td>
+                                <td class="px-4 py-3 text-slate-600 max-w-xs truncate">
+                                    {{ $p->catatan ?: '-' }}
+                                </td>
+                                <td class="px-4 py-3 text-right whitespace-nowrap">
+                                    <a href="{{ route('pemeriksaan.show', $p->id) }}" 
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-2xs min-h-[36px]">
+                                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        <span>Lihat Hasil Checklist</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-4 py-8 text-center text-slate-400 italic">
+                                    Belum ada log pemeriksaan fisik untuk unit APAR ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </x-card>
     </div>
 </x-layouts.app>

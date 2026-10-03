@@ -55,10 +55,13 @@ Route::prefix('scan')->name('scan.')->group(function () {
     Route::post('/cari', [ScanController::class, 'cari'])->name('cari.post');
 });
 
-// Modul Pemeriksaan APAR (Tahap 5: Mulai Pemeriksaan)
+// Modul Pemeriksaan APAR (Tahap 5 & 6)
 Route::prefix('pemeriksaan')->name('pemeriksaan.')->group(function () {
     Route::get('/', [PemeriksaanController::class, 'index'])->name('index');
     Route::get('/mulai', [PemeriksaanController::class, 'mulai'])->name('mulai');
+    Route::get('/create', [PemeriksaanController::class, 'create'])->name('create');
+    Route::post('/', [PemeriksaanController::class, 'store'])->name('store');
+    Route::get('/{pemeriksaan}', [PemeriksaanController::class, 'show'])->name('show');
 });
 
 Route::get('/riwayat', function () {

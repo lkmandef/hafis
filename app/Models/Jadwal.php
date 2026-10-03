@@ -58,6 +58,14 @@ class Jadwal extends Model
     }
 
     /**
+     * Relasi: Semua pemeriksaan APAR yang dilakukan dalam jadwal ini
+     */
+    public function pemeriksaans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Pemeriksaan::class, 'jadwal_id');
+    }
+
+    /**
      * Accessor: Label status yang rapi dan mudah dipahami
      */
     public function getStatusLabelAttribute(): string

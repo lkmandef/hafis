@@ -145,6 +145,14 @@ class Apar extends Model
     }
 
     /**
+     * Relasi: Log riwayat pemeriksaan fisik untuk APAR ini
+     */
+    public function pemeriksaans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Pemeriksaan::class, 'apar_id')->orderBy('tanggal_pemeriksaan', 'desc');
+    }
+
+    /**
      * Accessor: Generate representasi SVG QR Code untuk APAR ini
      */
     public function getQrSvgAttribute(): string

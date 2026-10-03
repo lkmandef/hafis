@@ -248,12 +248,26 @@
                                     </a>
 
                                     @if($a->pivot->status_pemeriksaan === 'sudah_diperiksa')
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[11px] cursor-default">
-                                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                            <span>Sudah Diperiksa</span>
-                                        </span>
+                                        @php
+                                            $pemUnit = \App\Models\Pemeriksaan::where('apar_id', $a->id)->where('jadwal_id', $jadwal->id)->latest('tanggal_pemeriksaan')->first();
+                                        @endphp
+                                        @if($pemUnit)
+                                            <a href="{{ route('pemeriksaan.show', $pemUnit->id) }}" 
+                                               class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold text-[11px] transition"
+                                               title="Buka Lembar Hasil Checklist">
+                                                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                <span>Sudah Diperiksa</span>
+                                            </a>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[11px] cursor-default">
+                                                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                <span>Sudah Diperiksa</span>
+                                            </span>
+                                        @endif
                                     @else
                                         @if($a->status === 'tidak_aktif')
                                             <span class="px-2.5 py-1 rounded bg-slate-100 text-slate-400 font-semibold text-[11px] cursor-not-allowed" title="APAR Tidak Aktif">
