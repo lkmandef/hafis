@@ -72,7 +72,17 @@ class ScanController extends Controller
      */
     private function handleAparFound(Apar $apar)
     {
-        // Jika APAR berstatus Tidak Aktif (Section 5)
+        // 1. Jika APAR sudah digantikan oleh unit baru (Tahap 8, Section 22)
+        if ($apar->is_replaced) {
+            $aparPengganti = $apar->aparPengganti;
+            $kodePengganti = $aparPengganti ? $aparPengganti->kode : 'unit baru';
+            $tglPenggantian = $apar->tanggal_nonaktif ? $apar->tanggal_nonaktif->format('d/m/Y') : '-';
+
+            return redirect()->route('apar.show', $apar->id)
+                ->with('warning', "Unit APAR {$apar->kode} sudah tidak aktif karena telah digantikan oleh {$kodePengganti} pada {$tglPenggantian}.");
+        }
+
+        // 2. Jika APAR berstatus Tidak Aktif biasa (Section 5)
         if ($apar->status === Apar::STATUS_TIDAK_AKTIF) {
             return redirect()->route('apar.show', $apar->id)
                 ->with('warning', "Unit APAR {$apar->kode} berhasil ditemukan namun berstatus Tidak Aktif dan tidak dapat dijadikan target pemeriksaan.");

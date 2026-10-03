@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Apar extends Model
@@ -56,12 +57,17 @@ class Apar extends Model
         'tanggal_kadaluarsa',
         'tanggal_pemeriksaan_terakhir',
         'keterangan',
+        'replaced_by_apar_id',
+        'replaces_apar_id',
+        'alasan_nonaktif',
+        'tanggal_nonaktif',
     ];
 
     protected $casts = [
         'tanggal_pemasangan' => 'date',
         'tanggal_kadaluarsa' => 'date',
         'tanggal_pemeriksaan_terakhir' => 'date',
+        'tanggal_nonaktif' => 'date',
         'koordinat_x' => 'float',
         'koordinat_y' => 'float',
     ];
@@ -111,10 +117,38 @@ class Apar extends Model
     }
 
     /**
+     * Helper: Cek apakah unit APAR ini sudah pernah digantikan oleh unit lain
+     */
+    public function getIsReplacedAttribute(): bool
+    {
+        return ! is_null($this->replaced_by_apar_id) || $this->alasan_nonaktif === 'sudah_diganti';
+    }
+
+    /**
+     * Helper: Cek apakah unit APAR ini merupakan unit pengganti dari unit sebelumnya
+     */
+    public function getIsReplacementAttribute(): bool
+    {
+        return ! is_null($this->replaces_apar_id);
+    }
+
+    /**
+     * Helper: Cek apakah unit APAR aktif dan memenuhi syarat untuk dapat digantikan
+     */
+    public function getCanBeReplacedAttribute(): bool
+    {
+        return $this->status !== self::STATUS_TIDAK_AKTIF && ! $this->is_replaced;
+    }
+
+    /**
      * Accessor: Label human-readable status APAR
      */
     public function getStatusLabelAttribute(): string
     {
+        if ($this->is_replaced) {
+            return 'Sudah Diganti';
+        }
+
         return self::STATUS_LABELS[$this->status] ?? ucfirst($this->status);
     }
 
@@ -123,12 +157,48 @@ class Apar extends Model
      */
     public function getStatusBadgeVariantAttribute(): string
     {
+        if ($this->is_replaced) {
+            return 'neutral';
+        }
+
         return match ($this->status) {
             self::STATUS_BAIK => 'success',
             self::STATUS_PERHATIAN => 'warning',
             self::STATUS_RUSAK => 'danger',
             default => 'neutral',
         };
+    }
+
+    /**
+     * Relasi: Data penggantian ketika APAR ini digantikan oleh APAR baru
+     */
+    public function penggantianKeluar(): HasOne
+    {
+        return $this->hasOne(PenggantianApar::class, 'apar_lama_id');
+    }
+
+    /**
+     * Relasi: Data penggantian ketika APAR ini menggantikan APAR lama
+     */
+    public function penggantianMasuk(): HasOne
+    {
+        return $this->hasOne(PenggantianApar::class, 'apar_baru_id');
+    }
+
+    /**
+     * Relasi: Unit APAR baru yang menggantikan unit ini
+     */
+    public function aparPengganti(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'replaced_by_apar_id');
+    }
+
+    /**
+     * Relasi: Unit APAR lama yang digantikan oleh unit ini
+     */
+    public function aparDigantikan(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'replaces_apar_id');
     }
 
     /**

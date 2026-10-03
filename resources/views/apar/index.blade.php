@@ -31,25 +31,33 @@
     @endif
 
     <!-- Ringkasan Status Unit APAR (Real Data) -->
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 mb-6">
         <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Unit</span>
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Terdaftar</span>
             <div class="mt-1 flex items-baseline gap-2">
                 <span class="text-xl font-bold text-slate-900 font-mono">{{ $totalApar }}</span>
-                <span class="text-[11px] text-slate-400">tabung</span>
+                <span class="text-[11px] text-slate-400">unit</span>
             </div>
         </div>
 
         <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block">Kondisi Baik</span>
+            <span class="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block">Unit Aktif</span>
             <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl font-bold text-emerald-800 font-mono">{{ $totalBaik }}</span>
+                <span class="text-xl font-bold text-emerald-800 font-mono">{{ $totalAktif }}</span>
+                <span class="text-[11px] text-slate-400">operasional</span>
+            </div>
+        </div>
+
+        <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
+            <span class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">Kondisi Baik</span>
+            <div class="mt-1 flex items-baseline gap-2">
+                <span class="text-xl font-bold text-emerald-700 font-mono">{{ $totalBaik }}</span>
                 <span class="text-[11px] text-slate-400">siap guna</span>
             </div>
         </div>
 
         <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">Perlu Perhatian</span>
+            <span class="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">Perhatian</span>
             <div class="mt-1 flex items-baseline gap-2">
                 <span class="text-xl font-bold text-amber-800 font-mono">{{ $totalPerhatian }}</span>
                 <span class="text-[11px] text-slate-400">pantau</span>
@@ -57,18 +65,18 @@
         </div>
 
         <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Rusak / Tindakan</span>
+            <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Rusak</span>
             <div class="mt-1 flex items-baseline gap-2">
                 <span class="text-xl font-bold text-rose-800 font-mono">{{ $totalRusak }}</span>
-                <span class="text-[11px] text-slate-400">perbaikan</span>
+                <span class="text-[11px] text-slate-400">perlu tindakan</span>
             </div>
         </div>
 
-        <div class="p-3.5 bg-white border border-slate-200 rounded-xl col-span-2 sm:col-span-1">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Tidak Aktif</span>
+        <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
+            <span class="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block">Sudah Diganti</span>
             <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl font-bold text-slate-700 font-mono">{{ $totalTidakAktif }}</span>
-                <span class="text-[11px] text-slate-400">arsip / diganti</span>
+                <span class="text-xl font-bold text-slate-700 font-mono">{{ $totalSudahDiganti }}</span>
+                <span class="text-[11px] text-slate-400">arsip riwayat</span>
             </div>
         </div>
     </div>
@@ -139,18 +147,19 @@
                         </span>
                     </div>
 
-                    <!-- Filter Status -->
+                    <!-- Filter Status (Section 20) -->
                     <div class="relative">
                         <select 
                             name="status" 
                             onchange="this.form.submit()"
                             class="appearance-none bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg pl-3 pr-8 py-2 focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-400 focus:outline-none min-h-[44px] cursor-pointer">
-                            <option value="">Semua Kondisi</option>
-                            @foreach(\App\Models\Apar::STATUS_LABELS as $key => $lbl)
-                                <option value="{{ $key }}" {{ $status == $key ? 'selected' : '' }}>
-                                    {{ $lbl }}
-                                </option>
-                            @endforeach
+                            <option value="semua" {{ $status == 'semua' ? 'selected' : '' }}>Semua Unit</option>
+                            <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Unit Aktif</option>
+                            <option value="tidak_aktif" {{ $status == 'tidak_aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                            <option value="sudah_diganti" {{ $status == 'sudah_diganti' ? 'selected' : '' }}>Sudah Diganti</option>
+                            <option value="baik" {{ $status == 'baik' ? 'selected' : '' }}>Kondisi: Baik</option>
+                            <option value="perhatian" {{ $status == 'perhatian' ? 'selected' : '' }}>Kondisi: Perlu Perhatian</option>
+                            <option value="rusak" {{ $status == 'rusak' ? 'selected' : '' }}>Kondisi: Rusak</option>
                         </select>
                         <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -163,8 +172,8 @@
                         Cari
                     </button>
 
-                    @if($search || $gedungId || $lantaiId || $status || $jenisMedia)
-                        <a href="{{ route('apar.index') }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition min-h-[44px]">
+                    @if($search || $gedungId || $lantaiId || ($status && $status !== 'aktif') || $jenisMedia)
+                        <a href="{{ route('apar.index', ['status' => 'semua']) }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition min-h-[44px]">
                             Reset
                         </a>
                     @endif
@@ -199,6 +208,15 @@
                                     <div class="text-[11px] text-slate-400 font-mono">Reg: {{ $apar->nomor_register }}</div>
                                 @endif
                                 <div class="text-[10px] text-slate-400 font-mono">QR: {{ $apar->qr_code }}</div>
+                                @if($apar->is_replaced)
+                                    <div class="text-[10px] text-rose-700 font-medium mt-0.5">
+                                        Diganti: <a href="{{ route('apar.show', $apar->replaced_by_apar_id) }}" class="font-mono font-bold underline">{{ $apar->aparPengganti?->kode }}</a>
+                                    </div>
+                                @elseif($apar->is_replacement)
+                                    <div class="text-[10px] text-sky-700 font-medium mt-0.5">
+                                        Pengganti: <a href="{{ route('apar.show', $apar->replaces_apar_id) }}" class="font-mono font-bold underline">{{ $apar->aparDigantikan?->kode }}</a>
+                                    </div>
+                                @endif
                             </td>
 
                             <!-- Lokasi Berjenjang -->
@@ -273,6 +291,12 @@
                                        class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-md text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[36px] focus:outline-none focus:ring-2 focus:ring-slate-400">
                                         Detail
                                     </a>
+                                    @if($apar->can_be_replaced)
+                                        <a href="{{ route('apar.ganti', $apar->id) }}" 
+                                           class="inline-flex items-center justify-center px-2 py-1.5 text-xs font-semibold rounded-md text-amber-800 bg-amber-50 border border-amber-300 hover:bg-amber-100 transition-colors min-h-[36px]" title="Ganti Unit APAR">
+                                            Ganti
+                                        </a>
+                                    @endif
                                     <a href="{{ route('apar.edit', $apar->id) }}" 
                                        class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-md text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[36px] focus:outline-none focus:ring-2 focus:ring-slate-400">
                                         Edit

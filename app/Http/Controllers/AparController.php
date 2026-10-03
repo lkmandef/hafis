@@ -23,12 +23,18 @@ class AparController extends Controller
         $status = $request->input('status');
         $jenisMedia = $request->input('jenis_media');
 
-        $query = Apar::with(['ruangan.lantai.gedung']);
+        // Section 20: Default daftar fokus pada APAR aktif jika tidak ada filter atau pencarian
+        if (! $request->has('status') && ! $search) {
+            $status = 'aktif';
+        }
 
-        // 1. Pencarian teks
+        $query = Apar::with(['ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
+
+        // 1. Pencarian teks (Section 21: termasuk kode APAR dan qr_code)
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('kode', 'like', "%{$search}%")
+                    ->orWhere('qr_code', 'like', "%{$search}%")
                     ->orWhere('nomor_register', 'like', "%{$search}%")
                     ->orWhere('merek', 'like', "%{$search}%")
                     ->orWhere('tipe_model', 'like', "%{$search}%")
@@ -62,8 +68,16 @@ class AparController extends Controller
             });
         }
 
-        // 4. Filter Status
-        if ($status) {
+        // 4. Filter Status (Section 20: Semua, Aktif, Tidak Aktif, Sudah Diganti, atau kondisi)
+        if ($status === 'semua') {
+            // Tampilkan seluruh data tanpa memfilter status
+        } elseif ($status === 'aktif') {
+            $query->where('status', '!=', Apar::STATUS_TIDAK_AKTIF);
+        } elseif ($status === 'tidak_aktif') {
+            $query->where('status', Apar::STATUS_TIDAK_AKTIF)->whereNull('replaced_by_apar_id');
+        } elseif ($status === 'sudah_diganti') {
+            $query->where('status', Apar::STATUS_TIDAK_AKTIF)->whereNotNull('replaced_by_apar_id');
+        } elseif ($status) {
             $query->where('status', $status);
         }
 
@@ -86,12 +100,14 @@ class AparController extends Controller
                 ->get();
         }
 
-        // Metrik riil kondisi APAR
+        // Metrik riil kondisi & status APAR (Section 20 & 23)
         $totalApar = Apar::count();
+        $totalAktif = Apar::where('status', '!=', Apar::STATUS_TIDAK_AKTIF)->count();
         $totalBaik = Apar::where('status', Apar::STATUS_BAIK)->count();
         $totalPerhatian = Apar::where('status', Apar::STATUS_PERHATIAN)->count();
         $totalRusak = Apar::where('status', Apar::STATUS_RUSAK)->count();
-        $totalTidakAktif = Apar::where('status', Apar::STATUS_TIDAK_AKTIF)->count();
+        $totalTidakAktif = Apar::where('status', Apar::STATUS_TIDAK_AKTIF)->whereNull('replaced_by_apar_id')->count();
+        $totalSudahDiganti = Apar::where('status', Apar::STATUS_TIDAK_AKTIF)->whereNotNull('replaced_by_apar_id')->count();
 
         return view('apar.index', compact(
             'apars',
@@ -103,10 +119,12 @@ class AparController extends Controller
             'status',
             'jenisMedia',
             'totalApar',
+            'totalAktif',
             'totalBaik',
             'totalPerhatian',
             'totalRusak',
-            'totalTidakAktif'
+            'totalTidakAktif',
+            'totalSudahDiganti'
         ));
     }
 
@@ -200,8 +218,22 @@ class AparController extends Controller
     public function show($id)
     {
         $apar = is_numeric($id)
-            ? Apar::with(['ruangan.lantai.gedung', 'tindakLanjuts.pemeriksaan'])->findOrFail($id)
-            : Apar::with(['ruangan.lantai.gedung', 'tindakLanjuts.pemeriksaan'])->where('kode', $id)->firstOrFail();
+            ? Apar::with([
+                'ruangan.lantai.gedung',
+                'tindakLanjuts.pemeriksaan',
+                'penggantianKeluar.aparBaru.ruangan.lantai.gedung',
+                'penggantianMasuk.aparLama.ruangan.lantai.gedung',
+                'aparPengganti',
+                'aparDigantikan',
+            ])->findOrFail($id)
+            : Apar::with([
+                'ruangan.lantai.gedung',
+                'tindakLanjuts.pemeriksaan',
+                'penggantianKeluar.aparBaru.ruangan.lantai.gedung',
+                'penggantianMasuk.aparLama.ruangan.lantai.gedung',
+                'aparPengganti',
+                'aparDigantikan',
+            ])->where('kode', $id)->firstOrFail();
 
         return view('apar.show', compact('apar'));
     }

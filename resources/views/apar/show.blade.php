@@ -21,8 +21,18 @@
                 </x-badge>
             </div>
 
-            <!-- Header Actions: Mulai Pemeriksaan, Cetak QR, Edit, Titik Denah, Kembali -->
+            <!-- Header Actions: Mulai Pemeriksaan, Ganti APAR, Cetak QR, Titik Denah, Edit, Kembali -->
             <div class="flex flex-wrap items-center gap-2">
+                @if($apar->can_be_replaced)
+                    <a href="{{ route('apar.ganti', $apar->id) }}" 
+                       class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-amber-900 bg-amber-50 border border-amber-300 hover:bg-amber-100 hover:border-amber-400 transition min-h-[44px]">
+                        <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>Ganti APAR</span>
+                    </a>
+                @endif
+
                 @if($apar->status === 'tidak_aktif')
                     <span class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed min-h-[44px]" title="APAR berstatus tidak aktif tidak dapat diperiksa">
                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -125,7 +135,80 @@
         </div>
     @endif
 
-    @if($apar->status === 'tidak_aktif')
+    @if($apar->is_replaced)
+        <!-- Banner APAR Lama yang Sudah Diganti (Tahap 8, Section 3, 21, 22) -->
+        <div class="mb-6 p-4 rounded-xl border border-rose-200 bg-rose-50/90 text-rose-950 text-xs shadow-2xs" role="alert">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                        !
+                    </span>
+                    <div>
+                        <h4 class="font-bold text-rose-900 text-sm">Unit APAR Ini Sudah Tidak Aktif (Sudah Diganti)</h4>
+                        <p class="text-rose-800 mt-1 leading-relaxed">
+                            Unit tabung fisik ini telah dinonaktifkan karena telah digantikan oleh unit baru 
+                            <strong class="font-mono text-rose-950">{{ $apar->aparPengganti?->kode ?? 'Unit Baru' }}</strong> 
+                            pada tanggal {{ $apar->tanggal_nonaktif?->format('d/m/Y') ?? '-' }}.
+                        </p>
+                        <p class="text-rose-700 text-[11px] mt-1">
+                            Seluruh riwayat pemeriksaan, checklist, dan pemeliharaan pada halaman ini tetap tersimpan utuh sebagai historical record unit lama.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    @if($apar->replaced_by_apar_id)
+                        <a href="{{ route('apar.show', $apar->replaced_by_apar_id) }}" 
+                           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs transition shadow-2xs min-h-[44px]">
+                            <span>Lihat APAR Pengganti ({{ $apar->aparPengganti?->kode }}) &rarr;</span>
+                        </a>
+                    @endif
+                    @if($apar->penggantianKeluar)
+                        <a href="{{ route('penggantian.show', $apar->penggantianKeluar->id) }}" 
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-rose-300 bg-white hover:bg-rose-50 text-rose-900 font-semibold text-xs transition min-h-[44px]">
+                            <span>Detail Penggantian</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @elseif($apar->is_replacement)
+        <!-- Banner APAR Baru Pengganti (Tahap 8, Section 18) -->
+        <div class="mb-6 p-4 rounded-xl border border-sky-200 bg-sky-50/90 text-sky-950 text-xs shadow-2xs" role="alert">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </span>
+                    <div>
+                        <h4 class="font-bold text-sky-900 text-sm">Unit APAR Pengganti Aktif</h4>
+                        <p class="text-sky-800 mt-1 leading-relaxed">
+                            Unit tabung ini adalah APAR aktif yang menggantikan unit lama 
+                            <strong class="font-mono text-sky-950">{{ $apar->aparDigantikan?->kode ?? 'Unit Lama' }}</strong>.
+                        </p>
+                        <p class="text-sky-700 text-[11px] mt-0.5">
+                            Histori pemeriksaan dan checklist dimulai baru secara mandiri untuk unit ini.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    @if($apar->replaces_apar_id)
+                        <a href="{{ route('apar.show', $apar->replaces_apar_id) }}" 
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-sky-300 bg-white hover:bg-sky-50 text-sky-900 font-semibold text-xs transition min-h-[44px]">
+                            <span>Lihat Histori Unit Lama ({{ $apar->aparDigantikan?->kode }}) &rarr;</span>
+                        </a>
+                    @endif
+                    @if($apar->penggantianMasuk)
+                        <a href="{{ route('penggantian.show', $apar->penggantianMasuk->id) }}" 
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs transition shadow-2xs min-h-[44px]">
+                            <span>Detail Penggantian</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @elseif($apar->status === 'tidak_aktif')
         <!-- Status Tidak Aktif Banner (Section 5) -->
         <div class="mb-6 p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-900 text-xs flex items-start gap-3 shadow-2xs" role="alert">
             <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -730,4 +813,99 @@
             </div>
         </x-card>
     </div>
+
+    <!-- ==================================================================
+         TABEL RIWAYAT PENGGANTIAN APAR (Tahap 8, Section 18)
+         ================================================================== -->
+    @if($apar->is_replaced || $apar->is_replacement)
+        <div class="mt-6">
+            <x-card title="Riwayat Penggantian APAR" subtitle="Keterhubungan penelusuran unit pengganti dan unit yang digantikan untuk audit keselamatan RS.">
+                <div class="space-y-4 text-xs">
+                    @if($apar->is_replaced && $apar->penggantianKeluar)
+                        @php $pk = $apar->penggantianKeluar; @endphp
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-500 font-semibold">Digantikan oleh:</span>
+                                    <a href="{{ route('apar.show', $pk->apar_baru_id) }}" class="font-mono font-bold text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded text-sm hover:underline">
+                                        {{ $pk->aparBaru?->kode }}
+                                    </a>
+                                    <x-badge variant="success" :dot="true">APAR Baru Aktif</x-badge>
+                                </div>
+                                <span class="font-mono text-slate-600 text-xs">
+                                    Tanggal Penggantian: {{ $pk->tanggal_penggantian->format('d/m/Y') }}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
+                                <div>
+                                    <span class="text-slate-500 block font-semibold">Alasan Penggantian:</span>
+                                    <span class="text-slate-900 font-medium">{{ $pk->alasan_label }}</span>
+                                    @if($pk->alasan_keterangan)
+                                        <span class="text-[11px] text-slate-500 block">({{ $pk->alasan_keterangan }})</span>
+                                    @endif
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block font-semibold">Petugas:</span>
+                                    <span class="text-slate-900 font-medium">{{ $pk->petugas_nama }}</span>
+                                </div>
+                                <div class="sm:text-right">
+                                    <a href="{{ route('penggantian.show', $pk->id) }}" 
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-2xs min-h-[36px]">
+                                        <span>Lihat Rincian Penggantian &rarr;</span>
+                                    </a>
+                                </div>
+                            </div>
+                            @if($pk->catatan)
+                                <div class="mt-3 pt-2.5 border-t border-slate-200/60 text-slate-600">
+                                    <span class="font-semibold text-slate-700">Catatan:</span> {{ $pk->catatan }}
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if($apar->is_replacement && $apar->penggantianMasuk)
+                        @php $pm = $apar->penggantianMasuk; @endphp
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-500 font-semibold">Menggantikan Unit:</span>
+                                    <a href="{{ route('apar.show', $pm->apar_lama_id) }}" class="font-mono font-bold text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded text-sm hover:underline">
+                                        {{ $pm->aparLama?->kode }}
+                                    </a>
+                                    <x-badge variant="neutral" :dot="true">APAR Lama Dinonaktifkan</x-badge>
+                                </div>
+                                <span class="font-mono text-slate-600 text-xs">
+                                    Tanggal Penggantian: {{ $pm->tanggal_penggantian->format('d/m/Y') }}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
+                                <div>
+                                    <span class="text-slate-500 block font-semibold">Alasan Penggantian:</span>
+                                    <span class="text-slate-900 font-medium">{{ $pm->alasan_label }}</span>
+                                    @if($pm->alasan_keterangan)
+                                        <span class="text-[11px] text-slate-500 block">({{ $pm->alasan_keterangan }})</span>
+                                    @endif
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block font-semibold">Petugas:</span>
+                                    <span class="text-slate-900 font-medium">{{ $pm->petugas_nama }}</span>
+                                </div>
+                                <div class="sm:text-right">
+                                    <a href="{{ route('penggantian.show', $pm->id) }}" 
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-2xs min-h-[36px]">
+                                        <span>Lihat Rincian Penggantian &rarr;</span>
+                                    </a>
+                                </div>
+                            </div>
+                            @if($pm->catatan)
+                                <div class="mt-3 pt-2.5 border-t border-slate-200/60 text-slate-600">
+                                    <span class="font-semibold text-slate-700">Catatan:</span> {{ $pm->catatan }}
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </x-card>
+        </div>
+    @endif
 </x-layouts.app>

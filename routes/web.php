@@ -7,6 +7,7 @@ Route::get('/', function () {
 });
 
 use App\Http\Controllers\AparController;
+use App\Http\Controllers\PenggantianAparController;
 use App\Models\Apar;
 
 Route::prefix('apar')->name('apar.')->group(function () {
@@ -32,6 +33,10 @@ Route::prefix('apar')->name('apar.')->group(function () {
     Route::delete('/{id}', [AparController::class, 'destroy'])->name('destroy');
     Route::get('/{id}/cetak-qr', [AparController::class, 'cetakQr'])->name('cetak_qr');
     Route::get('/{id}/download-qr', [AparController::class, 'downloadQr'])->name('download_qr');
+
+    // Penggantian Unit APAR (Tahap 8)
+    Route::get('/{id}/ganti', [PenggantianAparController::class, 'create'])->name('ganti');
+    Route::post('/{id}/ganti', [PenggantianAparController::class, 'store'])->name('ganti.store');
 });
 
 use App\Http\Controllers\JadwalController;
@@ -78,6 +83,12 @@ Route::prefix('tindak-lanjut')->name('tindak-lanjut.')->group(function () {
     Route::put('/{tindakLanjut}', [TindakLanjutController::class, 'update'])->name('update');
     Route::patch('/{tindakLanjut}/status', [TindakLanjutController::class, 'updateStatus'])->name('status');
     Route::delete('/{tindakLanjut}', [TindakLanjutController::class, 'destroy'])->name('destroy');
+});
+
+// Modul Penggantian & Riwayat Penggantian APAR (Tahap 8)
+Route::prefix('penggantian')->name('penggantian.')->group(function () {
+    Route::get('/', [PenggantianAparController::class, 'index'])->name('index');
+    Route::get('/{penggantian}', [PenggantianAparController::class, 'show'])->name('show');
 });
 
 Route::get('/riwayat', function () {
