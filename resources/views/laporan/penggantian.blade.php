@@ -74,14 +74,14 @@
 @else
     <x-layouts.app title="HAFIS : Laporan Penggantian APAR">
         <!-- Header with Breadcrumb & Action Buttons -->
-        <div class="pb-5 mb-6 border-b border-slate-200">
+        <div class="pb-4 mb-4 border-b border-slate-200">
             <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium" aria-label="Breadcrumb">
                 <a href="{{ route('laporan.index') }}" class="hover:text-slate-800 transition-colors">Pusat Laporan</a>
                 <span class="text-slate-300">/</span>
                 <span class="text-slate-800 font-semibold">Laporan Penggantian APAR</span>
             </nav>
 
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                     <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
                         <span>Laporan Penggantian APAR</span>
@@ -94,7 +94,7 @@
 
                 <div class="flex flex-wrap items-center gap-2">
                     <a href="{{ request()->fullUrlWithQuery(['format' => 'print']) }}" target="_blank"
-                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[44px]">
+                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[38px]">
                         <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                         </svg>
@@ -102,7 +102,7 @@
                     </a>
 
                     <a href="{{ request()->fullUrlWithQuery(['format' => 'csv']) }}"
-                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-emerald-800 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 transition min-h-[44px]">
+                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg text-emerald-800 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 transition min-h-[38px]">
                         <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
@@ -110,52 +110,54 @@
                     </a>
 
                     <a href="{{ route('laporan.index') }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition min-h-[44px]">
+                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition min-h-[38px]">
                         <span>Pusat Laporan</span>
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Metric Cards: Real Database Counters (Section 7) -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            <div class="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
-                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Pergantian Unit</span>
-                <div class="mt-1 flex items-baseline gap-1.5">
-                    <span class="font-mono text-xl font-bold text-slate-900 tabular-nums">{{ $rekap['total'] }}</span>
-                    <span class="text-[11px] text-slate-400">peristiwa</span>
+        <!-- Compact Summary Bar (Document-Oriented) -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 sm:p-3 mb-4 overflow-x-auto">
+            <div class="flex items-center divide-x divide-slate-200 min-w-max sm:min-w-0">
+                <div class="flex-1 px-3 sm:px-4 first:pl-1 sm:first:pl-2">
+                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Pergantian Unit</span>
+                    <span class="text-base sm:text-lg font-bold text-slate-900 tabular-nums">
+                        {{ $rekap['total'] }}
+                        <span class="text-xs font-normal text-slate-500">peristiwa</span>
+                    </span>
                 </div>
-            </div>
 
-            <div class="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
-                <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Kondisi Rusak</span>
-                <div class="mt-1 flex items-baseline gap-1.5">
-                    <span class="font-mono text-xl font-bold text-rose-800 tabular-nums">{{ $rekap['rusak'] }}</span>
-                    <span class="text-[11px] text-slate-400">unit</span>
+                <div class="flex-1 px-3 sm:px-4">
+                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Kondisi Rusak</span>
+                    <span class="text-base sm:text-lg font-bold text-rose-800 tabular-nums">
+                        {{ $rekap['rusak'] }}
+                        <span class="text-xs font-normal text-slate-500">unit</span>
+                    </span>
                 </div>
-            </div>
 
-            <div class="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
-                <span class="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">Habis Masa Berlaku</span>
-                <div class="mt-1 flex items-baseline gap-1.5">
-                    <span class="font-mono text-xl font-bold text-amber-800 tabular-nums">{{ $rekap['kadaluarsa'] }}</span>
-                    <span class="text-[11px] text-slate-400">unit</span>
+                <div class="flex-1 px-3 sm:px-4">
+                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Habis Masa Berlaku</span>
+                    <span class="text-base sm:text-lg font-bold text-amber-800 tabular-nums">
+                        {{ $rekap['kadaluarsa'] }}
+                        <span class="text-xs font-normal text-slate-500">unit</span>
+                    </span>
                 </div>
-            </div>
 
-            <div class="p-3.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
-                <span class="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block">Peremajaan Rutin</span>
-                <div class="mt-1 flex items-baseline gap-1.5">
-                    <span class="font-mono text-xl font-bold text-slate-800 tabular-nums">{{ $rekap['peremajaan'] }}</span>
-                    <span class="text-[11px] text-slate-400">unit</span>
+                <div class="flex-1 px-3 sm:px-4 last:pr-1 sm:last:pr-2">
+                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Peremajaan Rutin</span>
+                    <span class="text-base sm:text-lg font-bold text-slate-800 tabular-nums">
+                        {{ $rekap['peremajaan'] }}
+                        <span class="text-xs font-normal text-slate-500">unit</span>
+                    </span>
                 </div>
             </div>
         </div>
 
-        <!-- Filter Form (Section 7) -->
-        <div class="mb-6 p-4 rounded-xl border border-slate-200 bg-white shadow-2xs">
-            <form method="GET" action="{{ route('laporan.penggantian') }}" class="space-y-3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <!-- Compact Filter Form (Section 7) -->
+        <div class="mb-4 p-3 sm:p-3.5 rounded-lg border border-slate-200 bg-white">
+            <form method="GET" action="{{ route('laporan.penggantian') }}" class="space-y-2.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                     <!-- Dari Tanggal -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dari Tanggal</label>
@@ -163,7 +165,7 @@
                             type="date"
                             name="dari_tanggal"
                             value="{{ request('dari_tanggal') }}"
-                            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:border-slate-400 min-h-[44px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Sampai Tanggal -->
@@ -173,13 +175,13 @@
                             type="date"
                             name="sampai_tanggal"
                             value="{{ request('sampai_tanggal') }}"
-                            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:border-slate-400 min-h-[44px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Gedung -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Gedung</label>
-                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none min-h-[44px]">
+                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Gedung</option>
                             @foreach($gedungs as $g)
                                 <option value="{{ $g->id }}" {{ request('gedung_id') == $g->id ? 'selected' : '' }}>
@@ -192,7 +194,7 @@
                     <!-- Lantai -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lantai</label>
-                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none min-h-[44px]">
+                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Lantai</option>
                             @foreach($lantais as $l)
                                 <option value="{{ $l->id }}" {{ request('lantai_id') == $l->id ? 'selected' : '' }}>
@@ -205,7 +207,7 @@
                     <!-- Alasan Penggantian -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Alasan Penggantian</label>
-                        <select name="alasan" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none min-h-[44px]">
+                        <select name="alasan" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Alasan</option>
                             <option value="rusak" {{ request('alasan') == 'rusak' ? 'selected' : '' }}>Kondisi Rusak</option>
                             <option value="kadaluarsa" {{ request('alasan') == 'kadaluarsa' ? 'selected' : '' }}>Kadaluarsa</option>
@@ -214,37 +216,39 @@
                             <option value="lainnya" {{ request('alasan') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                         </select>
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <!-- Pencarian Teks -->
-                    <div class="sm:col-span-2">
+                    <div class="lg:col-span-3">
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Cari Kode APAR Lama / Baru / Petugas / Keterangan</label>
                         <input
                             type="text"
                             name="q"
                             value="{{ request('q') }}"
                             placeholder="Ketik kode APAR lama atau baru, atau nama petugas..."
-                            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:border-slate-400 min-h-[44px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                    <span class="text-slate-500 font-medium">
-                        Menampilkan <strong>{{ $rekap['terfilter'] }}</strong> peristiwa pergantian dari filter yang diterapkan
-                    </span>
-
-                    <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs">
+                    <div class="flex flex-wrap items-center gap-2">
                         <button type="submit" 
-                                class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition min-h-[44px]">
+                                class="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-bold rounded-md text-white bg-slate-900 hover:bg-slate-800 transition min-h-[38px] cursor-pointer">
                             <span>Terapkan Filter</span>
                         </button>
 
                         <a href="{{ route('laporan.penggantian') }}" 
-                           class="inline-flex items-center justify-center px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-600 bg-slate-100 hover:bg-slate-200 transition min-h-[44px]">
+                           class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-md text-slate-600 bg-slate-100 hover:bg-slate-200 transition min-h-[38px]">
                             <span>Reset Filter</span>
                         </a>
+
+                        <span class="text-slate-500 text-xs hidden sm:inline-block ml-2">
+                            Menampilkan <strong class="text-slate-800 font-semibold">{{ $rekap['terfilter'] }}</strong> peristiwa pergantian dari filter yang diterapkan
+                        </span>
                     </div>
+
+                    <span class="text-slate-500 text-xs sm:hidden">
+                        Menampilkan <strong class="text-slate-800 font-semibold">{{ $rekap['terfilter'] }}</strong> peristiwa pergantian dari filter yang diterapkan
+                    </span>
                 </div>
             </form>
         </div>

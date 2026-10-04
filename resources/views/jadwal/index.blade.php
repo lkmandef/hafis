@@ -2,107 +2,156 @@
     <!-- 1. Header Halaman -->
     <x-page-header
         title="Jadwal Inspeksi"
-        description="Manajemen periode dan target penugasan pemeriksaan berkala APAR fasilitas rumah sakit.">
-        <x-slot:actions>
-            <x-button variant="primary" href="{{ route('jadwal.create') }}">
-                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span>Buat Jadwal Inspeksi</span>
-            </x-button>
-        </x-slot:actions>
-    </x-page-header>
+        description="Manajemen periode dan target penugasan pemeriksaan berkala APAR fasilitas rumah sakit."
+        class="pb-3 sm:pb-4 mb-4" />
 
     <!-- Notifikasi Sukses / Feedback -->
     @if(session('success'))
-        <div class="mb-6 p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+        <div class="mb-4 p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
             <div class="flex items-center gap-2.5">
                 <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">✓</span>
                 <span class="font-medium">{{ session('success') }}</span>
             </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-950 p-1">✕</button>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-950 p-1" aria-label="Tutup notifikasi">✕</button>
         </div>
     @endif
 
-    <!-- 2. Ringkasan Metrik Jadwal Inspeksi -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-        <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-xs">
-            <span class="text-slate-500 font-semibold text-[11px] uppercase tracking-wider block mb-1">Total Jadwal</span>
-            <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-bold text-slate-900 tabular-nums">{{ $totalJadwal }}</span>
-                <span class="text-xs text-slate-500 font-medium">Periode</span>
-            </div>
-        </div>
+    @php
+        $totalDibatalkan = max(0, $totalJadwal - ($totalBelumDimulai + $totalBerjalan + $totalSelesai));
 
-        <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-xs">
-            <span class="text-slate-500 font-semibold text-[11px] uppercase tracking-wider block mb-1">Belum Dimulai</span>
-            <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-bold text-sky-700 tabular-nums">{{ $totalBelumDimulai }}</span>
-                <span class="text-xs text-slate-500 font-medium">Menunggu</span>
-            </div>
-        </div>
+        $statusItems = [
+            [
+                'key' => '',
+                'label' => 'Semua',
+                'count' => $totalJadwal,
+                'dot' => null,
+                'active' => empty($statusFilter),
+            ],
+            [
+                'key' => 'belum_dimulai',
+                'label' => 'Belum Dimulai',
+                'count' => $totalBelumDimulai,
+                'dot' => 'bg-sky-500',
+                'active' => $statusFilter === 'belum_dimulai',
+            ],
+            [
+                'key' => 'berjalan',
+                'label' => 'Berjalan',
+                'count' => $totalBerjalan,
+                'dot' => 'bg-amber-500',
+                'active' => $statusFilter === 'berjalan',
+            ],
+            [
+                'key' => 'selesai',
+                'label' => 'Selesai',
+                'count' => $totalSelesai,
+                'dot' => 'bg-emerald-500',
+                'active' => $statusFilter === 'selesai',
+            ],
+            [
+                'key' => 'dibatalkan',
+                'label' => 'Dibatalkan',
+                'count' => $totalDibatalkan,
+                'dot' => 'bg-rose-500',
+                'active' => $statusFilter === 'dibatalkan',
+            ],
+        ];
 
-        <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-xs">
-            <span class="text-slate-500 font-semibold text-[11px] uppercase tracking-wider block mb-1">Sedang Berjalan</span>
-            <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-bold text-amber-700 tabular-nums">{{ $totalBerjalan }}</span>
-                <span class="text-xs text-slate-500 font-medium">Aktif</span>
-            </div>
-        </div>
+        $buildStatusUrl = function ($statusKey) use ($search) {
+            return route('jadwal.index', array_filter([
+                'status' => $statusKey,
+                'q' => $search,
+            ], fn ($v) => ! is_null($v) && $v !== ''));
+        };
+    @endphp
 
-        <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-xs">
-            <span class="text-slate-500 font-semibold text-[11px] uppercase tracking-wider block mb-1">Selesai</span>
-            <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-bold text-emerald-700 tabular-nums">{{ $totalSelesai }}</span>
-                <span class="text-xs text-slate-500 font-medium">Periode</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. Toolbar Pencarian & Filter Status -->
-    <div class="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 mb-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-        <form method="GET" action="{{ route('jadwal.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full">
-            <div class="relative flex-1 max-w-md">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </span>
-                <input 
-                    type="text" 
-                    name="q" 
-                    value="{{ $search }}" 
-                    placeholder="Cari nama jadwal, catatan, atau pembuat..." 
-                    class="w-full pl-9 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:outline-none transition min-h-[38px]"
-                />
-            </div>
-
-            <!-- Filter Status -->
-            <div class="flex items-center gap-2">
-                <select 
-                    name="status" 
-                    onchange="this.form.submit()" 
-                    class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg px-3 py-1.5 focus:bg-white focus:border-slate-400 focus:outline-none min-h-[38px] cursor-pointer"
-                >
-                    <option value="">Semua Status</option>
-                    <option value="belum_dimulai" {{ $statusFilter === 'belum_dimulai' ? 'selected' : '' }}>Belum Dimulai</option>
-                    <option value="berjalan" {{ $statusFilter === 'berjalan' ? 'selected' : '' }}>Berjalan</option>
-                    <option value="selesai" {{ $statusFilter === 'selesai' ? 'selected' : '' }}>Selesai</option>
-                    <option value="draft" {{ $statusFilter === 'draft' ? 'selected' : '' }}>Draft</option>
-                    <option value="dibatalkan" {{ $statusFilter === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
-                </select>
-
-                @if($search || $statusFilter)
-                    <a href="{{ route('jadwal.index') }}" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium min-h-[38px] flex items-center">
-                        Reset
+    <!-- 2. Compact Status & Filter Row -->
+    <div class="mb-4 sm:mb-5">
+        <div class="flex items-center flex-nowrap gap-1.5 sm:gap-2 overflow-x-auto py-1 -my-1 scroll-smooth" style="scrollbar-width: none; -ms-overflow-style: none;">
+            @foreach($statusItems as $item)
+                @if($item['active'])
+                    <span 
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#14463C] text-white border border-[#14463C] shadow-2xs shrink-0 min-h-[42px] cursor-default"
+                        aria-current="page">
+                        @if($item['dot'])
+                            <span class="w-2 h-2 rounded-full {{ $item['dot'] }} ring-2 ring-white/30 shrink-0"></span>
+                        @endif
+                        <span>{{ $item['label'] }}</span>
+                        <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-white/20 text-white leading-none">
+                            {{ $item['count'] }}
+                        </span>
+                    </span>
+                @else
+                    <a 
+                        href="{{ $buildStatusUrl($item['key']) }}"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-colors shrink-0 min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                        @if($item['dot'])
+                            <span class="w-2 h-2 rounded-full {{ $item['dot'] }} shrink-0"></span>
+                        @endif
+                        <span>{{ $item['label'] }}</span>
+                        <span class="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 leading-none">
+                            {{ $item['count'] }}
+                        </span>
                     </a>
                 @endif
-            </div>
-        </form>
+            @endforeach
+        </div>
     </div>
 
-    <!-- 4. Tabel Daftar Jadwal Inspeksi (Section 6) -->
+    <!-- 3. Container Utama: Toolbar & Tabel Daftar Jadwal -->
     <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+        <!-- Toolbar Pencarian & Action -->
+        <div class="p-3.5 sm:p-4 border-b border-slate-200 bg-white">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
+                <!-- Search Form -->
+                <form method="GET" action="{{ route('jadwal.index') }}" class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5">
+                    @if($statusFilter)
+                        <input type="hidden" name="status" value="{{ $statusFilter }}">
+                    @endif
+
+                    <!-- Search Input -->
+                    <div class="relative flex-1 min-w-0 sm:min-w-[240px]">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </span>
+                        <input 
+                            type="text" 
+                            name="q" 
+                            value="{{ $search }}" 
+                            placeholder="Cari nama jadwal, catatan, atau pembuat..." 
+                            class="w-full pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#14463C] focus:ring-1 focus:ring-[#14463C] focus:outline-none transition min-h-[42px]"
+                        />
+                    </div>
+
+                    <!-- Tombol Cari & Reset -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer">
+                            Cari
+                        </button>
+
+                        @if($search || $statusFilter)
+                            <a href="{{ route('jadwal.index') }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition min-h-[42px] border border-slate-200/80 sm:border-transparent">
+                                Reset
+                            </a>
+                        @endif
+                    </div>
+                </form>
+
+                <!-- Primary Action: Buat Jadwal Inspeksi -->
+                <div class="shrink-0 flex items-center pt-2 sm:pt-0 border-t border-slate-100 sm:border-t-0">
+                    <a href="{{ route('jadwal.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-[#14463C] hover:bg-[#0f362e] border border-[#14463C] shadow-2xs transition-colors min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C] focus:ring-offset-1 shrink-0">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Buat Jadwal Inspeksi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Tabel Daftar Jadwal Inspeksi (Section 6) -->
         <div class="overflow-x-auto">
             <table class="w-full text-xs text-left">
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">

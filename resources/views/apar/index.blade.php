@@ -2,20 +2,12 @@
     <!-- 1. Page Header -->
     <x-page-header
         title="Master Data APAR"
-        description="Pusat pencatatan data identitas, spesifikasi teknis, dan lokasi penempatan unit APAR rumah sakit.">
-        <x-slot:actions>
-            <x-button variant="primary" href="{{ route('apar.create') }}">
-                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span>Tambah APAR</span>
-            </x-button>
-        </x-slot:actions>
-    </x-page-header>
+        description="Pusat pencatatan data identitas, spesifikasi teknis, dan lokasi penempatan unit APAR rumah sakit."
+        class="pb-3 sm:pb-4 mb-4" />
 
     <!-- Notifikasi Sukses / Feedback -->
     @if(session('success'))
-        <div class="mb-5 p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+        <div class="mb-4 p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
             <div class="flex items-center gap-2.5">
                 <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -30,156 +22,197 @@
         </div>
     @endif
 
-    <!-- Ringkasan Status Unit APAR (Real Data) -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-5 sm:mb-6">
-        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Unit</span>
-            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
-                <span class="text-lg sm:text-xl font-bold text-slate-900 font-mono">{{ $totalApar }}</span>
-                <span class="text-[10px] sm:text-[11px] text-slate-400">unit</span>
-            </div>
-        </div>
+    @php
+        $statusFilter = $status ?? 'aktif';
 
-        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block">Unit Aktif</span>
-            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
-                <span class="text-lg sm:text-xl font-bold text-emerald-800 font-mono">{{ $totalAktif }}</span>
-                <span class="text-[10px] sm:text-[11px] text-slate-400">aktif</span>
-            </div>
-        </div>
+        $statusItems = [
+            [
+                'key' => 'semua',
+                'label' => 'Semua',
+                'count' => $totalApar,
+                'dot' => null,
+                'active' => $statusFilter === 'semua',
+            ],
+            [
+                'key' => 'aktif',
+                'label' => 'Unit Aktif',
+                'count' => $totalAktif,
+                'dot' => 'bg-emerald-600',
+                'active' => $statusFilter === 'aktif',
+            ],
+            [
+                'key' => 'baik',
+                'label' => 'Baik',
+                'count' => $totalBaik,
+                'dot' => 'bg-emerald-500',
+                'active' => $statusFilter === 'baik',
+            ],
+            [
+                'key' => 'perhatian',
+                'label' => 'Perlu Perhatian',
+                'count' => $totalPerhatian,
+                'dot' => 'bg-amber-500',
+                'active' => $statusFilter === 'perhatian',
+            ],
+            [
+                'key' => 'rusak',
+                'label' => 'Rusak',
+                'count' => $totalRusak,
+                'dot' => 'bg-rose-500',
+                'active' => $statusFilter === 'rusak',
+            ],
+            [
+                'key' => 'sudah_diganti',
+                'label' => 'Sudah Diganti',
+                'count' => $totalSudahDiganti,
+                'dot' => 'bg-slate-400',
+                'active' => $statusFilter === 'sudah_diganti',
+            ],
+        ];
 
-        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">Kondisi Baik</span>
-            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
-                <span class="text-lg sm:text-xl font-bold text-emerald-700 font-mono">{{ $totalBaik }}</span>
-                <span class="text-[10px] sm:text-[11px] text-slate-400">siap guna</span>
-            </div>
-        </div>
+        $buildStatusUrl = function ($statusKey) use ($search, $gedungId, $lantaiId, $jenisMedia) {
+            return route('apar.index', array_filter([
+                'status' => $statusKey,
+                'q' => $search,
+                'gedung_id' => $gedungId,
+                'lantai_id' => $lantaiId,
+                'jenis_media' => $jenisMedia,
+            ], fn ($v) => ! is_null($v) && $v !== ''));
+        };
+    @endphp
 
-        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">Perhatian</span>
-            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
-                <span class="text-lg sm:text-xl font-bold text-amber-800 font-mono">{{ $totalPerhatian }}</span>
-                <span class="text-[10px] sm:text-[11px] text-slate-400">pantau</span>
-            </div>
-        </div>
-
-        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Rusak</span>
-            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
-                <span class="text-lg sm:text-xl font-bold text-rose-800 font-mono">{{ $totalRusak }}</span>
-                <span class="text-[10px] sm:text-[11px] text-slate-400">tindakan</span>
-            </div>
-        </div>
-
-        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-600 uppercase tracking-wider block">Sudah Diganti</span>
-            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
-                <span class="text-lg sm:text-xl font-bold text-slate-700 font-mono">{{ $totalSudahDiganti }}</span>
-                <span class="text-[10px] sm:text-[11px] text-slate-400">arsip</span>
-            </div>
+    <!-- 2. Compact Status & Filter Row -->
+    <div class="mb-4 sm:mb-5">
+        <div class="flex items-center flex-nowrap gap-1.5 sm:gap-2 overflow-x-auto py-1 -my-1 scroll-smooth" style="scrollbar-width: none; -ms-overflow-style: none;">
+            @foreach($statusItems as $item)
+                @if($item['active'])
+                    <span 
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#14463C] text-white border border-[#14463C] shadow-2xs shrink-0 min-h-[42px] cursor-default"
+                        aria-current="page">
+                        @if($item['dot'])
+                            <span class="w-2 h-2 rounded-full {{ $item['dot'] }} ring-2 ring-white/30 shrink-0"></span>
+                        @endif
+                        <span>{{ $item['label'] }}</span>
+                        <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-white/20 text-white leading-none">
+                            {{ $item['count'] }}
+                        </span>
+                    </span>
+                @else
+                    <a 
+                        href="{{ $buildStatusUrl($item['key']) }}"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-colors shrink-0 min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                        @if($item['dot'])
+                            <span class="w-2 h-2 rounded-full {{ $item['dot'] }} shrink-0"></span>
+                        @endif
+                        <span>{{ $item['label'] }}</span>
+                        <span class="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 leading-none">
+                            {{ $item['count'] }}
+                        </span>
+                    </a>
+                @endif
+            @endforeach
         </div>
     </div>
 
     <!-- Container Utama: Toolbar, Tabel, dan Pagination -->
     <x-card class="!p-0 overflow-hidden">
-        <!-- 2. Toolbar Pencarian & Filter Sederhana -->
-        <form method="GET" action="{{ route('apar.index') }}" class="p-4 sm:p-5 border-b border-slate-200 bg-white">
-            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-                <!-- Search Input -->
-                <div class="relative flex-1 min-w-[240px]">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </span>
-                    <input
-                        type="text"
-                        name="q"
-                        value="{{ $search }}"
-                        placeholder="Cari kode, register, merek, lokasi, atau keterangan..."
-                        class="w-full pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-400 focus:outline-none transition min-h-[44px]" />
-                </div>
+        <!-- 3. Toolbar Pencarian, Filter & Action Utama -->
+        <div class="p-3.5 sm:p-4 border-b border-slate-200 bg-white">
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 lg:gap-3">
+                <!-- Search & Filter Form -->
+                <form method="GET" action="{{ route('apar.index') }}" class="flex-1 flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-2.5">
+                    <!-- Hidden Status Parameter to preserve active status filter on search/location change -->
+                    <input type="hidden" name="status" value="{{ $statusFilter }}">
 
-                <!-- Filters & Reset -->
-                <div class="flex flex-wrap items-center gap-2">
-                    <!-- Filter Gedung -->
-                    <div class="relative">
-                        <select 
-                            name="gedung_id" 
-                            id="filter_gedung_id"
-                            onchange="this.form.submit()"
-                            class="appearance-none bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg pl-3 pr-8 py-2 focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-400 focus:outline-none min-h-[44px] cursor-pointer">
-                            <option value="">Semua Gedung</option>
-                            @foreach($gedungs as $g)
-                                <option value="{{ $g->id }}" {{ $gedungId == $g->id ? 'selected' : '' }}>
-                                    {{ $g->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                    <!-- Baris 1 on Mobile: Search Input (Full Width on mobile, flex-1 on desktop) -->
+                    <div class="relative flex-1 min-w-0 lg:min-w-[200px]">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </span>
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ $search }}"
+                            placeholder="Cari kode, register, merek, lokasi, keterangan..."
+                            class="w-full pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#14463C] focus:ring-1 focus:ring-[#14463C] focus:outline-none transition min-h-[42px]" />
                     </div>
 
-                    <!-- Filter Lantai -->
-                    <div class="relative">
-                        <select 
-                            name="lantai_id" 
-                            id="filter_lantai_id"
-                            onchange="this.form.submit()"
-                            class="appearance-none bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg pl-3 pr-8 py-2 focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-400 focus:outline-none min-h-[44px] cursor-pointer">
-                            <option value="">Semua Lantai</option>
-                            @if($gedungId && $lantaisForFilter->isNotEmpty())
-                                @foreach($lantaisForFilter as $l)
-                                    <option value="{{ $l->id }}" {{ $lantaiId == $l->id ? 'selected' : '' }}>
-                                        {{ $l->nama }}
+                    <!-- Baris 2 on Mobile: Grid 2 Kolom Seimbang (Gedung & Lantai) -->
+                    <div class="grid grid-cols-2 lg:flex items-center gap-2 shrink-0">
+                        <!-- Filter Gedung -->
+                        <div class="relative w-full lg:w-44">
+                            <select 
+                                name="gedung_id" 
+                                id="filter_gedung_id"
+                                onchange="this.form.submit()"
+                                aria-label="Filter Gedung"
+                                class="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg pl-3 pr-8 py-2 focus:bg-white focus:border-[#14463C] focus:ring-1 focus:ring-[#14463C] focus:outline-none min-h-[42px] cursor-pointer">
+                                <option value="">Semua Gedung</option>
+                                @foreach($gedungs as $g)
+                                    <option value="{{ $g->id }}" {{ $gedungId == $g->id ? 'selected' : '' }}>
+                                        {{ $g->nama }}
                                     </option>
                                 @endforeach
-                            @endif
-                        </select>
-                        <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </span>
+                            </select>
+                            <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </span>
+                        </div>
+
+                        <!-- Filter Lantai -->
+                        <div class="relative w-full lg:w-40">
+                            <select 
+                                name="lantai_id" 
+                                id="filter_lantai_id"
+                                onchange="this.form.submit()"
+                                aria-label="Filter Lantai"
+                                class="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg pl-3 pr-8 py-2 focus:bg-white focus:border-[#14463C] focus:ring-1 focus:ring-[#14463C] focus:outline-none min-h-[42px] cursor-pointer">
+                                <option value="">Semua Lantai</option>
+                                @if($gedungId && $lantaisForFilter->isNotEmpty())
+                                    @foreach($lantaisForFilter as $l)
+                                        <option value="{{ $l->id }}" {{ $lantaiId == $l->id ? 'selected' : '' }}>
+                                            {{ $l->nama }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </span>
+                        </div>
                     </div>
 
-                    <!-- Filter Status (Section 20) -->
-                    <div class="relative">
-                        <select 
-                            name="status" 
-                            onchange="this.form.submit()"
-                            class="appearance-none bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg pl-3 pr-8 py-2 focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-400 focus:outline-none min-h-[44px] cursor-pointer">
-                            <option value="semua" {{ $status == 'semua' ? 'selected' : '' }}>Semua Unit</option>
-                            <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Unit Aktif</option>
-                            <option value="tidak_aktif" {{ $status == 'tidak_aktif' ? 'selected' : '' }}>Tidak Aktif</option>
-                            <option value="sudah_diganti" {{ $status == 'sudah_diganti' ? 'selected' : '' }}>Sudah Diganti</option>
-                            <option value="baik" {{ $status == 'baik' ? 'selected' : '' }}>Kondisi: Baik</option>
-                            <option value="perhatian" {{ $status == 'perhatian' ? 'selected' : '' }}>Kondisi: Perlu Perhatian</option>
-                            <option value="rusak" {{ $status == 'rusak' ? 'selected' : '' }}>Kondisi: Rusak</option>
-                        </select>
-                        <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </span>
+                    <!-- Baris 3 on Mobile: Tombol Cari (Luas & Nyaman) & Reset -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="submit" class="flex-1 lg:flex-initial inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer">
+                            Cari
+                        </button>
+
+                        @if($search || $gedungId || $lantaiId || ($status && $status !== 'aktif') || $jenisMedia)
+                            <a href="{{ route('apar.index', ['status' => 'semua']) }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition min-h-[42px] border border-slate-200/80 lg:border-transparent">
+                                Reset
+                            </a>
+                        @endif
                     </div>
+                </form>
 
-                    <button type="submit" class="inline-flex items-center justify-center px-3 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition min-h-[44px] focus:outline-none focus:ring-2 focus:ring-slate-900">
-                        Cari
-                    </button>
-
-                    @if($search || $gedungId || $lantaiId || ($status && $status !== 'aktif') || $jenisMedia)
-                        <a href="{{ route('apar.index', ['status' => 'semua']) }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition min-h-[44px]">
-                            Reset
-                        </a>
-                    @endif
+                <!-- Primary Action: Tambah APAR -->
+                <div class="shrink-0 flex items-center pt-2.5 lg:pt-0 border-t border-slate-100 lg:border-t-0">
+                    <a href="{{ route('apar.create') }}" class="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-[#14463C] hover:bg-[#0f362e] border border-[#14463C] shadow-2xs transition-colors min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C] focus:ring-offset-1 shrink-0">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Tambah APAR</span>
+                    </a>
                 </div>
             </div>
-        </form>
+        </div>
 
         <!-- 3. Tabel Data Master APAR -->
         <div class="w-full overflow-x-auto">
