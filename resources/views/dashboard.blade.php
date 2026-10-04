@@ -22,7 +22,7 @@
                 <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
                 </svg>
-                <span>Scan Cek APAR</span>
+                <span>Scan APAR</span>
             </x-button>
         </x-slot:actions>
     </x-page-header>
@@ -94,7 +94,7 @@
            class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-rose-500 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
             <div>
                 <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                    Rusak / Defect
+                    Rusak / Perlu Tindakan
                 </span>
                 <div class="mt-1 sm:mt-1.5 flex items-baseline gap-1.5">
                     <span class="font-extrabold text-xl sm:text-2xl lg:text-3xl tabular-nums tracking-tight text-rose-700">
@@ -484,7 +484,7 @@
                             <tr>
                                 <td colspan="5" class="py-8 text-center text-slate-400">
                                     <p class="text-xs font-semibold text-slate-700">Belum ada pemeriksaan tercatat</p>
-                                    <p class="text-[11px] text-slate-400 mt-0.5">Mulai inspeksi APAR melalui menu Scan Cek atau Jadwal.</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Mulai pemeriksaan APAR melalui menu Scan APAR atau Jadwal Inspeksi.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -501,7 +501,7 @@
                 </div>
             </x-slot:title>
             <x-slot:subtitle>
-                Aktivitas perbaikan, penggantian spare part, dan pengisian ulang media APAR.
+                Aktivitas perbaikan, penggantian suku cadang, dan pengisian ulang media APAR.
             </x-slot:subtitle>
             <x-slot:actions>
                 <a href="{{ route('tindak-lanjut.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
@@ -561,7 +561,7 @@
                             <tr>
                                 <td colspan="5" class="py-8 text-center text-slate-400">
                                     <p class="text-xs font-semibold text-slate-700">Belum ada catatan tindak lanjut</p>
-                                    <p class="text-[11px] text-slate-400 mt-0.5">Seluruh defect checklist telah diselesaikan atau belum dibuat.</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Seluruh temuan checklist telah ditindaklanjuti atau belum ada temuan baru.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -644,7 +644,7 @@
                 <span>Penggantian APAR Terbaru</span>
             </x-slot:title>
             <x-slot:subtitle>
-                Histori mutasi pergantian unit lama ke unit baru (Integritas Tahap 8).
+                Histori mutasi pergantian unit lama ke unit baru.
             </x-slot:subtitle>
             <x-slot:actions>
                 <a href="{{ route('penggantian.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">

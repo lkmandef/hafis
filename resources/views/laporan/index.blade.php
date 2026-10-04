@@ -2,7 +2,7 @@
     <!-- Header with Breadcrumb & Title -->
     <div class="pb-5 mb-6 border-b border-slate-200">
         <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium" aria-label="Breadcrumb">
-            <a href="{{ url('/') }}" class="hover:text-slate-800 transition-colors">Beranda</a>
+            <a href="{{ url('/') }}" class="hover:text-slate-800 transition-colors">Dashboard</a>
             <span class="text-slate-300">/</span>
             <span class="text-slate-800 font-semibold">Pusat Laporan & Rekapitulasi</span>
         </nav>

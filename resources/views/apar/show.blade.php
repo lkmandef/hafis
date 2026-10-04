@@ -166,7 +166,7 @@
                     <span class="text-[10px] font-medium uppercase text-slate-400 block">Kondisi Terakhir</span>
                     <span class="font-semibold text-slate-800 text-xs block">{{ $apar->status_label }}</span>
                     <span class="font-mono text-[11px] text-slate-600">
-                        {{ $apar->tanggal_pemeriksaan_terakhir ? $apar->tanggal_pemeriksaan_terakhir->format('d/m/Y') : 'Belum dicek' }}
+                        {{ $apar->tanggal_pemeriksaan_terakhir ? $apar->tanggal_pemeriksaan_terakhir->format('d/m/Y') : 'Belum diperiksa' }}
                     </span>
                 </div>
             </div>

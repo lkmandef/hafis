@@ -1,7 +1,7 @@
 @if($isPrint)
     <x-layouts.print 
         title="Cetak Laporan Temuan Pemeriksaan APAR - HAFIS RSUD" 
-        reportTitle="LAPORAN TEMUAN KERUSAKAN & DEFECT CHECKLIST PEMERIKSAAN APAR" 
+        reportTitle="LAPORAN TEMUAN KERUSAKAN CHECKLIST PEMERIKSAAN APAR" 
         :filters="$filtersSummary">
 
         <!-- Ringkasan Rekapitulasi Data -->
@@ -127,7 +127,7 @@
                 <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Total Temuan Masalah</span>
                 <div class="mt-1 flex items-baseline gap-1.5">
                     <span class="font-mono text-xl font-bold text-rose-800 tabular-nums">{{ $rekap['total'] }}</span>
-                    <span class="text-[11px] text-slate-400">item defect</span>
+                    <span class="text-[11px] text-slate-400">item temuan</span>
                 </div>
             </div>
 

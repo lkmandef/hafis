@@ -50,12 +50,12 @@
                 class="w-56 lg:w-64 pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-400 focus:outline-none transition min-h-[38px]" />
         </div>
 
-        <!-- Scan Cek Quick Action Button -->
-        <a href="{{ url('/scan') }}" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 flex items-center gap-1.5 transition text-xs font-semibold shrink-0 min-h-[44px]" title="Scan Cek APAR">
+        <!-- Scan APAR Quick Action Button -->
+        <a href="{{ url('/scan') }}" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 flex items-center gap-1.5 transition text-xs font-semibold shrink-0 min-h-[44px]" title="Scan APAR">
             <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
             </svg>
-            <span class="hidden sm:inline">Scan Cek</span>
+            <span class="hidden sm:inline">Scan APAR</span>
         </a>
 
         <!-- Notification Indicator -->

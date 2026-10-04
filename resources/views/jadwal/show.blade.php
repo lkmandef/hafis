@@ -66,10 +66,10 @@
             <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
                 <span class="text-slate-400 font-semibold text-[11px] uppercase tracking-wider block mb-1">Periode Inspeksi</span>
                 <div class="font-mono text-slate-900 font-bold text-xs">
-                    {{ $jadwal->tanggal_mulai->format('d/m/Y') }} – {{ $jadwal->tanggal_selesai->format('d/m/Y') }}
+                    {{ $jadwal->tanggal_mulai->format('d/m/Y') }} - {{ $jadwal->tanggal_selesai->format('d/m/Y') }}
                 </div>
                 <div class="text-[11px] text-slate-500 mt-0.5">
-                    {{ $jadwal->tanggal_mulai->translatedFormat('d F Y') }} – {{ $jadwal->tanggal_selesai->translatedFormat('d F Y') }}
+                    {{ $jadwal->tanggal_mulai->translatedFormat('d F Y') }} - {{ $jadwal->tanggal_selesai->translatedFormat('d F Y') }}
                 </div>
             </div>
 
@@ -165,7 +165,7 @@
                 <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
                     <tr>
                         <th class="px-4 py-3">Kode APAR</th>
-                        <th class="px-4 py-3">Lokasi (Gedung – Lantai – Ruangan)</th>
+                        <th class="px-4 py-3">Lokasi (Gedung &bull; Lantai &bull; Ruangan)</th>
                         <th class="px-4 py-3">Media / Kapasitas</th>
                         <th class="px-4 py-3 text-center">Kondisi APAR</th>
                         <th class="px-4 py-3 text-center">Status Pemeriksaan</th>
@@ -258,7 +258,7 @@
                                                 <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                                                 </svg>
-                                                <span>Sudah Diperiksa</span>
+                                                <span>Lihat Hasil</span>
                                             </a>
                                         @else
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[11px] cursor-default">

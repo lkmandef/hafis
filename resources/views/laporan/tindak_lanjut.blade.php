@@ -98,7 +98,7 @@
                         <span class="text-xs px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-bold">Laporan 4</span>
                     </h1>
                     <p class="text-xs text-slate-500 mt-1">
-                        Rekapitulasi aktivitas perbaikan, penggantian spare part, pengisian ulang media, dan penanganan defect unit APAR.
+                        Rekapitulasi aktivitas perbaikan, penggantian suku cadang, pengisian ulang media, dan penanganan kerusakan unit APAR.
                     </p>
                 </div>
 
@@ -219,7 +219,7 @@
                             <option value="">Semua Jenis</option>
                             <option value="perbaikan" {{ request('jenis_tindakan') == 'perbaikan' ? 'selected' : '' }}>Perbaikan Ringan</option>
                             <option value="pengisian_ulang" {{ request('jenis_tindakan') == 'pengisian_ulang' ? 'selected' : '' }}>Pengisian Ulang (Refill)</option>
-                            <option value="penggantian_komponen" {{ request('jenis_tindakan') == 'penggantian_komponen' ? 'selected' : '' }}>Ganti Komponen / Spare Part</option>
+                            <option value="penggantian_komponen" {{ request('jenis_tindakan') == 'penggantian_komponen' ? 'selected' : '' }}>Ganti Komponen / Suku Cadang</option>
                             <option value="pembersihan" {{ request('jenis_tindakan') == 'pembersihan' ? 'selected' : '' }}>Pembersihan</option>
                             <option value="rekomendasi_penggantian" {{ request('jenis_tindakan') == 'rekomendasi_penggantian' ? 'selected' : '' }}>Rekomendasi Penggantian Unit</option>
                             <option value="lainnya" {{ request('jenis_tindakan') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>

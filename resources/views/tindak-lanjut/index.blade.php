@@ -182,8 +182,28 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-slate-400 italic">
-                                Belum ada catatan tindak lanjut & pemeliharaan yang sesuai filter.
+                            <td colspan="7" class="px-4 py-12 text-center">
+                                <div class="max-w-sm mx-auto flex flex-col items-center">
+                                    <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 mb-3">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </div>
+                                    @if(request('q') || request('status') || request('jenis'))
+                                        <h4 class="text-sm font-bold text-slate-800">Tidak ada catatan yang cocok</h4>
+                                        <p class="text-xs text-slate-500 mt-1 mb-4">
+                                            Tidak ditemukan data tindak lanjut dengan parameter pencarian atau filter yang Anda pilih.
+                                        </p>
+                                        <a href="{{ route('tindak-lanjut.index') }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition min-h-[44px]">
+                                            Reset Filter
+                                        </a>
+                                    @else
+                                        <h4 class="text-sm font-bold text-slate-800">Belum ada catatan tindak lanjut</h4>
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            Catatan tindak lanjut dan pemeliharaan atas temuan pemeriksaan fisik APAR akan ditampilkan di sini.
+                                        </p>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforelse

@@ -61,7 +61,7 @@
         </div>
     @endif
 
-    <div class="max-w-4xl mx-auto space-y-6">
+    <div class="max-w-4xl mx-auto space-y-6 pb-20 sm:pb-0">
         <!-- 2. Ringkasan Informasi Unit & Sesi (Section 4) -->
         <x-card class="!p-4 sm:!p-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-100">

@@ -255,7 +255,7 @@
     </div>
 
     <!-- Modal Info Verifikasi Selesai -->
-    <div id="modal-tahap6-info" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="modal-verifikasi-info" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
             <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -284,7 +284,7 @@
             </p>
             <div class="mt-5 flex justify-end gap-2">
                 <button type="button" 
-                        onclick="document.getElementById('modal-tahap6-info').classList.add('hidden')"
+                        onclick="document.getElementById('modal-verifikasi-info').classList.add('hidden')"
                         class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition min-h-[44px]">
                     Tutup Dialog
                 </button>

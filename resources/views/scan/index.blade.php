@@ -206,9 +206,9 @@
                     </div>
                 </div>
 
-                <!-- Opsi Cepat Pengujian Desktop (Hanya untuk Desktop) -->
+                <!-- Contoh Format Kode Unit -->
                 <div class="pt-3 border-t border-slate-100 hidden sm:block">
-                    <span class="text-[11px] text-slate-400 block mb-1.5 font-medium">Contoh kode unit aktif untuk simulasi desktop:</span>
+                    <span class="text-[11px] text-slate-400 block mb-1.5 font-medium">Contoh kode unit yang terdaftar:</span>
                     <div class="flex flex-wrap items-center gap-1.5 text-xs">
                         <a href="{{ route('scan.cari', ['kode' => 'APAR-IGD-01']) }}" 
                            class="font-mono text-slate-700 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded border border-slate-200 transition min-h-[36px] inline-flex items-center">
@@ -221,11 +221,6 @@
                         <a href="{{ route('scan.cari', ['kode' => 'APAR-OK-01']) }}" 
                            class="font-mono text-slate-700 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded border border-slate-200 transition min-h-[36px] inline-flex items-center">
                             APAR-OK-01
-                        </a>
-                        <a href="{{ route('scan.cari', ['kode' => 'APAR-999-INVALID']) }}" 
-                           class="font-mono text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded border border-rose-200 transition min-h-[36px] inline-flex items-center"
-                           title="Uji kondisi QR tidak ditemukan">
-                            Uji Invalid (APAR-999)
                         </a>
                     </div>
                 </div>

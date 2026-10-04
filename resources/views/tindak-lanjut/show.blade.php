@@ -122,7 +122,7 @@
                             </button>
                         </form>
                     @elseif($tindakLanjut->status === 'dalam_proses')
-                        <form action="{{ route('tindak-lanjut.status', $tindakLanjut->id) }}" method="POST" class="flex flex-wrap items-center gap-2">
+                        <form action="{{ route('tindak-lanjut.status', $tindakLanjut->id) }}" method="POST" class="flex flex-wrap items-center gap-2" onsubmit="return confirm('Tandai tindak lanjut ini sebagai selesai dan pulihkan kondisi APAR menjadi Baik?');">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="status" value="selesai">

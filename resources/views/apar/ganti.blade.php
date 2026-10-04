@@ -49,7 +49,7 @@
         </div>
     @endif
 
-    <form action="{{ route('apar.ganti.store', $aparLama->id) }}" method="POST" id="form-penggantian-apar">
+    <form action="{{ route('apar.ganti.store', $aparLama->id) }}" method="POST" id="form-penggantian-apar" onsubmit="return confirm('Apakah Anda yakin ingin memproses penggantian unit APAR ini? Unit lama akan dinonaktifkan dan digantikan oleh unit baru.');">
         @csrf
 
         <div class="space-y-6">
@@ -86,7 +86,6 @@
                                 {{ $aparLama->status_label }}
                             </x-badge>
                         </div>
-                        <span class="text-[10px] text-slate-400 block font-mono mt-1">No. Arsip: #{{ $aparLama->id }}</span>
                     </div>
                 </div>
 

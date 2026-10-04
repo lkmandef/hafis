@@ -777,7 +777,7 @@
         }
 
         function confirmDeleteGedung() {
-            if (confirm('Yakin ingin menghapus gedung ini beserta seluruh lantai dan ruangannya?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus gedung ini beserta seluruh data lantai dan ruangan di dalamnya? Tindakan ini tidak dapat dibatalkan.')) {
                 document.getElementById('form-delete-gedung').submit();
             }
         }
@@ -795,7 +795,7 @@
         }
 
         function confirmDeleteLantai() {
-            if (confirm('Yakin ingin menghapus lantai ini beserta ruangannya?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus lantai ini beserta seluruh data ruangan di dalamnya? Tindakan ini tidak dapat dibatalkan.')) {
                 document.getElementById('form-delete-lantai').submit();
             }
         }
@@ -814,7 +814,7 @@
         }
 
         function confirmDeleteRuangan() {
-            if (confirm('Yakin ingin menghapus ruangan/area ini?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus ruangan/area ini? Tindakan ini tidak dapat dibatalkan.')) {
                 document.getElementById('form-delete-ruangan').submit();
             }
         }

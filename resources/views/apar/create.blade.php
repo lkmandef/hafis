@@ -69,7 +69,7 @@
                             placeholder="Contoh: REG-K3-2026-004"
                             value="{{ old('nomor_register') }}"
                             :error="$errors->first('nomor_register')"
-                            hint="Nomor register internal jika tersedia" />
+                            hint="Nomor register aset rumah sakit jika tersedia" />
                     </div>
 
                     <!-- Status Kondisi -->

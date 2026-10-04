@@ -197,8 +197,28 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-10 text-center text-slate-400 italic">
-                                Belum ada riwayat penggantian unit APAR yang tercatat.
+                            <td colspan="7" class="px-4 py-12 text-center">
+                                <div class="max-w-sm mx-auto flex flex-col items-center">
+                                    <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 mb-3">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                        </svg>
+                                    </div>
+                                    @if(request('q') || request('alasan'))
+                                        <h4 class="text-sm font-bold text-slate-800">Tidak ada riwayat yang cocok</h4>
+                                        <p class="text-xs text-slate-500 mt-1 mb-4">
+                                            Tidak ditemukan data penggantian unit dengan filter atau pencarian saat ini.
+                                        </p>
+                                        <a href="{{ route('penggantian.index') }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition min-h-[44px]">
+                                            Reset Filter
+                                        </a>
+                                    @else
+                                        <h4 class="text-sm font-bold text-slate-800">Belum ada riwayat penggantian APAR</h4>
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            Riwayat pergantian unit lama ke unit baru akan tercatat secara otomatis di sini saat dilakukan penggantian.
+                                        </p>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforelse

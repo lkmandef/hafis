@@ -200,10 +200,10 @@
                                             @method('PATCH')
                                             <button 
                                                 type="submit" 
-                                                class="px-2 py-1.5 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs transition"
+                                                class="px-2 py-1.5 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs transition min-h-[36px]"
                                                 title="Batalkan Jadwal"
                                             >
-                                                Batal
+                                                Batalkan
                                             </button>
                                         </form>
                                     @endif
