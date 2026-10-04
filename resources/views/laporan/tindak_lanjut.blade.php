@@ -86,7 +86,7 @@
         <!-- Header with Breadcrumb & Action Buttons -->
         <div class="pb-4 mb-4 border-b border-slate-200">
             <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium" aria-label="Breadcrumb">
-                <a href="{{ route('laporan.index') }}" class="hover:text-slate-800 transition-colors">Pusat Laporan</a>
+                <a href="{{ route('laporan.index') }}" class="hover:text-slate-800 transition-colors">Laporan & Rekapitulasi</a>
                 <span class="text-slate-300">/</span>
                 <span class="text-slate-800 font-semibold">Laporan Tindak Lanjut & Pemeliharaan</span>
             </nav>

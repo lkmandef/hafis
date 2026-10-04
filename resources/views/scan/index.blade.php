@@ -1,13 +1,6 @@
 <x-layouts.app title="HAFIS : Scan APAR">
-    <!-- 1. Header with Breadcrumb & Navigation -->
+    <!-- 1. Header Halaman & Navigation -->
     <div class="pb-5 mb-6 border-b border-slate-200">
-        <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium" aria-label="Breadcrumb">
-            <a href="{{ url('/') }}" class="hover:text-slate-800 transition-colors">Dashboard</a>
-            <span class="text-slate-300">/</span>
-            <span class="text-slate-800 font-semibold">Scan APAR</span>
-        </nav>
-
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">

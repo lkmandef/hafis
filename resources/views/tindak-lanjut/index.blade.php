@@ -1,13 +1,6 @@
 <x-layouts.app title="HAFIS : Tindak Lanjut & Pemeliharaan APAR">
-    <!-- 1. Header with Breadcrumb & Action -->
+    <!-- 1. Header Halaman & Action -->
     <div class="pb-3 sm:pb-4 mb-4 border-b border-slate-200/80">
-        <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium" aria-label="Breadcrumb">
-            <a href="{{ url('/') }}" class="hover:text-slate-800 transition-colors">Dashboard</a>
-            <span class="text-slate-300">/</span>
-            <span class="text-slate-800 font-semibold">Tindak Lanjut & Pemeliharaan</span>
-        </nav>
-
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">

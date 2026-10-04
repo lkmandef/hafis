@@ -3,10 +3,13 @@
     <div class="pb-5 mb-6 border-b border-slate-200">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium" aria-label="Breadcrumb">
-            <a href="{{ url('/') }}" class="hover:text-slate-800 transition-colors">Dashboard</a>
-            <span class="text-slate-300">/</span>
             @if($jadwal)
+                <a href="{{ route('jadwal.index') }}" class="hover:text-slate-800 transition-colors">Jadwal Inspeksi</a>
+                <span class="text-slate-300">/</span>
                 <a href="{{ route('jadwal.show', $jadwal->id) }}" class="hover:text-slate-800 transition-colors">{{ $jadwal->nama }}</a>
+                <span class="text-slate-300">/</span>
+            @else
+                <a href="{{ route('apar.index') }}" class="hover:text-slate-800 transition-colors">Data APAR</a>
                 <span class="text-slate-300">/</span>
             @endif
             <a href="{{ route('apar.show', $apar->id) }}" class="hover:text-slate-800 transition-colors">{{ $apar->kode }}</a>
