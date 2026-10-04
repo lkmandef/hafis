@@ -71,7 +71,7 @@
             @foreach($statusItems as $item)
                 @if($item['active'])
                     <span 
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#14463C] text-white border border-[#14463C] shadow-2xs shrink-0 min-h-[42px] cursor-default"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-900 text-white border border-slate-900 shadow-2xs shrink-0 min-h-[42px] cursor-default"
                         aria-current="page">
                         @if($item['dot'])
                             <span class="w-2 h-2 rounded-full {{ $item['dot'] }} ring-2 ring-white/30 shrink-0"></span>
@@ -84,7 +84,7 @@
                 @else
                     <a 
                         href="{{ $buildStatusUrl($item['key']) }}"
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-colors shrink-0 min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-colors shrink-0 min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
                         @if($item['dot'])
                             <span class="w-2 h-2 rounded-full {{ $item['dot'] }} shrink-0"></span>
                         @endif
@@ -121,13 +121,13 @@
                             name="q" 
                             value="{{ $search }}" 
                             placeholder="Cari nama jadwal, catatan, atau pembuat..." 
-                            class="w-full pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#14463C] focus:ring-1 focus:ring-[#14463C] focus:outline-none transition min-h-[42px]"
+                            class="w-full pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-900/20 focus:outline-none transition min-h-[42px]"
                         />
                     </div>
 
                     <!-- Tombol Cari & Reset -->
                     <div class="flex items-center gap-2 shrink-0">
-                        <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer">
+                        <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition duration-150 ease-in-out min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer">
                             Cari
                         </button>
 
@@ -141,7 +141,7 @@
 
                 <!-- Primary Action: Buat Jadwal Inspeksi -->
                 <div class="shrink-0 flex items-center pt-2 sm:pt-0 border-t border-slate-100 sm:border-t-0">
-                    <a href="{{ route('jadwal.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-[#14463C] hover:bg-[#0f362e] border border-[#14463C] shadow-2xs transition-colors min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C] focus:ring-offset-1 shrink-0">
+                    <a href="{{ route('jadwal.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 border border-slate-900 shadow-2xs transition duration-150 ease-in-out min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20 shrink-0">
                         <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
                         </svg>

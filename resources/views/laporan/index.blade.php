@@ -52,7 +52,7 @@
                         </span>
                     </div>
 
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#14463C] transition-colors">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-slate-900 transition-colors">
                         Laporan Data APAR
                     </h3>
                     <p class="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -66,7 +66,7 @@
                     </span>
 
                     <a href="{{ route('laporan.apar') }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-[#14463C] text-white font-semibold text-xs transition shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
                         <span>Buka Laporan</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -87,7 +87,7 @@
                         </span>
                     </div>
 
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#14463C] transition-colors">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-slate-900 transition-colors">
                         Laporan Pemeriksaan APAR
                     </h3>
                     <p class="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -101,7 +101,7 @@
                     </span>
 
                     <a href="{{ route('laporan.pemeriksaan') }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-[#14463C] text-white font-semibold text-xs transition shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
                         <span>Buka Laporan</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -122,7 +122,7 @@
                         </span>
                     </div>
 
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#14463C] transition-colors">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-slate-900 transition-colors">
                         Laporan Temuan Pemeriksaan
                     </h3>
                     <p class="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -136,7 +136,7 @@
                     </span>
 
                     <a href="{{ route('laporan.temuan') }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-[#14463C] text-white font-semibold text-xs transition shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
                         <span>Buka Laporan</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -157,7 +157,7 @@
                         </span>
                     </div>
 
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#14463C] transition-colors">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-slate-900 transition-colors">
                         Laporan Tindak Lanjut & Pemeliharaan
                     </h3>
                     <p class="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -171,7 +171,7 @@
                     </span>
 
                     <a href="{{ route('laporan.tindak_lanjut') }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-[#14463C] text-white font-semibold text-xs transition shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
                         <span>Buka Laporan</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -192,7 +192,7 @@
                         </span>
                     </div>
 
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#14463C] transition-colors">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-slate-900 transition-colors">
                         Laporan Penggantian APAR
                     </h3>
                     <p class="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -206,7 +206,7 @@
                     </span>
 
                     <a href="{{ route('laporan.penggantian') }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-[#14463C] text-white font-semibold text-xs transition shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
                         <span>Buka Laporan</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>

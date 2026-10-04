@@ -20,7 +20,7 @@
 
             <div class="flex items-center gap-2 shrink-0">
                 <a href="{{ route('apar.index') }}" 
-                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30 shadow-2xs">
+                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20 shadow-2xs">
                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                     </svg>
@@ -93,7 +93,7 @@
             @foreach($statusItems as $item)
                 @if($item['active'])
                     <span 
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#14463C] text-white border border-[#14463C] shadow-2xs shrink-0 min-h-[42px] cursor-default"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-900 text-white border border-slate-900 shadow-2xs shrink-0 min-h-[42px] cursor-default"
                         aria-current="page">
                         @if($item['dot'])
                             <span class="w-2 h-2 rounded-full {{ $item['dot'] }} ring-2 ring-white/30 shrink-0"></span>
@@ -106,7 +106,7 @@
                 @else
                     <a 
                         href="{{ $buildFilterUrl($item['key']) }}"
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-colors shrink-0 min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#14463C]/30">
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-colors shrink-0 min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
                         @if($item['dot'])
                             <span class="w-2 h-2 rounded-full {{ $item['dot'] }} shrink-0"></span>
                         @endif
@@ -141,13 +141,13 @@
                         name="q"
                         value="{{ request('q') }}"
                         placeholder="Cari kode APAR lama, kode baru, petugas, atau alasan..."
-                        class="w-full pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#14463C] focus:ring-1 focus:ring-[#14463C] focus:outline-none transition min-h-[42px]" />
+                        class="w-full pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-900/20 focus:outline-none transition min-h-[42px]" />
                 </div>
 
                 <!-- Tombol Cari & Reset -->
                 <div class="flex items-center gap-2 shrink-0">
                     <button type="submit" 
-                            class="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer">
+                            class="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition duration-150 ease-in-out shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer">
                         <span>Cari</span>
                     </button>
 

@@ -89,19 +89,19 @@
     @endif
 
     <!-- Mobile Next Action Banner (< sm) -->
-    <div class="block sm:hidden max-w-4xl mx-auto mb-6 p-4 rounded-xl bg-slate-900 text-white shadow-md space-y-2.5">
+    <div class="block sm:hidden max-w-4xl mx-auto mb-6 p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2.5">
         <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">
+            <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
                 &check;
             </span>
-            <span class="font-bold text-xs">Pemeriksaan Tersimpan</span>
+            <span class="font-bold text-xs text-slate-900">Pemeriksaan Tersimpan</span>
         </div>
-        <p class="text-xs text-slate-300 leading-relaxed">
+        <p class="text-xs text-slate-600 leading-relaxed">
             Data kelaikan APAR {{ $pemeriksaan->apar->kode }} berhasil dicatat. Silakan lanjutkan pemindaian ke titik APAR berikutnya.
         </p>
         <a href="{{ route('scan.index') }}" 
-           class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs transition shadow-xs min-h-[44px]">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+           class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition duration-150 ease-in-out shadow-xs min-h-[44px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
             </svg>
             <span>Pindai APAR Berikutnya</span>

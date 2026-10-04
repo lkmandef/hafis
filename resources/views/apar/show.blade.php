@@ -513,7 +513,7 @@
                         <div>
                             <a
                                 href="{{ route('penempatan.index', ['gedung_id' => $apar->gedung_id, 'lantai_id' => $apar->lantai_id, 'highlight' => $apar->kode_apar]) }}"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg {{ $apar->has_titik ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-emerald-700 hover:bg-emerald-800 text-white' }} font-semibold text-xs transition"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-900/20"
                             >
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
