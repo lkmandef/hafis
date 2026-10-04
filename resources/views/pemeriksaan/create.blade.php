@@ -117,7 +117,7 @@
         </x-card>
 
         <!-- Formulir Pemeriksaan Lapangan -->
-        <form action="{{ route('pemeriksaan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form action="{{ route('pemeriksaan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 pb-20 sm:pb-0">
             @csrf
             <input type="hidden" name="apar_id" value="{{ $apar->id }}">
             <input type="hidden" name="jadwal_id" value="{{ $jadwal?->id }}">
@@ -134,7 +134,7 @@
                         $oldHasil = old("items.{$index}.hasil", 'baik');
                         $oldCatatan = old("items.{$index}.catatan", '');
                     @endphp
-                    <div class="p-3.5 sm:p-4 hover:bg-slate-50/60 transition-colors space-y-2">
+                    <div class="p-3.5 sm:p-4 hover:bg-slate-50/60 transition-colors space-y-2.5">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="flex items-start gap-2.5 flex-1 min-w-0">
                                 <span class="font-mono text-xs text-slate-400 font-bold w-5 shrink-0 mt-0.5">
@@ -149,8 +149,8 @@
                             </div>
 
                             <!-- Pilihan Hasil: Baik / Tidak Baik / Tidak Diperiksa (Section 7) -->
-                            <div class="flex flex-wrap items-center gap-1.5 pl-7 sm:pl-0 shrink-0">
-                                <label class="cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-emerald-50 has-checked:border-emerald-300 has-checked:text-emerald-800 min-h-[38px]">
+                            <div class="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 pl-7 sm:pl-0 shrink-0">
+                                <label class="cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-emerald-100 has-checked:border-emerald-600 has-checked:text-emerald-950 has-checked:ring-2 has-checked:ring-emerald-500/30 has-checked:font-bold min-h-[44px]">
                                     <input type="radio" 
                                            name="items[{{ $index }}][hasil]" 
                                            value="baik" 
@@ -158,10 +158,10 @@
                                            class="accent-emerald-600 radio-item-checklist"
                                            data-index="{{ $index }}"
                                            onchange="evaluateOverallHealth()">
-                                    <span>Baik</span>
+                                    <span>&check; Baik</span>
                                 </label>
 
-                                <label class="cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-rose-50 has-checked:border-rose-300 has-checked:text-rose-800 min-h-[38px]">
+                                <label class="cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-rose-100 has-checked:border-rose-600 has-checked:text-rose-950 has-checked:ring-2 has-checked:ring-rose-500/30 has-checked:font-bold min-h-[44px]">
                                     <input type="radio" 
                                            name="items[{{ $index }}][hasil]" 
                                            value="tidak_baik" 
@@ -169,10 +169,10 @@
                                            class="accent-rose-600 radio-item-checklist"
                                            data-index="{{ $index }}"
                                            onchange="evaluateOverallHealth()">
-                                    <span>Tidak Baik</span>
+                                    <span>&times; Tidak Baik</span>
                                 </label>
 
-                                <label class="cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-slate-100 has-checked:border-slate-300 has-checked:text-slate-800 min-h-[38px]">
+                                <label class="cursor-pointer flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-slate-200/80 has-checked:border-slate-500 has-checked:text-slate-900 has-checked:ring-2 has-checked:ring-slate-400/30 has-checked:font-bold min-h-[44px]">
                                     <input type="radio" 
                                            name="items[{{ $index }}][hasil]" 
                                            value="tidak_diperiksa" 
@@ -180,7 +180,7 @@
                                            class="accent-slate-600 radio-item-checklist"
                                            data-index="{{ $index }}"
                                            onchange="evaluateOverallHealth()">
-                                    <span>Tidak Diperiksa</span>
+                                    <span class="truncate">Lewati</span>
                                 </label>
                             </div>
                         </div>
@@ -191,7 +191,7 @@
                                    name="items[{{ $index }}][catatan]" 
                                    value="{{ $oldCatatan }}"
                                    placeholder="Catatan temuan khusus item ini (opsional, misal: selang retak halus / kotor)..." 
-                                   class="w-full text-[11px] px-3 py-1.5 rounded border border-slate-200 bg-slate-50/50 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:outline-none transition min-h-[34px]">
+                                   class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:outline-none transition min-h-[44px]">
                         </div>
                     </div>
                     @endforeach
@@ -272,15 +272,15 @@
                 </div>
             </x-card>
 
-            <!-- 6. Tombol Aksi Submit Formulir (Section 10) -->
-            <div class="p-4 bg-white border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+            <!-- 6. Tombol Aksi Submit Formulir (Section 10) - Sticky Bottom on Mobile -->
+            <div class="fixed sm:static bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-xs border-t sm:border border-slate-200 sm:rounded-xl p-3.5 sm:p-4 shadow-lg sm:shadow-2xs flex flex-row items-center justify-between gap-3">
                 <a href="{{ route('apar.show', $apar->id) }}" 
-                   class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs text-center transition min-h-[44px] flex items-center justify-center">
+                   class="w-auto px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs text-center transition min-h-[44px] flex items-center justify-center shrink-0">
                     Batal
                 </a>
 
                 <button type="submit" 
-                        class="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs text-center transition shadow-2xs min-h-[44px] inline-flex items-center justify-center gap-2">
+                        class="flex-1 sm:flex-none px-6 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs text-center transition shadow-2xs min-h-[44px] inline-flex items-center justify-center gap-2">
                     <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                     </svg>

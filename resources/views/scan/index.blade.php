@@ -206,8 +206,8 @@
                     </div>
                 </div>
 
-                <!-- Opsi Cepat Pengujian Desktop -->
-                <div class="pt-3 border-t border-slate-100">
+                <!-- Opsi Cepat Pengujian Desktop (Hanya untuk Desktop) -->
+                <div class="pt-3 border-t border-slate-100 hidden sm:block">
                     <span class="text-[11px] text-slate-400 block mb-1.5 font-medium">Contoh kode unit aktif untuk simulasi desktop:</span>
                     <div class="flex flex-wrap items-center gap-1.5 text-xs">
                         <a href="{{ route('scan.cari', ['kode' => 'APAR-IGD-01']) }}" 
@@ -254,17 +254,44 @@
             const activeBadge = document.getElementById('active-scanning-badge');
             const autoForm = document.getElementById('auto-scan-form');
             const autoPayload = document.getElementById('auto-scan-payload');
+            const manualInput = document.getElementById('kode-manual-input');
 
             let mediaStream = null;
             let scanTimer = null;
             let barcodeDetector = null;
+            let isBarcodeSupported = false;
 
             // Inisialisasi BarcodeDetector jika browser mendukung
             if ('BarcodeDetector' in window) {
                 try {
                     barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+                    isBarcodeSupported = true;
                 } catch(e) {
-                    console.log('BarcodeDetector QR not supported, fallback to manual', e);
+                    barcodeDetector = null;
+                    isBarcodeSupported = false;
+                }
+            }
+
+            // Jika browser tidak mendukung BarcodeDetector, berikan panduan langsung di prompt awal
+            if (!isBarcodeSupported) {
+                const promptTitle = statePrompt.querySelector('p.font-bold');
+                const promptDesc = statePrompt.querySelector('p.text-slate-400');
+                if (promptTitle) {
+                    promptTitle.textContent = 'Pemindaian Otomatis Tidak Tersedia';
+                }
+                if (promptDesc) {
+                    promptDesc.textContent = 'Pemindaian otomatis tidak tersedia di browser ini. Anda dapat memasukkan kode APAR secara manual.';
+                }
+                if (btnStart) {
+                    btnStart.textContent = 'Gunakan Input Manual';
+                    btnStart.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (manualInput) {
+                            manualInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            manualInput.focus();
+                        }
+                    }, { once: true });
                 }
             }
 
@@ -280,18 +307,40 @@
                 stopCamera();
             }
 
+            function updateScanStatus(text, isSuccess) {
+                if (!activeBadge) return;
+                if (isSuccess) {
+                    activeBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span class="text-emerald-300 font-semibold">' + text + '</span>';
+                } else {
+                    activeBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>' + text + '</span>';
+                }
+                activeBadge.classList.remove('hidden');
+            }
+
             async function startCamera() {
-                // Periksa dukungan browser (Section 11)
+                if (!isBarcodeSupported || !barcodeDetector) {
+                    showError(
+                        'Pemindaian Otomatis Tidak Tersedia',
+                        'Pemindaian otomatis tidak tersedia di browser ini. Anda dapat memasukkan kode APAR secara manual.'
+                    );
+                    if (manualInput) {
+                        manualInput.focus();
+                    }
+                    return;
+                }
+
+                // Periksa dukungan WebRTC Camera API
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                     showError(
-                        'Browser Tidak Mendukung Kamera',
-                        'Browser ini tidak mendukung WebRTC Camera API. Silakan gunakan pencarian kode APAR manual.'
+                        'Kamera Tidak Didukung',
+                        'Browser ini tidak mendukung akses kamera. Anda dapat memasukkan kode APAR secara manual.'
                     );
                     return;
                 }
 
                 try {
-                    // Coba buka kamera belakang (environment) terlebih dahulu
+                    updateScanStatus('Siap memindai...', false);
+
                     const constraints = {
                         video: {
                             facingMode: { ideal: 'environment' },
@@ -306,26 +355,26 @@
                     video.classList.remove('hidden');
                     overlay.classList.add('hidden');
                     controls.classList.remove('hidden');
-                    activeBadge.classList.remove('hidden');
+
+                    updateScanStatus('Mencari QR Code...', false);
 
                     // Mulai deteksi barcode berkala
                     startScanningLoop();
                 } catch (err) {
-                    console.error('Camera error:', err);
                     if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
                         showError(
                             'Izin Kamera Ditolak',
-                            'Akses kamera tidak diizinkan oleh pengguna atau pengaturan browser. Gunakan pencarian kode APAR manual di bawah.'
+                            'Akses kamera tidak diizinkan. Silakan masukkan kode APAR secara manual di bawah.'
                         );
                     } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
                         showError(
                             'Kamera Tidak Ditemukan',
-                            'Tidak ada perangkat kamera yang terhubung pada sistem ini. Gunakan pencarian kode APAR manual.'
+                            'Perangkat kamera tidak ditemukan. Silakan masukkan kode APAR secara manual.'
                         );
                     } else {
                         showError(
                             'Kamera Tidak Dapat Dibuka',
-                            'Terjadi kendala saat mengakses kamera (' + (err.message || err.name) + '). Gunakan pencarian kode APAR manual.'
+                            'Kendala membuka kamera perangkat. Silakan masukkan kode APAR secara manual.'
                         );
                     }
                 }
@@ -348,8 +397,7 @@
             function onQrCodeDetected(code) {
                 if (!code) return;
                 stopCamera();
-                activeBadge.innerHTML = '<span class="text-emerald-400 font-bold">&check; Kode terdeteksi: ' + code + '</span>';
-                activeBadge.classList.remove('hidden');
+                updateScanStatus('QR Code ditemukan. Memproses APAR...', true);
                 
                 autoPayload.value = code;
                 autoForm.submit();
@@ -367,13 +415,15 @@
                                 onQrCodeDetected(detected);
                             }
                         } catch (e) {
-                            // Abaikan error frame individual
+                            // Abaikan error individual frame
                         }
                     }
                 }, 300);
             }
 
-            btnStart.addEventListener('click', startCamera);
+            if (isBarcodeSupported) {
+                btnStart.addEventListener('click', startCamera);
+            }
             btnStop.addEventListener('click', () => {
                 stopCamera();
                 statePrompt.classList.remove('hidden');

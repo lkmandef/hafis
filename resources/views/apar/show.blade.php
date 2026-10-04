@@ -21,8 +21,8 @@
                 </x-badge>
             </div>
 
-            <!-- Header Actions: Mulai Pemeriksaan, Ganti APAR, Cetak QR, Titik Denah, Edit, Kembali -->
-            <div class="flex flex-wrap items-center gap-2">
+            <!-- Header Actions Desktop: Mulai Pemeriksaan, Ganti APAR, Cetak QR, Titik Denah, Edit, Kembali -->
+            <div class="hidden sm:flex flex-wrap items-center gap-2">
                 @if($apar->can_be_replaced)
                     <a href="{{ route('apar.ganti', $apar->id) }}" 
                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-amber-900 bg-amber-50 border border-amber-300 hover:bg-amber-100 hover:border-amber-400 transition min-h-[44px]">
@@ -135,6 +135,120 @@
         </div>
     @endif
 
+    <!-- ==================================================================
+         MOBILE QUICK INSPECTION CARD (< sm / Smartphone)
+         Hierarki prioritas mobile: Kode, Lokasi, Kapasitas, Kondisi, Konteks Jadwal, CTA Mulai Pemeriksaan
+         ================================================================== -->
+    <div class="block sm:hidden mb-6">
+        <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-3.5">
+            <!-- Lokasi & Detail Fisik Prioritas -->
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Lokasi Penempatan</span>
+                    <span class="text-xs font-semibold text-slate-700">{{ $apar->gedung?->nama ?? '-' }} (Lt. {{ $apar->lantai?->nomor_lantai ?? '-' }})</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1">
+                    <div class="font-bold text-slate-900">{{ $apar->ruangan?->nama ?? 'Area Umum' }}</div>
+                    @if($apar->posisi_detail)
+                        <div class="text-[11px] text-slate-600 italic">{{ $apar->posisi_detail }}</div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Kapasitas & Media + Kondisi Terakhir -->
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                    <span class="text-[10px] font-medium uppercase text-slate-400 block">Media & Kapasitas</span>
+                    <span class="font-semibold text-slate-800 text-xs block truncate">{{ $apar->jenis_media }}</span>
+                    <span class="font-mono text-[11px] text-slate-600 font-bold">{{ $apar->kapasitas }}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                    <span class="text-[10px] font-medium uppercase text-slate-400 block">Kondisi Terakhir</span>
+                    <span class="font-semibold text-slate-800 text-xs block">{{ $apar->status_label }}</span>
+                    <span class="font-mono text-[11px] text-slate-600">
+                        {{ $apar->tanggal_pemeriksaan_terakhir ? $apar->tanggal_pemeriksaan_terakhir->format('d/m/Y') : 'Belum dicek' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Konteks Jadwal Pemeriksaan -->
+            @php $activeJadwalMobile = $apar->active_jadwal; @endphp
+            @if($activeJadwalMobile)
+                <div class="p-2.5 rounded-lg bg-sky-50 border border-sky-200 text-xs space-y-0.5">
+                    <div class="flex items-center gap-1.5 text-sky-950 font-bold">
+                        <svg class="w-3.5 h-3.5 text-sky-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Jadwal: {{ $activeJadwalMobile->nama }}</span>
+                    </div>
+                    <span class="text-[11px] text-sky-700 block font-mono">
+                        Periode {{ $activeJadwalMobile->tanggal_mulai->format('d/m/Y') }} - {{ $activeJadwalMobile->tanggal_selesai->format('d/m/Y') }}
+                    </span>
+                </div>
+            @else
+                <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                    <span class="font-semibold text-slate-800 block">Pemeriksaan Mandiri (Ad-Hoc)</span>
+                    <span class="text-[11px] text-slate-500">Unit belum masuk siklus jadwal aktif.</span>
+                </div>
+            @endif
+
+            <!-- CTA Utama Mobile: Mulai Pemeriksaan -->
+            @if($apar->status === 'tidak_aktif' || $apar->is_replaced)
+                <div class="w-full py-2.5 px-3 rounded-lg bg-slate-100 border border-slate-200 text-slate-400 font-semibold text-xs text-center min-h-[44px] flex items-center justify-center">
+                    <span>Unit Tidak Aktif (Tidak Dapat Diperiksa)</span>
+                </div>
+            @else
+                <a href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id, 'jadwal_id' => request('jadwal_id') ?? $apar->active_jadwal?->id]) }}" 
+                   class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition shadow-sm min-h-[44px]">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Mulai Pemeriksaan</span>
+                </a>
+            @endif
+
+            <!-- Opsi Unit (Collapsible Menu Sekunder di Mobile) -->
+            <details class="pt-2 border-t border-slate-100 group">
+                <summary class="flex items-center justify-between text-xs font-semibold text-slate-600 hover:text-slate-900 cursor-pointer py-1.5 list-none min-h-[44px]">
+                    <span class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Opsi Unit & Administrasi</span>
+                    </span>
+                    <svg class="w-3.5 h-3.5 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </summary>
+                <div class="pt-2 grid grid-cols-2 gap-2 text-xs">
+                    @if($apar->can_be_replaced)
+                        <a href="{{ route('apar.ganti', $apar->id) }}" 
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-amber-900 bg-amber-50 border border-amber-300 font-semibold min-h-[44px]">
+                            <span>Ganti APAR</span>
+                        </a>
+                    @endif
+                    <a href="{{ route('apar.cetak_qr', $apar->id) }}" target="_blank"
+                       class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-slate-700 bg-white border border-slate-200 font-semibold min-h-[44px]">
+                        <span>Cetak QR</span>
+                    </a>
+                    <a href="{{ url('/penempatan?lantai=' . ($apar->lantai?->nomor_lantai ?? 1) . '&highlight=' . $apar->kode) }}" 
+                       class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-slate-700 bg-white border border-slate-200 font-semibold min-h-[44px]">
+                        <span>Titik Denah</span>
+                    </a>
+                    <a href="{{ route('apar.edit', $apar->id) }}" 
+                       class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-slate-700 bg-white border border-slate-200 font-semibold min-h-[44px]">
+                        <span>Edit Data</span>
+                    </a>
+                    <a href="{{ route('apar.index') }}" 
+                       class="col-span-2 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-slate-600 bg-slate-50 border border-slate-200 font-semibold min-h-[44px]">
+                        <span>Kembali ke Master APAR</span>
+                    </a>
+                </div>
+            </details>
+        </div>
+    </div>
+
     @if($apar->is_replaced)
         <!-- Banner APAR Lama yang Sudah Diganti (Tahap 8, Section 3, 21, 22) -->
         <div class="mb-6 p-4 rounded-xl border border-rose-200 bg-rose-50/90 text-rose-950 text-xs shadow-2xs" role="alert">
@@ -222,12 +336,12 @@
             </div>
         </div>
     @else
-        <!-- Banner Status Jadwal Inspeksi Aktif (Section 7) -->
+        <!-- Banner Status Jadwal Inspeksi Aktif (Hanya untuk Desktop sm: ke atas) -->
         @php
             $activeJadwalUnit = $apar->active_jadwal;
         @endphp
         @if($activeJadwalUnit)
-            <div class="mb-6 p-3.5 rounded-xl border border-sky-200 bg-sky-50 text-sky-950 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div class="hidden sm:flex mb-6 p-3.5 rounded-xl border border-sky-200 bg-sky-50 text-sky-950 text-xs flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                 <div class="flex items-center gap-2.5">
                     <span class="w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -242,15 +356,15 @@
                     </div>
                 </div>
                 <a href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id, 'jadwal_id' => $activeJadwalUnit->id]) }}" 
-                   class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs transition shrink-0 min-h-[44px]">
-                    <span>Mulai Pemeriksaan Jadwal</span>
+                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs transition shrink-0 min-h-[44px]">
+                    <span>Mulai Pemeriksaan</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
                 </a>
             </div>
         @else
-            <div class="mb-6 p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-950 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div class="hidden sm:flex mb-6 p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-950 text-xs flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                 <div class="flex items-center gap-2.5">
                     <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -265,8 +379,8 @@
                     </div>
                 </div>
                 <a href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id]) }}" 
-                   class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs transition shrink-0 min-h-[44px]">
-                    <span>Mulai Pemeriksaan Mandiri</span>
+                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs transition shrink-0 min-h-[44px]">
+                    <span>Mulai Pemeriksaan</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>

@@ -175,7 +175,7 @@
                 </dl>
             </x-card>
 
-            <!-- 3. Alur Kelanjutan: Gate Pemeriksaan Menuju Tahap 6 -->
+            <!-- 3. Alur Kelanjutan: Lanjutkan ke Checklist Fisik -->
             <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-2xs space-y-4">
                 <div class="flex items-start gap-3">
                     <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
@@ -185,10 +185,10 @@
                     </span>
                     <div>
                         <h3 class="text-sm font-bold text-slate-900">
-                            Unit APAR Siap Dilakukan Pemeriksaan
+                            Identitas APAR Terverifikasi
                         </h3>
                         <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                            Alur Tahap 5 telah selesai menghubungkan Jadwal/Scan QR dengan record APAR yang valid. Pengisian parameter checklist fisik, verifikasi visual tekanan manometer, segel, dan catatan kondisi akan diolah pada <span class="font-semibold text-slate-700">Tahap 6 (Checklist & Log Pemeriksaan)</span>.
+                            Identitas APAR sudah terverifikasi. Silakan lanjutkan pemeriksaan fisik APAR di lokasi.
                         </p>
                     </div>
                 </div>
@@ -203,7 +203,7 @@
                         <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                         </svg>
-                        <span>Lanjutkan ke Checklist Fisik</span>
+                        <span>Buka Lembar Checklist</span>
                     </a>
                 </div>
             </div>
@@ -254,7 +254,7 @@
         </div>
     </div>
 
-    <!-- Modal Info Siap untuk Tahap 6 -->
+    <!-- Modal Info Verifikasi Selesai -->
     <div id="modal-tahap6-info" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
             <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
@@ -263,10 +263,10 @@
                 </svg>
             </div>
             <h3 class="text-base font-bold text-slate-900">
-                Alur Tahap 5 Selesai & Terverifikasi
+                Identitas APAR Terverifikasi
             </h3>
             <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-                Unit APAR <span class="font-mono font-bold text-slate-900">{{ $apar->kode }}</span> telah berhasil diidentifikasi melalui sistem dan siap masuk ke pemeriksaan.
+                Unit APAR <span class="font-mono font-bold text-slate-900">{{ $apar->kode }}</span> telah berhasil diidentifikasi melalui sistem dan siap masuk ke pemeriksaan fisik.
             </p>
             <div class="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-700 space-y-1">
                 <div class="flex items-center gap-1.5 font-medium">
@@ -280,7 +280,7 @@
                 </div>
             </div>
             <p class="text-[11px] text-slate-500 mt-3 italic">
-                Formulir isian checklist lengkap, upload foto temuan, dan log pemeriksaan akan dikerjakan pada Tahap 6.
+                Silakan lanjutkan pengisian checklist fisik, dokumentasi foto, dan catatan kondisi lapangan.
             </p>
             <div class="mt-5 flex justify-end gap-2">
                 <button type="button" 
