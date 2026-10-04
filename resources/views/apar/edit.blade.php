@@ -326,24 +326,27 @@
             </div>
 
             <!-- Tombol Aksi di Bagian Bawah Form -->
-            <div class="pt-5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
-                <!-- Tombol Hapus Soft Delete -->
-                <button 
-                    type="button"
-                    onclick="if(confirm('Apakah Anda yakin ingin menghapus unit APAR {{ $apar->kode }}? Data riwayat unit tetap disimpan di arsip sistem.')) document.getElementById('delete-apar-form').submit();"
-                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-rose-700 hover:text-rose-900 hover:bg-rose-50 text-xs font-semibold transition border border-rose-200 min-h-[44px]">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                    <span>Hapus Unit APAR</span>
-                </button>
+            <div class="pt-5 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <!-- Tombol Hapus Soft Delete (Danger) -->
+                <div>
+                    <button 
+                        type="button"
+                        onclick="if(confirm('Apakah Anda yakin ingin menghapus unit APAR {{ $apar->kode }}? Data riwayat unit tetap disimpan di arsip sistem.')) document.getElementById('delete-apar-form').submit();"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-lg text-rose-700 hover:text-rose-900 hover:bg-rose-50 text-xs font-semibold transition border border-rose-200 min-h-[44px]">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        <span>Hapus Unit APAR</span>
+                    </button>
+                </div>
 
-                <div class="flex items-center gap-3">
-                    <x-button variant="secondary" href="{{ route('apar.show', $apar->id) }}">
+                <!-- Primary & Secondary Actions -->
+                <div class="flex flex-col-reverse sm:flex-row sm:items-center gap-2.5">
+                    <x-button variant="secondary" href="{{ route('apar.show', $apar->id) }}" class="w-full sm:w-auto">
                         Batal
                     </x-button>
 
-                    <x-button variant="primary" type="submit">
+                    <x-button variant="primary" type="submit" class="w-full sm:w-auto">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                         </svg>

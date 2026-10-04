@@ -315,12 +315,12 @@
             </div>
 
             <!-- Tombol Aksi di Bagian Bawah Form -->
-            <div class="pt-5 border-t border-slate-200 flex flex-wrap items-center justify-end gap-3">
-                <x-button variant="secondary" href="{{ route('apar.index') }}">
+            <div class="pt-5 border-t border-slate-200 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
+                <x-button variant="secondary" href="{{ route('apar.index') }}" class="w-full sm:w-auto">
                     Batal
                 </x-button>
 
-                <x-button variant="primary" type="submit">
+                <x-button variant="primary" type="submit" class="w-full sm:w-auto">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                     </svg>

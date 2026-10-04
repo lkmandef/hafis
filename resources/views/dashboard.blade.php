@@ -28,102 +28,102 @@
     </x-page-header>
 
     <!-- 2. Ringkasan Utama Dashboard (Step 2: 5 Metrik Inti Terhubung ke Data Riil) -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5 mb-6">
         <!-- 1. Total APAR Aktif -->
         <a href="{{ route('apar.index', ['status' => 'aktif']) }}" 
-           class="group p-4 sm:p-4.5 rounded-xl bg-slate-900 text-white border border-slate-800 shadow-2xs hover:bg-slate-800 transition-all flex flex-col justify-between min-h-[110px]">
+           class="group p-3 sm:p-4.5 rounded-xl bg-slate-900 text-white border border-slate-800 shadow-2xs hover:bg-slate-800 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
             <div>
-                <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 group-hover:text-slate-300">
+                <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 group-hover:text-slate-300">
                     Total APAR Aktif
                 </span>
-                <div class="mt-1.5 flex items-baseline gap-1.5">
-                    <span class="font-extrabold text-2xl sm:text-3xl tabular-nums tracking-tight">
+                <div class="mt-1 sm:mt-1.5 flex items-baseline gap-1.5">
+                    <span class="font-extrabold text-xl sm:text-2xl lg:text-3xl tabular-nums tracking-tight">
                         {{ $summaryStats['apar_aktif'] }}
                     </span>
-                    <span class="text-xs text-slate-400 font-medium">unit</span>
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-medium">unit</span>
                 </div>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
-                <span>Total terdaftar: {{ $summaryStats['apar_total'] }}</span>
+            <div class="mt-2 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-slate-800 text-[10px] sm:text-[11px] text-slate-400 flex items-center justify-between">
+                <span>Total: {{ $summaryStats['apar_total'] }}</span>
                 <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
             </div>
         </a>
 
         <!-- 2. APAR Kondisi Baik -->
         <a href="{{ route('apar.index', ['kondisi' => 'baik']) }}" 
-           class="group p-4 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-emerald-600 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[110px]">
+           class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-emerald-600 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
             <div>
-                <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     Kondisi Baik
                 </span>
-                <div class="mt-1.5 flex items-baseline gap-1.5">
-                    <span class="font-extrabold text-2xl sm:text-3xl tabular-nums tracking-tight text-emerald-700">
+                <div class="mt-1 sm:mt-1.5 flex items-baseline gap-1.5">
+                    <span class="font-extrabold text-xl sm:text-2xl lg:text-3xl tabular-nums tracking-tight text-emerald-700">
                         {{ $kondisiCounts['baik'] }}
                     </span>
-                    <span class="text-xs text-slate-400 font-medium">unit</span>
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-medium">unit</span>
                 </div>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
-                <span>{{ $kondisiPersen['baik'] }}% dari total unit</span>
+            <div class="mt-2 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 flex items-center justify-between">
+                <span>{{ $kondisiPersen['baik'] }}% total</span>
                 <span class="text-emerald-700 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
             </div>
         </a>
 
         <!-- 3. APAR Perlu Perhatian -->
         <a href="{{ route('apar.index', ['kondisi' => 'perhatian']) }}" 
-           class="group p-4 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-amber-500 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[110px]">
+           class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-amber-500 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
             <div>
-                <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     Perlu Perhatian
                 </span>
-                <div class="mt-1.5 flex items-baseline gap-1.5">
-                    <span class="font-extrabold text-2xl sm:text-3xl tabular-nums tracking-tight text-amber-700">
+                <div class="mt-1 sm:mt-1.5 flex items-baseline gap-1.5">
+                    <span class="font-extrabold text-xl sm:text-2xl lg:text-3xl tabular-nums tracking-tight text-amber-700">
                         {{ $summaryStats['apar_perhatian'] }}
                     </span>
-                    <span class="text-xs text-slate-400 font-medium">unit</span>
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-medium">unit</span>
                 </div>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
-                <span>Pantau tekanan/segel</span>
+            <div class="mt-2 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 flex items-center justify-between">
+                <span>Pantau unit</span>
                 <span class="text-amber-700 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
             </div>
         </a>
 
         <!-- 4. APAR Rusak / Perlu Tindakan -->
         <a href="{{ route('apar.index', ['kondisi' => 'rusak']) }}" 
-           class="group p-4 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-rose-500 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[110px]">
+           class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-rose-500 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
             <div>
-                <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     Rusak / Defect
                 </span>
-                <div class="mt-1.5 flex items-baseline gap-1.5">
-                    <span class="font-extrabold text-2xl sm:text-3xl tabular-nums tracking-tight text-rose-700">
+                <div class="mt-1 sm:mt-1.5 flex items-baseline gap-1.5">
+                    <span class="font-extrabold text-xl sm:text-2xl lg:text-3xl tabular-nums tracking-tight text-rose-700">
                         {{ $summaryStats['apar_rusak'] }}
                     </span>
-                    <span class="text-xs text-slate-400 font-medium">unit</span>
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-medium">unit</span>
                 </div>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
-                <span>Perlu tindakan teknis</span>
+            <div class="mt-2 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 flex items-center justify-between">
+                <span>Perlu tindakan</span>
                 <span class="text-rose-700 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
             </div>
         </a>
 
         <!-- 5. Tindak Lanjut Belum Selesai -->
         <a href="{{ route('tindak-lanjut.index', ['status' => 'belum_ditindaklanjuti']) }}" 
-           class="group p-4 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-indigo-600 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[110px] col-span-2 sm:col-span-1">
+           class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-indigo-600 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px] col-span-2 sm:col-span-1">
             <div>
-                <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     Tindak Lanjut Pending
                 </span>
-                <div class="mt-1.5 flex items-baseline gap-1.5">
-                    <span class="font-extrabold text-2xl sm:text-3xl tabular-nums tracking-tight text-indigo-700">
+                <div class="mt-1 sm:mt-1.5 flex items-baseline gap-1.5">
+                    <span class="font-extrabold text-xl sm:text-2xl lg:text-3xl tabular-nums tracking-tight text-indigo-700">
                         {{ $summaryStats['tl_belum_selesai'] }}
                     </span>
-                    <span class="text-xs text-slate-400 font-medium">tindakan</span>
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-medium">tindakan</span>
                 </div>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+            <div class="mt-2 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 flex items-center justify-between">
                 <span>{{ $tindakLanjutStats['belum'] }} baru, {{ $tindakLanjutStats['proses'] }} proses</span>
                 <span class="text-indigo-700 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
             </div>
@@ -163,55 +163,55 @@
             </div>
 
             <!-- Rincian Legend Status -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <a href="{{ route('apar.index', ['kondisi' => 'baik']) }}" class="p-3 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:bg-emerald-50 transition-colors">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
+                <a href="{{ route('apar.index', ['kondisi' => 'baik']) }}" class="p-2.5 sm:p-3 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:bg-emerald-50 transition-colors">
                     <div class="flex items-center gap-1.5 font-semibold text-emerald-900 mb-1">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                        <span>Baik</span>
+                        <span class="text-xs">Baik</span>
                     </div>
-                    <div class="font-extrabold text-lg text-emerald-800 font-mono tabular-nums">
+                    <div class="font-extrabold text-base sm:text-lg text-emerald-800 font-mono tabular-nums">
                         {{ $kondisiCounts['baik'] }} <span class="text-xs font-normal text-emerald-700">unit</span>
                     </div>
-                    <span class="text-[11px] text-emerald-700">{{ $kondisiPersen['baik'] }}% operasional</span>
+                    <span class="text-[10px] sm:text-[11px] text-emerald-700">{{ $kondisiPersen['baik'] }}% operasional</span>
                 </a>
 
-                <a href="{{ route('apar.index', ['kondisi' => 'perhatian']) }}" class="p-3 rounded-lg bg-amber-50/60 border border-amber-100 hover:bg-amber-50 transition-colors">
+                <a href="{{ route('apar.index', ['kondisi' => 'perhatian']) }}" class="p-2.5 sm:p-3 rounded-lg bg-amber-50/60 border border-amber-100 hover:bg-amber-50 transition-colors">
                     <div class="flex items-center gap-1.5 font-semibold text-amber-900 mb-1">
                         <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                        <span>Perlu Perhatian</span>
+                        <span class="text-xs">Perlu Perhatian</span>
                     </div>
-                    <div class="font-extrabold text-lg text-amber-800 font-mono tabular-nums">
-                        {{ $kondisiCounts['perhatian'] }} <span class="text-xs font-normal text-amber-700">unit</span>
+                    <div class="font-extrabold text-base sm:text-lg text-amber-800 font-mono tabular-nums">
+                        {{ $summaryStats['apar_perhatian'] }} <span class="text-xs font-normal text-amber-700">unit</span>
                     </div>
-                    <span class="text-[11px] text-amber-700">{{ $kondisiPersen['perhatian'] }}% dipantau</span>
+                    <span class="text-[10px] sm:text-[11px] text-amber-700">{{ $kondisiPersen['perhatian'] }}% dipantau</span>
                 </a>
 
-                <a href="{{ route('apar.index', ['kondisi' => 'rusak']) }}" class="p-3 rounded-lg bg-rose-50/60 border border-rose-100 hover:bg-rose-50 transition-colors">
+                <a href="{{ route('apar.index', ['kondisi' => 'rusak']) }}" class="p-2.5 sm:p-3 rounded-lg bg-rose-50/60 border border-rose-100 hover:bg-rose-50 transition-colors">
                     <div class="flex items-center gap-1.5 font-semibold text-rose-900 mb-1">
                         <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                        <span>Rusak</span>
+                        <span class="text-xs">Rusak</span>
                     </div>
-                    <div class="font-extrabold text-lg text-rose-800 font-mono tabular-nums">
-                        {{ $kondisiCounts['rusak'] }} <span class="text-xs font-normal text-rose-700">unit</span>
+                    <div class="font-extrabold text-base sm:text-lg text-rose-800 font-mono tabular-nums">
+                        {{ $summaryStats['apar_rusak'] }} <span class="text-xs font-normal text-rose-700">unit</span>
                     </div>
-                    <span class="text-[11px] text-rose-700">{{ $kondisiPersen['rusak'] }}% tidak laik</span>
+                    <span class="text-[10px] sm:text-[11px] text-rose-700">{{ $kondisiPersen['rusak'] }}% tidak laik</span>
                 </a>
 
-                <a href="{{ route('apar.index', ['status' => 'tidak_aktif']) }}" class="p-3 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100/70 transition-colors">
+                <a href="{{ route('apar.index', ['status' => 'tidak_aktif']) }}" class="p-2.5 sm:p-3 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100/70 transition-colors">
                     <div class="flex items-center gap-1.5 font-semibold text-slate-700 mb-1">
                         <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
-                        <span>Nonaktif / Arsip</span>
+                        <span class="text-xs">Nonaktif / Arsip</span>
                     </div>
-                    <div class="font-extrabold text-lg text-slate-800 font-mono tabular-nums">
+                    <div class="font-extrabold text-base sm:text-lg text-slate-800 font-mono tabular-nums">
                         {{ $kondisiCounts['tidak_aktif'] }} <span class="text-xs font-normal text-slate-500">unit</span>
                     </div>
-                    <span class="text-[11px] text-slate-500">{{ $kondisiPersen['tidak_aktif'] }}% digantikan</span>
+                    <span class="text-[10px] sm:text-[11px] text-slate-500">{{ $kondisiPersen['tidak_aktif'] }}% diganti</span>
                 </a>
             </div>
         </div>
 
         <!-- Kolom Kanan: Jadwal Inspeksi Aktif (Step 6) -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-6 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between pb-3.5 mb-4 border-b border-slate-100">
                     <div>
@@ -278,7 +278,7 @@
             <div class="mt-4 pt-3 border-t border-slate-100">
                 @if($jadwalData)
                     <a href="{{ route('jadwal.show', $jadwalData['model']->id) }}" 
-                       class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition min-h-[38px]">
+                       class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition min-h-[44px]">
                         <span>Buka Lembar Jadwal</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -286,7 +286,7 @@
                     </a>
                 @else
                     <a href="{{ route('jadwal.create') }}" 
-                       class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition min-h-[38px]">
+                       class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition min-h-[44px]">
                         <span>Buat Jadwal Inspeksi Baru</span>
                     </a>
                 @endif
@@ -388,13 +388,13 @@
                             <td class="py-3 px-4 text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center gap-1.5">
                                     <a href="{{ route('apar.show', $apar->id) }}" 
-                                       class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition min-h-[38px] sm:min-h-[32px]">
                                         Detail APAR
                                     </a>
 
                                     @if(!$latestTl || $latestTl->status === 'selesai')
                                         <a href="{{ route('tindak-lanjut.create', ['apar_id' => $apar->id]) }}" 
-                                           class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-lg text-amber-800 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition">
+                                           class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-lg text-amber-800 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition min-h-[38px] sm:min-h-[32px]">
                                             + Tindak Lanjut
                                         </a>
                                     @endif
@@ -475,7 +475,7 @@
                                 </td>
                                 <td class="py-2.5 px-4 text-center whitespace-nowrap">
                                     <a href="{{ route('pemeriksaan.show', $p->id) }}" 
-                                       class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition min-h-[38px] sm:min-h-[30px]">
                                         Checklist
                                     </a>
                                 </td>
@@ -552,7 +552,7 @@
                                 </td>
                                 <td class="py-2.5 px-4 text-center whitespace-nowrap">
                                     <a href="{{ route('tindak-lanjut.show', $tl->id) }}" 
-                                       class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition min-h-[38px] sm:min-h-[30px]">
                                         Rincian
                                     </a>
                                 </td>
@@ -620,7 +620,7 @@
                                 </td>
                                 <td class="py-2.5 px-4 text-center whitespace-nowrap">
                                     <a href="{{ route('apar.index', ['gedung_id' => $g['id']]) }}" 
-                                       class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition min-h-[38px] sm:min-h-[30px]">
                                         Filter Gedung
                                     </a>
                                 </td>
@@ -683,7 +683,7 @@
                                 </td>
                                 <td class="py-2.5 px-4 text-center whitespace-nowrap">
                                     <a href="{{ route('penggantian.show', $penggantian->id) }}" 
-                                       class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition min-h-[38px] sm:min-h-[30px]">
                                         Detail
                                     </a>
                                 </td>

@@ -281,13 +281,13 @@
                 </div>
 
                 <!-- Form Action Buttons -->
-                <div class="mt-6 pt-4 border-t border-slate-200 flex flex-wrap items-center justify-end gap-3">
+                <div class="mt-6 pt-4 border-t border-slate-200 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
                     <a href="{{ route('pemeriksaan.show', $pemeriksaan->id) }}"
-                       class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition min-h-[44px]">
+                       class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition min-h-[44px] w-full sm:w-auto">
                         Batal
                     </a>
                     <button type="submit"
-                            class="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-2xs min-h-[44px]">
+                            class="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-2xs min-h-[44px] w-full sm:w-auto">
                         <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                         </svg>

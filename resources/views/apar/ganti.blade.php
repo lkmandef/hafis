@@ -86,12 +86,12 @@
                                 {{ $aparLama->status_label }}
                             </x-badge>
                         </div>
-                        <span class="text-[10px] text-slate-400 block font-mono mt-1">ID DB: #{{ $aparLama->id }}</span>
+                        <span class="text-[10px] text-slate-400 block font-mono mt-1">No. Arsip: #{{ $aparLama->id }}</span>
                     </div>
                 </div>
 
                 @if($aparLama->has_titik)
-                    <div class="mt-3 p-3 rounded-lg bg-sky-50 border border-sky-200 text-xs text-sky-900 flex items-center justify-between gap-3">
+                    <div class="mt-3 p-3 rounded-lg bg-sky-50 border border-sky-200 text-xs text-sky-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="flex items-center gap-2">
                             <svg class="w-4 h-4 text-sky-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -99,7 +99,7 @@
                             </svg>
                             <span>Unit lama memiliki koordinat titik denah aktif (X: {{ $aparLama->koordinat_x }}%, Y: {{ $aparLama->koordinat_y }}%).</span>
                         </div>
-                        <label class="inline-flex items-center gap-2 cursor-pointer shrink-0">
+                        <label class="inline-flex items-center gap-2 cursor-pointer shrink-0 mt-1 sm:mt-0">
                             <input type="checkbox" name="salin_titik_denah" value="1" {{ old('salin_titik_denah', '1') == '1' ? 'checked' : '' }} class="rounded border-slate-300 text-slate-900 focus:ring-slate-900 w-4 h-4">
                             <span class="font-semibold text-sky-950">Gunakan titik denah ini untuk APAR baru</span>
                         </label>
@@ -434,15 +434,15 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t border-slate-200">
                 <a href="{{ route('apar.show', $aparLama->id) }}" 
-                   class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition min-h-[44px]">
+                   class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition min-h-[44px] w-full sm:w-auto">
                     Batal
                 </a>
 
                 <button type="submit" 
                         id="btn-submit-penggantian"
-                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[44px] cursor-pointer">
+                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[44px] cursor-pointer w-full sm:w-auto">
                     <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                     </svg>

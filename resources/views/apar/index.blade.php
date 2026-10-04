@@ -31,52 +31,52 @@
     @endif
 
     <!-- Ringkasan Status Unit APAR (Real Data) -->
-    <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 mb-6">
-        <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Terdaftar</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl font-bold text-slate-900 font-mono">{{ $totalApar }}</span>
-                <span class="text-[11px] text-slate-400">unit</span>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-5 sm:mb-6">
+        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Unit</span>
+            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
+                <span class="text-lg sm:text-xl font-bold text-slate-900 font-mono">{{ $totalApar }}</span>
+                <span class="text-[10px] sm:text-[11px] text-slate-400">unit</span>
             </div>
         </div>
 
-        <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block">Unit Aktif</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl font-bold text-emerald-800 font-mono">{{ $totalAktif }}</span>
-                <span class="text-[11px] text-slate-400">operasional</span>
+        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block">Unit Aktif</span>
+            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
+                <span class="text-lg sm:text-xl font-bold text-emerald-800 font-mono">{{ $totalAktif }}</span>
+                <span class="text-[10px] sm:text-[11px] text-slate-400">aktif</span>
             </div>
         </div>
 
-        <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">Kondisi Baik</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl font-bold text-emerald-700 font-mono">{{ $totalBaik }}</span>
-                <span class="text-[11px] text-slate-400">siap guna</span>
+        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">Kondisi Baik</span>
+            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
+                <span class="text-lg sm:text-xl font-bold text-emerald-700 font-mono">{{ $totalBaik }}</span>
+                <span class="text-[10px] sm:text-[11px] text-slate-400">siap guna</span>
             </div>
         </div>
 
-        <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">Perhatian</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl font-bold text-amber-800 font-mono">{{ $totalPerhatian }}</span>
-                <span class="text-[11px] text-slate-400">pantau</span>
+        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-amber-700 uppercase tracking-wider block">Perhatian</span>
+            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
+                <span class="text-lg sm:text-xl font-bold text-amber-800 font-mono">{{ $totalPerhatian }}</span>
+                <span class="text-[10px] sm:text-[11px] text-slate-400">pantau</span>
             </div>
         </div>
 
-        <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Rusak</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl font-bold text-rose-800 font-mono">{{ $totalRusak }}</span>
-                <span class="text-[11px] text-slate-400">perlu tindakan</span>
+        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-rose-700 uppercase tracking-wider block">Rusak</span>
+            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
+                <span class="text-lg sm:text-xl font-bold text-rose-800 font-mono">{{ $totalRusak }}</span>
+                <span class="text-[10px] sm:text-[11px] text-slate-400">tindakan</span>
             </div>
         </div>
 
-        <div class="p-3.5 bg-white border border-slate-200 rounded-xl">
-            <span class="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block">Sudah Diganti</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl font-bold text-slate-700 font-mono">{{ $totalSudahDiganti }}</span>
-                <span class="text-[11px] text-slate-400">arsip riwayat</span>
+        <div class="p-2.5 sm:p-3.5 bg-white border border-slate-200 rounded-xl">
+            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-600 uppercase tracking-wider block">Sudah Diganti</span>
+            <div class="mt-0.5 sm:mt-1 flex items-baseline gap-1.5">
+                <span class="text-lg sm:text-xl font-bold text-slate-700 font-mono">{{ $totalSudahDiganti }}</span>
+                <span class="text-[10px] sm:text-[11px] text-slate-400">arsip</span>
             </div>
         </div>
     </div>
@@ -288,17 +288,17 @@
                             <td class="px-4 py-3 whitespace-nowrap text-right">
                                 <div class="inline-flex items-center gap-1.5 justify-end">
                                     <a href="{{ route('apar.show', $apar->id) }}" 
-                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-md text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[36px] focus:outline-none focus:ring-2 focus:ring-slate-400">
+                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-md text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[38px] sm:min-h-[32px] focus:outline-none focus:ring-2 focus:ring-slate-400">
                                         Detail
                                     </a>
                                     @if($apar->can_be_replaced)
                                         <a href="{{ route('apar.ganti', $apar->id) }}" 
-                                           class="inline-flex items-center justify-center px-2 py-1.5 text-xs font-semibold rounded-md text-amber-800 bg-amber-50 border border-amber-300 hover:bg-amber-100 transition-colors min-h-[36px]" title="Ganti Unit APAR">
+                                           class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-md text-amber-800 bg-amber-50 border border-amber-300 hover:bg-amber-100 transition-colors min-h-[38px] sm:min-h-[32px]" title="Ganti Unit APAR">
                                             Ganti
                                         </a>
                                     @endif
                                     <a href="{{ route('apar.edit', $apar->id) }}" 
-                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-md text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[36px] focus:outline-none focus:ring-2 focus:ring-slate-400">
+                                       class="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-semibold rounded-md text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[38px] sm:min-h-[32px] focus:outline-none focus:ring-2 focus:ring-slate-400">
                                         Edit
                                     </a>
                                 </div>
