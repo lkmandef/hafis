@@ -21,7 +21,6 @@
             @if(!in_array($jadwal->status, ['dibatalkan', 'selesai']))
                 <form action="{{ route('jadwal.batalkan', $jadwal->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan jadwal inspeksi ini?')">
                     @csrf
-                    @method('PATCH')
                     <button 
                         type="submit" 
                         class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-rose-200 text-rose-700 bg-white hover:bg-rose-50 font-semibold text-xs transition min-h-[44px]"

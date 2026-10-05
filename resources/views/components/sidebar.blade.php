@@ -40,7 +40,7 @@
             $isTindakLanjut = request()->is('tindak-lanjut*');
             $isPenggantian = request()->is('penggantian*');
             $isLaporan = request()->is('laporan*') || request()->is('riwayat*');
-            $isPenempatan = request()->is('penempatan*');
+            $isLokasi = request()->is('lokasi*') || request()->is('penempatan*');
             @endphp
 
             <!-- Dashboard -->
@@ -83,19 +83,7 @@
                 <span>Penggantian APAR</span>
             </a>
 
-            <!-- Titik Penempatan -->
-            <a href="{{ url('/penempatan') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] {{ $isPenempatan ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }} focus:outline-none focus:ring-2 focus:ring-slate-900">
-                <svg class="w-4 h-4 shrink-0 {{ $isPenempatan ? 'text-slate-900' : 'text-slate-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                <span>Titik Penempatan</span>
-            </a>
-
             <!-- Struktur Lokasi -->
-            @php
-            $isLokasi = request()->is('lokasi*');
-            @endphp
             <a href="{{ url('/lokasi') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] {{ $isLokasi ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }} focus:outline-none focus:ring-2 focus:ring-slate-900">
                 <svg class="w-4 h-4 shrink-0 {{ $isLokasi ? 'text-slate-900' : 'text-slate-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
