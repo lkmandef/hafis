@@ -4,23 +4,13 @@
         reportTitle="LAPORAN DATA MASTER & STATUS APAR RUMAH SAKIT" 
         :filters="$filtersSummary">
 
-        <!-- Ringkasan Rekapitulasi Data -->
-        <div style="margin-bottom: 12px; display: flex; gap: 10px; font-size: 8pt;">
-            <div style="border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; background: #f8fafc;">
-                Total Unit: <strong>{{ $rekap['total'] }}</strong>
-            </div>
-            <div style="border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 4px; background: #ecfdf5; color: #065f46;">
-                Unit Aktif: <strong>{{ $rekap['aktif'] }}</strong>
-            </div>
-            <div style="border: 1px solid #fecaca; padding: 6px 10px; border-radius: 4px; background: #fef2f2; color: #991b1b;">
-                Kondisi Rusak: <strong>{{ $rekap['rusak'] }}</strong>
-            </div>
-            <div style="border: 1px solid #fde68a; padding: 6px 10px; border-radius: 4px; background: #fffbeb; color: #92400e;">
-                Perlu Perhatian: <strong>{{ $rekap['perhatian'] }}</strong>
-            </div>
-            <div style="border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; background: #f1f5f9;">
-                Tidak Aktif: <strong>{{ $rekap['tidak_aktif'] }}</strong>
-            </div>
+        {{-- Baris ringkasan tunggal --}}
+        <div style="margin-bottom: 10px; font-size: 8pt; color: #0f172a;">
+            Total Tabung APAR: <strong>{{ $rekap['total'] }}</strong> unit &nbsp;&bull;&nbsp;
+            Aktif: <strong>{{ $rekap['aktif'] }}</strong> &nbsp;&bull;&nbsp;
+            Perlu Perhatian: <strong>{{ $rekap['perhatian'] }}</strong> &nbsp;&bull;&nbsp;
+            Rusak: <strong>{{ $rekap['rusak'] }}</strong> &nbsp;&bull;&nbsp;
+            Tidak Aktif: <strong>{{ $rekap['tidak_aktif'] }}</strong>
         </div>
 
         <table class="data-table">
@@ -56,22 +46,22 @@
                         </td>
                         <td>
                             @if($a->status === 'baik')
-                                <span class="badge badge-success">Baik</span>
+                                <span class="status-normal">Baik</span>
                             @elseif($a->status === 'perhatian')
-                                <span class="badge badge-warning">Perhatian</span>
+                                <span class="status-perhatian">Perhatian</span>
                             @elseif($a->status === 'rusak')
-                                <span class="badge badge-danger">Rusak</span>
+                                <span class="status-kritis">Rusak</span>
                             @else
-                                <span class="badge badge-neutral">Tidak Aktif</span>
+                                <span>Tidak Aktif</span>
                             @endif
                         </td>
                         <td>
                             @if($a->is_replaced)
-                                <span class="badge badge-neutral">Sudah Diganti</span>
+                                <span>Sudah Diganti</span>
                             @elseif($a->status === 'tidak_aktif')
-                                <span class="badge badge-neutral">Nonaktif</span>
+                                <span>Nonaktif</span>
                             @else
-                                <span class="badge badge-success">Aktif</span>
+                                <span class="status-normal">Aktif</span>
                             @endif
                         </td>
                         <td class="font-mono">
@@ -191,13 +181,13 @@
                             name="q"
                             value="{{ request('q') }}"
                             placeholder="Ketik kode APAR..."
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Gedung -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Gedung</label>
-                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Gedung</option>
                             @foreach($gedungs as $g)
                                 <option value="{{ $g->id }}" {{ request('gedung_id') == $g->id ? 'selected' : '' }}>
@@ -210,7 +200,7 @@
                     <!-- Lantai -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lantai</label>
-                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Lantai</option>
                             @foreach($lantais as $l)
                                 <option value="{{ $l->id }}" {{ request('lantai_id') == $l->id ? 'selected' : '' }}>
@@ -223,7 +213,7 @@
                     <!-- Kondisi Fisik -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Kondisi</label>
-                        <select name="kondisi" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="kondisi" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Kondisi</option>
                             <option value="baik" {{ request('kondisi') == 'baik' ? 'selected' : '' }}>Baik</option>
                             <option value="perhatian" {{ request('kondisi') == 'perhatian' ? 'selected' : '' }}>Perlu Perhatian</option>
@@ -234,7 +224,7 @@
                     <!-- Status Penggunaan -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Operasional</label>
-                        <select name="status" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="status" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Status</option>
                             <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
                             <option value="tidak_aktif" {{ request('status') == 'tidak_aktif' ? 'selected' : '' }}>Tidak Aktif</option>

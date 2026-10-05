@@ -4,23 +4,13 @@
         reportTitle="LAPORAN RIWAYAT PEMERIKSAAN & INSPEKSI FISIK APAR" 
         :filters="$filtersSummary">
 
-        <!-- Ringkasan Rekapitulasi Data -->
-        <div style="margin-bottom: 12px; display: flex; gap: 10px; font-size: 8pt;">
-            <div style="border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; background: #f8fafc;">
-                Total Pemeriksaan: <strong>{{ $rekap['total'] }}</strong>
-            </div>
-            <div style="border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 4px; background: #ecfdf5; color: #065f46;">
-                Kondisi Baik: <strong>{{ $rekap['baik'] }}</strong>
-            </div>
-            <div style="border: 1px solid #fecaca; padding: 6px 10px; border-radius: 4px; background: #fef2f2; color: #991b1b;">
-                Perlu Tindakan: <strong>{{ $rekap['perlu_tindakan'] }}</strong>
-            </div>
-            <div style="border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; background: #f1f5f9;">
-                Inspeksi Terjadwal: <strong>{{ $rekap['terjadwal'] }}</strong>
-            </div>
-            <div style="border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; background: #f8fafc;">
-                Inspeksi Mandiri: <strong>{{ $rekap['mandiri'] }}</strong>
-            </div>
+        {{-- Baris ringkasan tunggal --}}
+        <div style="margin-bottom: 10px; font-size: 8pt; color: #0f172a;">
+            Total Pemeriksaan: <strong>{{ $rekap['total'] }}</strong> kali &nbsp;&bull;&nbsp;
+            Hasil Baik: <strong>{{ $rekap['baik'] }}</strong> &nbsp;&bull;&nbsp;
+            Perlu Tindakan: <strong>{{ $rekap['perlu_tindakan'] }}</strong> &nbsp;&bull;&nbsp;
+            Jadwal Rutin: <strong>{{ $rekap['terjadwal'] }}</strong> &nbsp;&bull;&nbsp;
+            Mandiri: <strong>{{ $rekap['mandiri'] }}</strong>
         </div>
 
         <table class="data-table">
@@ -59,14 +49,14 @@
                         <td>{{ $p->pemeriksa_nama }}</td>
                         <td>
                             @if($p->hasil_keseluruhan === 'baik')
-                                <span class="badge badge-success">Baik</span>
+                                <span class="status-normal">Baik</span>
                             @else
-                                <span class="badge badge-danger">Perlu Tindakan</span>
+                                <span class="status-kritis">Perlu Tindakan</span>
                             @endif
                         </td>
                         <td>{{ $p->catatan ?: '-' }}</td>
                         <td>
-                            <span class="badge badge-neutral">{{ ucfirst($p->status ?? 'selesai') }}</span>
+                            <span>{{ ucfirst($p->status ?? 'selesai') }}</span>
                         </td>
                     </tr>
                 @empty
@@ -181,7 +171,7 @@
                             type="date"
                             name="dari_tanggal"
                             value="{{ request('dari_tanggal') }}"
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Sampai Tanggal -->
@@ -191,13 +181,13 @@
                             type="date"
                             name="sampai_tanggal"
                             value="{{ request('sampai_tanggal') }}"
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Gedung -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Gedung</label>
-                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Gedung</option>
                             @foreach($gedungs as $g)
                                 <option value="{{ $g->id }}" {{ request('gedung_id') == $g->id ? 'selected' : '' }}>
@@ -210,7 +200,7 @@
                     <!-- Lantai -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lantai</label>
-                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Lantai</option>
                             @foreach($lantais as $l)
                                 <option value="{{ $l->id }}" {{ request('lantai_id') == $l->id ? 'selected' : '' }}>
@@ -223,7 +213,7 @@
                     <!-- Hasil Pemeriksaan -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Hasil Pemeriksaan</label>
-                        <select name="hasil" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="hasil" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Hasil</option>
                             <option value="baik" {{ request('hasil') == 'baik' ? 'selected' : '' }}>Baik</option>
                             <option value="perlu_tindakan" {{ request('hasil') == 'perlu_tindakan' ? 'selected' : '' }}>Perlu Tindakan</option>
@@ -233,7 +223,7 @@
                     <!-- Jadwal Inspeksi -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jadwal Inspeksi</label>
-                        <select name="jadwal_id" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="jadwal_id" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Sumber Jadwal</option>
                             <option value="mandiri" {{ request('jadwal_id') == 'mandiri' ? 'selected' : '' }}>Pemeriksaan Mandiri (Ad-Hoc)</option>
                             @foreach($jadwals as $jadwal)

@@ -22,7 +22,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="min-h-screen bg-slate-100/60 text-slate-900 font-sans antialiased flex flex-col lg:flex-row">
+<body class="min-h-screen bg-slate-100 text-slate-900 font-sans antialiased flex flex-col lg:flex-row">
 
     <!-- Sidebar Komponen -->
     <x-sidebar />

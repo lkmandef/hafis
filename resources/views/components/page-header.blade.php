@@ -16,7 +16,7 @@
     </div>
 
     @if (isset($actions))
-        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <div class="w-full sm:w-auto flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-2.5 sm:shrink-0">
             {{ $actions }}
         </div>
     @endif

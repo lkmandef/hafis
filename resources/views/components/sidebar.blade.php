@@ -14,12 +14,12 @@
         <div class="flex items-center justify-between lg:justify-center pb-4 border-b border-slate-200">
             <a href="{{ url('/') }}" class="flex items-center justify-center w-auto lg:w-full focus:outline-none focus:ring-2 focus:ring-slate-900 rounded-lg p-1 group text-center" title="HAFIS">
                 <!-- Desktop Sidebar: hafis-logo.svg -->
-                <img src="{{ asset('images/brand/hafis-logo.svg') }}" 
-                     alt="HAFIS" 
+                <img src="{{ asset('images/brand/hafis-logo.svg') }}"
+                     alt="HAFIS"
                      class="h-16 lg:h-20 w-auto max-w-full object-contain object-center mx-auto hidden lg:block group-[.sidebar-collapsed]:!hidden" />
                 <!-- Mobile / Collapsed: hafis-mark.svg -->
-                <img src="{{ asset('images/brand/hafis-mark.svg') }}" 
-                     alt="HAFIS" 
+                <img src="{{ asset('images/brand/hafis-mark.svg') }}"
+                     alt="HAFIS"
                      class="h-11 w-auto object-contain object-center mx-auto block lg:hidden group-[.sidebar-collapsed]:!block" />
             </a>
 
@@ -29,6 +29,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
+        </div>
+
+        <!-- Identitas Institusi (desktop only) -->
+        <div class="hidden lg:block text-center pt-2 pb-3 border-b border-slate-100">
+            <p class="text-[10px] font-medium text-slate-500 leading-snug">RSUD dr. H. Moch. Ansari Saleh</p>
+            <p class="text-[9px] text-slate-400 leading-tight">Banjarmasin</p>
         </div>
 
         <!-- Navigation Links -->

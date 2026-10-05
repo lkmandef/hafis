@@ -4,20 +4,12 @@
         reportTitle="LAPORAN REKAPITULASI TINDAK LANJUT & PEMELIHARAAN APAR" 
         :filters="$filtersSummary">
 
-        <!-- Ringkasan Rekapitulasi Data -->
-        <div style="margin-bottom: 12px; display: flex; gap: 10px; font-size: 8pt;">
-            <div style="border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; background: #f8fafc;">
-                Total Tindak Lanjut: <strong>{{ $rekap['total'] }}</strong>
-            </div>
-            <div style="border: 1px solid #fecaca; padding: 6px 10px; border-radius: 4px; background: #fef2f2; color: #991b1b;">
-                Belum Ditindaklanjuti: <strong>{{ $rekap['belum_ditindaklanjuti'] }}</strong>
-            </div>
-            <div style="border: 1px solid #fde68a; padding: 6px 10px; border-radius: 4px; background: #fffbeb; color: #92400e;">
-                Dalam Proses: <strong>{{ $rekap['dalam_proses'] }}</strong>
-            </div>
-            <div style="border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 4px; background: #ecfdf5; color: #065f46;">
-                Selesai / Tuntas: <strong>{{ $rekap['selesai'] }}</strong>
-            </div>
+        {{-- Baris ringkasan tunggal --}}
+        <div style="margin-bottom: 10px; font-size: 8pt; color: #0f172a;">
+            Total Tindak Lanjut: <strong>{{ $rekap['total'] }}</strong> kegiatan &nbsp;&bull;&nbsp;
+            Belum Ditindaklanjuti: <strong>{{ $rekap['belum_ditindaklanjuti'] }}</strong> &nbsp;&bull;&nbsp;
+            Dalam Proses: <strong>{{ $rekap['dalam_proses'] }}</strong> &nbsp;&bull;&nbsp;
+            Selesai: <strong>{{ $rekap['selesai'] }}</strong>
         </div>
 
         <table class="data-table">
@@ -60,11 +52,11 @@
                         <td>{{ $tl->petugas_pelaksana }}</td>
                         <td>
                             @if($tl->status === 'selesai')
-                                <span class="badge badge-success">Selesai</span>
+                                <span class="status-normal">Selesai</span>
                             @elseif($tl->status === 'dalam_proses')
-                                <span class="badge badge-warning">Dalam Proses</span>
+                                <span class="status-perhatian">Dalam Proses</span>
                             @else
-                                <span class="badge badge-danger">Belum Ditindaklanjuti</span>
+                                <span class="status-kritis">Belum Ditindaklanjuti</span>
                             @endif
                         </td>
                         <td class="font-mono">
@@ -175,7 +167,7 @@
                             type="date"
                             name="dari_tanggal"
                             value="{{ request('dari_tanggal') }}"
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Sampai Tanggal -->
@@ -185,13 +177,13 @@
                             type="date"
                             name="sampai_tanggal"
                             value="{{ request('sampai_tanggal') }}"
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Gedung -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Gedung</label>
-                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Gedung</option>
                             @foreach($gedungs as $g)
                                 <option value="{{ $g->id }}" {{ request('gedung_id') == $g->id ? 'selected' : '' }}>
@@ -204,7 +196,7 @@
                     <!-- Lantai -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lantai</label>
-                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Lantai</option>
                             @foreach($lantais as $l)
                                 <option value="{{ $l->id }}" {{ request('lantai_id') == $l->id ? 'selected' : '' }}>
@@ -217,7 +209,7 @@
                     <!-- Jenis Tindakan -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jenis Tindakan</label>
-                        <select name="jenis_tindakan" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="jenis_tindakan" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Jenis</option>
                             <option value="perbaikan" {{ request('jenis_tindakan') == 'perbaikan' ? 'selected' : '' }}>Perbaikan Ringan</option>
                             <option value="pengisian_ulang" {{ request('jenis_tindakan') == 'pengisian_ulang' ? 'selected' : '' }}>Pengisian Ulang (Refill)</option>
@@ -231,7 +223,7 @@
                     <!-- Status Tindakan -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Progres</label>
-                        <select name="status" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="status" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Status</option>
                             <option value="belum_ditindaklanjuti" {{ request('status') == 'belum_ditindaklanjuti' ? 'selected' : '' }}>Belum Ditindaklanjuti</option>
                             <option value="dalam_proses" {{ request('status') == 'dalam_proses' ? 'selected' : '' }}>Dalam Proses</option>
@@ -247,7 +239,7 @@
                             name="petugas_pelaksana"
                             value="{{ request('petugas_pelaksana') }}"
                             placeholder="Ketik nama teknisi..."
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Pencarian Teks -->
@@ -258,7 +250,7 @@
                             name="q"
                             value="{{ request('q') }}"
                             placeholder="Ketik kode APAR atau kata kunci uraian..."
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
                 </div>
 

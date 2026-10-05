@@ -15,7 +15,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 15mm 15mm 15mm 15mm;
+            margin: 10mm 10mm 15mm 10mm;
         }
 
         * {
@@ -26,15 +26,17 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            font-size: 9pt;
-            line-height: 1.35;
+            font-size: 8pt;
+            line-height: 1.3;
             color: #0f172a;
-            background: #ffffff;
+            background: #f1f5f9;
             margin: 0;
-            padding: 20px;
+            padding: 20px 10px;
         }
 
         .no-print {
+            max-width: 210mm;
+            margin: 0 auto 16px auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -42,8 +44,8 @@
             color: #ffffff;
             padding: 10px 16px;
             border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 9pt;
+            font-size: 8.5pt;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
         }
 
         .no-print button, .no-print a {
@@ -53,7 +55,7 @@
             padding: 6px 14px;
             border-radius: 6px;
             font-weight: 700;
-            font-size: 8.5pt;
+            font-size: 8pt;
             cursor: pointer;
             text-decoration: none;
             display: inline-flex;
@@ -66,69 +68,116 @@
             color: #f8fafc;
         }
 
-        .header-kop {
-            border-bottom: 2px solid #0f172a;
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* Lembar preview & cetak A4 Portrait (210mm) */
+        .print-container {
+            width: 210mm;
+            max-width: 100%;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 10mm 10mm 15mm 10mm;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border-radius: 2px;
         }
 
-        .brand-text h1 {
+        /* KOP: logo berdampingan tepat di samping blok teks kop */
+        .header-kop {
+            text-align: center;
+        }
+
+        .kop-inner {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding-bottom: 6px;
+            text-align: left;
+        }
+
+        .kop-logo {
+            flex-shrink: 0;
+        }
+
+        .kop-logo img {
+            display: block;
+            object-fit: contain;
+            object-position: center;
+        }
+
+        .kop-text {
+            text-align: center;
+        }
+
+        .kop-text .kop-prov {
+            font-size: 8.5pt;
+            font-weight: 600;
+            margin: 0;
+            color: #0f172a;
+            letter-spacing: 0.2px;
+        }
+
+        .kop-text .kop-rs {
             font-size: 14pt;
             font-weight: 800;
-            margin: 0;
+            margin: 1px 0 2px 0;
+            color: #0f172a;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #0f172a;
+            letter-spacing: 0.2px;
+            line-height: 1.1;
         }
 
-        .brand-text h2 {
-            font-size: 9.5pt;
-            font-weight: 600;
-            margin: 2px 0 0 0;
+        .kop-text .kop-detail {
+            font-size: 7pt;
             color: #334155;
+            margin: 0;
+            line-height: 1.4;
         }
 
-        .brand-text p {
-            font-size: 8pt;
-            margin: 2px 0 0 0;
-            color: #64748b;
+        .kop-border-outer {
+            border-bottom: 3px solid #0f172a;
+            margin-bottom: 2px;
         }
 
-        .report-meta {
-            text-align: right;
-            font-size: 8pt;
-            color: #475569;
-        }
-
-        .report-meta .doc-code {
-            font-family: monospace;
-            font-weight: 700;
-            color: #0f172a;
-            font-size: 9pt;
+        .kop-border-inner {
+            border-bottom: 1px solid #0f172a;
+            margin-bottom: 12px;
         }
 
         .title-section {
             text-align: center;
-            margin-bottom: 14px;
+            margin-bottom: 6px;
         }
 
         .title-section h3 {
-            font-size: 12pt;
+            font-size: 10.5pt;
             font-weight: 800;
-            margin: 0;
+            margin: 0 0 2px 0;
             text-transform: uppercase;
             color: #0f172a;
+            letter-spacing: 0.2px;
+        }
+
+        .title-section .title-sub {
+            font-size: 7pt;
+            color: #475569;
+            margin: 0;
+        }
+
+        .print-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 7.5pt;
+            color: #475569;
+            margin-bottom: 8px;
         }
 
         .filter-summary {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 8px 12px;
-            margin-bottom: 14px;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin-bottom: 10px;
             font-size: 8pt;
             display: flex;
             flex-wrap: wrap;
@@ -153,24 +202,29 @@
         table.data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 8pt;
-            margin-bottom: 16px;
+            font-size: 7pt;
+            line-height: 1.25;
+            margin-bottom: 12px;
+            table-layout: auto;
         }
 
         table.data-table th, table.data-table td {
             border: 1px solid #cbd5e1;
-            padding: 5px 7px;
+            padding: 3px 4px;
             text-align: left;
             vertical-align: top;
+            word-wrap: break-word;
         }
 
         table.data-table th {
-            background-color: #f1f5f9;
-            color: #0f172a;
+            background-color: #0F172A;
+            color: #ffffff;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 7.5pt;
-            letter-spacing: 0.3px;
+            font-size: 6.5pt;
+            letter-spacing: 0.2px;
+            text-align: center;
+            padding: 4px 3px;
         }
 
         table.data-table tbody tr:nth-child(even) {
@@ -182,62 +236,134 @@
         .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
         .font-bold { font-weight: 700; }
 
-        .badge {
-            display: inline-block;
-            padding: 1px 5px;
-            border-radius: 3px;
-            font-size: 7pt;
-            font-weight: 700;
-            border: 1px solid transparent;
+        /* Tipografi status formal tanpa badge/pill/pastel */
+        .status-normal {
+            font-weight: 500;
+            color: #0f172a;
         }
-        .badge-success { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
-        .badge-warning { background: #fffbeb; color: #92400e; border-color: #fde68a; }
-        .badge-danger { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
-        .badge-neutral { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+
+        .status-perhatian {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .status-kritis {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Reset aman untuk elemen badge agar tidak menghasilkan background pastel atau pill */
+        .badge {
+            display: inline;
+            padding: 0;
+            border-radius: 0;
+            font-size: inherit;
+            border: none;
+            background: transparent !important;
+            color: #0f172a !important;
+        }
+        .badge-success { font-weight: 500; }
+        .badge-warning { font-weight: 600; }
+        .badge-danger  { font-weight: 700; }
+        .badge-neutral { font-weight: 400; }
 
         .footer-signatures {
-            margin-top: 30px;
+            margin-top: 16px;
+            page-break-inside: avoid;
+            font-size: 7.5pt;
+        }
+
+        .signature-city-date {
+            text-align: right;
+            margin-bottom: 10px;
+            font-size: 7.5pt;
+        }
+
+        .signature-cols {
             display: flex;
             justify-content: space-between;
-            page-break-inside: avoid;
-            font-size: 8.5pt;
         }
 
         .signature-box {
-            width: 220px;
+            width: 200px;
             text-align: center;
         }
 
-        .signature-space {
-            height: 60px;
+        .sig-role {
+            font-weight: 400;
         }
 
-        .signature-line {
-            border-bottom: 1px solid #0f172a;
+        .sig-unit {
+            font-weight: 600;
+            font-size: 7.5pt;
+        }
+
+        .signature-space {
+            height: 48px;
+        }
+
+        .signature-name {
             font-weight: 700;
+            border-bottom: 1px solid #0f172a;
             padding-bottom: 2px;
+            min-height: 16px;
+        }
+
+        .signature-nip {
+            font-size: 7pt;
+            color: #475569;
+            margin-top: 2px;
+        }
+
+        .print-footer {
+            display: none;
         }
 
         @media print {
             body {
+                background: #ffffff;
                 padding: 0;
+                margin: 0;
             }
             .no-print {
                 display: none !important;
+            }
+            .print-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+            .print-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 4px 0 0 0;
+                border-top: 1px solid #e2e8f0;
+                font-size: 6.5pt;
+                color: #64748b;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Bar Aksi Layar (Disembunyikan Otomatis Saat Dicetak) -->
+    {{-- Bar Aksi Layar (disembunyikan saat dicetak) --}}
     <div class="no-print">
         <div style="display: flex; align-items: center; gap: 8px;">
             <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
-            <strong>Mode Cetak Laporan Resmi HAFIS</strong>
+            <strong>Mode Cetak Laporan Resmi HAFIS (A4 Portrait)</strong>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-            <a href="javascript:window.history.back()">
+            <a href="{{ request()->fullUrlWithoutQuery(['format']) }}"
+               onclick="if (window.opener && !window.opener.closed) { try { window.close(); } catch(e) {} } if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.host) !== -1) { window.history.back(); return false; }">
                 &larr; Kembali ke Tampilan Web
             </a>
             <button type="button" onclick="window.print()">
@@ -246,61 +372,92 @@
         </div>
     </div>
 
-    <!-- Kop Header Laporan Resmi -->
-    <div class="header-kop">
-        <div class="brand-text">
-            <h1>HAFIS : Hospital APAR & Fire Inspection System</h1>
-            <h2>Instalasi Keselamatan & Kesehatan Kerja Rumah Sakit (K3RS)</h2>
-            <p>Sistem Pengawasan dan Pemeliharaan Sarana Proteksi Kebakaran Rumah Sakit</p>
+    {{-- Lembar Cetak Dokumen A4 Portrait (210mm) --}}
+    <div class="print-container">
+        {{-- Kop Resmi RSUD --}}
+        <div class="header-kop">
+            <div class="kop-inner">
+                <div class="kop-logo">
+                    <img src="{{ asset('images/brand/lambang-provinsi.svg') }}"
+                         alt="Lambang Provinsi Kalimantan Selatan"
+                         style="height: 66px; width: auto;" />
+                </div>
+                <div class="kop-text">
+                    <p class="kop-prov">PEMERINTAH PROVINSI KALIMANTAN SELATAN</p>
+                    <p class="kop-rs">RSUD dr. H. MOCH. ANSARI SALEH</p>
+                    <p class="kop-detail">
+                        Jl. Brig. Jend. H. Hasan Basri No.1 Banjarmasin, Kalimantan Selatan 70125<br>
+                        Telepon 0511-6710000, Faksimile: 0511-6710001<br>
+                        Laman http://rsas.kalselprov.go.id; Pos-el: rsas@kalselprov.go.id
+                    </p>
+                </div>
+            </div>
+            <div class="kop-border-outer"></div>
+            <div class="kop-border-inner"></div>
         </div>
-        <div class="report-meta">
-            <div class="doc-code">DOC: K3RS-HAFIS-{{ date('Ymd') }}</div>
-            <div>Tanggal Cetak: <strong>{{ date('d/m/Y H:i') }} WIB</strong></div>
-            <div>Petugas Cetak: <strong>{{ auth()->user()?->name ?? 'Petugas K3RS' }}</strong></div>
+
+        {{-- Judul Laporan --}}
+        <div class="title-section">
+            <h3>{{ $reportTitle }}</h3>
+            <p class="title-sub">Instalasi K3RS &bull; RSUD dr. H. Moch. Ansari Saleh Banjarmasin &bull; Dokumen Resmi</p>
+        </div>
+
+        {{-- Meta Cetak --}}
+        <div class="print-meta-row">
+            <span>{{ $slot->isEmpty() ? '' : '' }}</span>
+            <span style="color: #1e293b; font-weight: 600;">
+                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }} - {{ now()->timezone('Asia/Makassar')->format('H:i:s') }} WITA
+            </span>
+        </div>
+
+        {{-- Ringkasan Filter Aktif --}}
+        @if(!empty($filters))
+            <div class="filter-summary">
+                @foreach($filters as $label => $val)
+                    @if($val)
+                        <div class="filter-item">
+                            <span class="label">{{ $label }}:</span>
+                            <span class="val">{{ $val }}</span>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Konten Utama Laporan --}}
+        <div class="report-content">
+            {{ $slot }}
+        </div>
+
+        {{-- Tanda Tangan --}}
+        <div class="footer-signatures">
+            <div class="signature-city-date">
+                Banjarmasin, {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('d F Y') }}
+            </div>
+            <div class="signature-cols">
+                <div class="signature-box">
+                    <div class="sig-role">Petugas Pelaksana K3RS,</div>
+                    <div class="sig-unit">RSUD dr. H. Moch. Ansari Saleh</div>
+                    <div class="signature-space"></div>
+                    <div class="signature-name">{{ auth()->user()?->name ?? '( .................................................... )' }}</div>
+                    <div class="signature-nip">NIP. .....................................</div>
+                </div>
+                <div class="signature-box">
+                    <div class="sig-role">Mengetahui,</div>
+                    <div class="sig-unit">Kepala Instalasi K3RS</div>
+                    <div class="sig-unit" style="font-weight: 400; font-size: 7pt; color: #475569;">RSUD dr. H. Moch. Ansari Saleh Banjarmasin</div>
+                    <div class="signature-space"></div>
+                    <div class="signature-name">( .................................................... )</div>
+                    <div class="signature-nip">NIP. .....................................</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Judul Laporan -->
-    <div class="title-section">
-        <h3>{{ $reportTitle }}</h3>
-    </div>
-
-    <!-- Ringkasan Filter Aktif -->
-    @if(!empty($filters))
-        <div class="filter-summary">
-            @foreach($filters as $label => $val)
-                @if($val)
-                    <div class="filter-item">
-                        <span class="label">{{ $label }}:</span>
-                        <span class="val">{{ $val }}</span>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    @endif
-
-    <!-- Konten Utama Laporan -->
-    <div class="report-content">
-        {{ $slot }}
-    </div>
-
-    <!-- Bagian Tanda Tangan / Verifikasi K3RS -->
-    <div class="footer-signatures">
-        <div class="signature-box">
-            <div>Mengetahui,</div>
-            <div style="font-weight: 600;">Kepala Instalasi K3RS</div>
-            <div class="signature-space"></div>
-            <div class="signature-line">( .................................................... )</div>
-            <div style="font-size: 7.5pt; color: #64748b; margin-top: 2px;">NIP / ID Petugas</div>
-        </div>
-
-        <div class="signature-box">
-            <div>Dibuat / Diverifikasi Oleh,</div>
-            <div style="font-weight: 600;">Petugas Inspeksi Lapangan</div>
-            <div class="signature-space"></div>
-            <div class="signature-line">{{ auth()->user()?->name ?? '( .................................................... )' }}</div>
-            <div style="font-size: 7.5pt; color: #64748b; margin-top: 2px;">Staf Teknis K3RS</div>
-        </div>
+    {{-- Footer (tampil saat dicetak) --}}
+    <div class="print-footer">
+        <span>HAFIS &ndash; Hospital APAR &amp; Fire Inspection System &bull; Dokumen Resmi K3RS (Format Kertas: A4 Portrait)</span>
+        <span></span>
     </div>
 
 </body>

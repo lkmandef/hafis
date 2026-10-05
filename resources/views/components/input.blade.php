@@ -40,7 +40,7 @@
             @if ($required) required @endif
             {{ $attributes->merge([
                 'class' => 'w-full rounded-lg ' . 
-                    ($error ? 'border-rose-400 bg-rose-50/20 text-rose-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-200' : 'border-slate-200 bg-slate-50 text-slate-800 focus:border-slate-400 focus:ring-1 focus:ring-slate-400') . 
+                    ($error ? 'border-rose-400 bg-rose-50/20 text-rose-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-200' : 'border-slate-300 bg-white text-slate-800 focus:border-slate-400 focus:ring-1 focus:ring-slate-400') . 
                     ' border ' .
                     (isset($icon) ? 'pl-8 ' : 'px-3 ') .
                     'py-2 text-xs placeholder-slate-400 focus:bg-white focus:outline-none transition min-h-[38px]'

@@ -4,20 +4,12 @@
         reportTitle="LAPORAN TEMUAN KERUSAKAN CHECKLIST PEMERIKSAAN APAR" 
         :filters="$filtersSummary">
 
-        <!-- Ringkasan Rekapitulasi Data -->
-        <div style="margin-bottom: 12px; display: flex; gap: 10px; font-size: 8pt;">
-            <div style="border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; background: #f8fafc;">
-                Total Temuan Tidak Baik: <strong>{{ $rekap['total'] }}</strong>
-            </div>
-            <div style="border: 1px solid #fecaca; padding: 6px 10px; border-radius: 4px; background: #fef2f2; color: #991b1b;">
-                Belum Ditindaklanjuti: <strong>{{ $rekap['belum_ditindaklanjuti'] }}</strong>
-            </div>
-            <div style="border: 1px solid #fde68a; padding: 6px 10px; border-radius: 4px; background: #fffbeb; color: #92400e;">
-                Dalam Penanganan: <strong>{{ $rekap['dalam_proses'] }}</strong>
-            </div>
-            <div style="border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 4px; background: #ecfdf5; color: #065f46;">
-                Telah Diselesaikan: <strong>{{ $rekap['selesai'] }}</strong>
-            </div>
+        {{-- Baris ringkasan tunggal --}}
+        <div style="margin-bottom: 10px; font-size: 8pt; color: #0f172a;">
+            Total Temuan: <strong>{{ $rekap['total'] }}</strong> item &nbsp;&bull;&nbsp;
+            Belum Ditindaklanjuti: <strong>{{ $rekap['belum_ditindaklanjuti'] }}</strong> &nbsp;&bull;&nbsp;
+            Dalam Penanganan: <strong>{{ $rekap['dalam_proses'] }}</strong> &nbsp;&bull;&nbsp;
+            Telah Diselesaikan: <strong>{{ $rekap['selesai'] }}</strong>
         </div>
 
         <table class="data-table">
@@ -50,18 +42,18 @@
                             <div>{{ $t->pemeriksaan?->apar?->ruangan?->nama ?? '-' }}</div>
                         </td>
                         <td><strong>{{ $t->item_nama }}</strong></td>
-                        <td><span class="badge badge-danger">Tidak Baik</span></td>
+                        <td><span class="status-kritis">Tidak Baik</span></td>
                         <td>{{ $t->catatan ?: 'Tidak ada keterangan rinci' }}</td>
                         <td>{{ $t->pemeriksaan?->pemeriksa_nama ?? '-' }}</td>
                         <td>
                             @if(!$tl)
-                                <span class="badge badge-neutral">Belum Dibuat TL</span>
+                                <span>Belum Dibuat TL</span>
                             @elseif($tl->status === 'selesai')
-                                <span class="badge badge-success">Selesai</span>
+                                <span class="status-normal">Selesai</span>
                             @elseif($tl->status === 'dalam_proses')
-                                <span class="badge badge-warning">Dalam Proses</span>
+                                <span class="status-perhatian">Dalam Proses</span>
                             @else
-                                <span class="badge badge-danger">Belum Ditindaklanjuti</span>
+                                <span class="status-kritis">Belum Ditindaklanjuti</span>
                             @endif
                         </td>
                     </tr>
@@ -169,7 +161,7 @@
                             type="date"
                             name="dari_tanggal"
                             value="{{ request('dari_tanggal') }}"
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Sampai Tanggal -->
@@ -179,13 +171,13 @@
                             type="date"
                             name="sampai_tanggal"
                             value="{{ request('sampai_tanggal') }}"
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
                     <!-- Gedung -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Gedung</label>
-                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Gedung</option>
                             @foreach($gedungs as $g)
                                 <option value="{{ $g->id }}" {{ request('gedung_id') == $g->id ? 'selected' : '' }}>
@@ -198,7 +190,7 @@
                     <!-- Lantai -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lantai</label>
-                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Lantai</option>
                             @foreach($lantais as $l)
                                 <option value="{{ $l->id }}" {{ request('lantai_id') == $l->id ? 'selected' : '' }}>
@@ -211,7 +203,7 @@
                     <!-- Status Tindak Lanjut -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Tindak Lanjut</label>
-                        <select name="status_tl" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <select name="status_tl" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
                             <option value="">Semua Status Tindak Lanjut</option>
                             <option value="belum_ada_tl" {{ request('status_tl') == 'belum_ada_tl' ? 'selected' : '' }}>Belum Dibuat TL</option>
                             <option value="belum_ditindaklanjuti" {{ request('status_tl') == 'belum_ditindaklanjuti' ? 'selected' : '' }}>Belum Ditindaklanjuti</option>
@@ -228,7 +220,7 @@
                             name="q"
                             value="{{ request('q') }}"
                             placeholder="Ketik nama item temuan (contoh: selang, nozzle, tekanan) atau kode APAR..."
-                            class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
                 </div>
 
