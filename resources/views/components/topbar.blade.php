@@ -1,15 +1,15 @@
-<header class="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+<header class="bg-white border-b border-slate-200 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
     <!-- Left Section: Mobile Toggle & Context Breadcrumb -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
         <!-- Mobile Menu Toggle Button -->
-        <button type="button" id="mobile-menu-toggle" class="lg:hidden p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors" aria-label="Buka Navigasi">
+        <button type="button" id="mobile-menu-toggle" class="lg:hidden p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors shrink-0" aria-label="Buka Navigasi">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
         </button>
 
         <!-- Realtime Clock Widget -->
-        <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 select-none min-h-[38px]" title="Waktu Sistem HAFIS (Realtime)">
+        <div class="flex items-center gap-1.5 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 select-none min-h-[38px] shrink min-w-0" title="Waktu Sistem HAFIS (Realtime)">
             <!-- Pulse Indicator -->
             <span class="relative flex h-2 w-2 shrink-0" aria-hidden="true">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -17,7 +17,7 @@
             </span>
 
             <!-- Clock Icon -->
-            <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden sm:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
 
@@ -28,7 +28,7 @@
             <span class="text-slate-300 hidden sm:inline" aria-hidden="true">•</span>
 
             <!-- Jam Digital (HH:mm:ss WIB) -->
-            <span class="inline-flex items-center gap-1 font-mono font-bold text-slate-900 tabular-nums">
+            <span class="inline-flex items-center gap-1 font-mono font-bold text-slate-900 tabular-nums shrink-0">
                 <span id="topbar-realtime-time">{{ \Carbon\Carbon::now('Asia/Jakarta')->format('H:i:s') }}</span>
                 <span class="text-[10px] font-semibold text-slate-500 font-sans tracking-wide">WIB</span>
             </span>
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Right Section: Search & Petugas Profile -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
         <!-- Search Input (Clean Hairline) -->
         <div class="relative hidden md:block">
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -51,8 +51,8 @@
         </div>
 
         <!-- Scan APAR Quick Action Button -->
-        <a href="{{ url('/scan') }}" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 flex items-center gap-1.5 transition text-xs font-semibold shrink-0 min-h-[44px]" title="Scan APAR">
-            <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <a href="{{ url('/scan') }}" class="w-10 sm:w-auto p-2 sm:px-2.5 sm:py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 flex items-center justify-center gap-1.5 transition text-xs font-semibold shrink-0 min-h-[44px] min-w-[44px]" title="Scan APAR">
+            <svg class="w-3.5 h-3.5 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
             </svg>
             <span class="hidden sm:inline">Scan APAR</span>
@@ -67,7 +67,7 @@
         </button>
 
         <!-- Petugas Info -->
-        <div class="flex items-center gap-2 pl-2 border-l border-slate-200 shrink-0">
+        <div class="flex items-center gap-2 pl-1.5 sm:pl-2 border-l border-slate-200 shrink-0">
             <div class="w-7 h-7 rounded-md bg-slate-800 text-white font-bold text-[11px] flex items-center justify-center">
                 K3
             </div>

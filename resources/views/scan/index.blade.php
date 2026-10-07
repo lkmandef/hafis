@@ -171,6 +171,9 @@
         <x-card title="Masukkan Kode APAR" subtitle="Fallback pencarian jika kamera tidak tersedia atau kode fisik diinput manual.">
             <form action="{{ route('scan.cari') }}" method="POST" class="space-y-4">
                 @csrf
+                @if(request('jadwal_id'))
+                    <input type="hidden" name="jadwal_id" value="{{ request('jadwal_id') }}">
+                @endif
                 <div>
                     <label for="kode-manual-input" class="block text-xs font-semibold text-slate-700 mb-1.5">
                         Kode APAR / Identifier QR
@@ -224,6 +227,9 @@
     <!-- Hidden Form untuk submission hasil deteksi kamera -->
     <form id="auto-scan-form" action="{{ route('scan.cari') }}" method="POST" class="hidden">
         @csrf
+        @if(request('jadwal_id'))
+            <input type="hidden" name="jadwal_id" value="{{ request('jadwal_id') }}">
+        @endif
         <input type="hidden" name="kode" id="auto-scan-payload">
     </form>
 
@@ -246,40 +252,19 @@
 
             let mediaStream = null;
             let scanTimer = null;
+            let isProcessing = false;
             let barcodeDetector = null;
-            let isBarcodeSupported = false;
+
+            // Inisialisasi canvas offscreen untuk ekstraksi frame jsQR
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
             // Inisialisasi BarcodeDetector jika browser mendukung
             if ('BarcodeDetector' in window) {
                 try {
                     barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
-                    isBarcodeSupported = true;
                 } catch(e) {
                     barcodeDetector = null;
-                    isBarcodeSupported = false;
-                }
-            }
-
-            // Jika browser tidak mendukung BarcodeDetector, berikan panduan langsung di prompt awal
-            if (!isBarcodeSupported) {
-                const promptTitle = statePrompt.querySelector('p.font-bold');
-                const promptDesc = statePrompt.querySelector('p.text-slate-400');
-                if (promptTitle) {
-                    promptTitle.textContent = 'Pemindaian Otomatis Tidak Tersedia';
-                }
-                if (promptDesc) {
-                    promptDesc.textContent = 'Pemindaian otomatis tidak tersedia di browser ini. Anda dapat memasukkan kode APAR secara manual.';
-                }
-                if (btnStart) {
-                    btnStart.textContent = 'Gunakan Input Manual';
-                    btnStart.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (manualInput) {
-                            manualInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            manualInput.focus();
-                        }
-                    }, { once: true });
                 }
             }
 
@@ -306,63 +291,109 @@
             }
 
             async function startCamera() {
-                if (!isBarcodeSupported || !barcodeDetector) {
-                    showError(
-                        'Pemindaian Otomatis Tidak Tersedia',
-                        'Pemindaian otomatis tidak tersedia di browser ini. Anda dapat memasukkan kode APAR secara manual.'
-                    );
-                    if (manualInput) {
-                        manualInput.focus();
+                // Periksa secure context (HTTPS / localhost)
+                const isSecureContext = window.isSecureContext ||
+                    ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+                // Periksa ketersediaan WebRTC mediaDevices API
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    if (!isSecureContext) {
+                        showError(
+                            'Koneksi Aman (HTTPS) Diperlukan',
+                            'Browser membatasi akses kamera pada jaringan HTTP biasa. Silakan akses melalui HTTPS atau gunakan pencarian kode APAR manual di bawah.'
+                        );
+                    } else {
+                        showError(
+                            'Kamera Tidak Didukung',
+                            'Browser ini tidak mendukung akses kamera perangkat. Silakan gunakan pencarian kode APAR secara manual.'
+                        );
                     }
                     return;
                 }
 
-                // Periksa dukungan WebRTC Camera API
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                // Periksa kesiapan decoder (BarcodeDetector native atau jsQR fallback)
+                const hasJsQr = typeof window.jsQR === 'function';
+                if (!barcodeDetector && !hasJsQr) {
                     showError(
-                        'Kamera Tidak Didukung',
-                        'Browser ini tidak mendukung akses kamera. Anda dapat memasukkan kode APAR secara manual.'
+                        'Decoder QR Belum Siap',
+                        'Pustaka decoder QR sedang dimuat atau tidak didukung browser ini. Silakan gunakan input kode APAR manual di bawah.'
                     );
                     return;
                 }
 
                 try {
-                    updateScanStatus('Siap memindai...', false);
+                    updateScanStatus('Membuka kamera...', false);
 
                     const constraints = {
+                        audio: false,
                         video: {
                             facingMode: { ideal: 'environment' },
                             width: { ideal: 1280 },
                             height: { ideal: 720 }
-                        },
-                        audio: false
+                        }
                     };
 
-                    mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    let stream = null;
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    } catch (constraintErr) {
+                        // Fallback ke orientasi kamera lingkungan tanpa batasan resolusi
+                        try {
+                            stream = await navigator.mediaDevices.getUserMedia({
+                                audio: false,
+                                video: { facingMode: 'environment' }
+                            });
+                        } catch (e2) {
+                            // Fallback terakhir ke kamera video default apapun yang tersedia
+                            stream = await navigator.mediaDevices.getUserMedia({
+                                audio: false,
+                                video: true
+                            });
+                        }
+                    }
+
+                    mediaStream = stream;
                     video.srcObject = mediaStream;
+                    video.setAttribute('playsinline', 'true');
+                    video.setAttribute('muted', 'true');
+                    video.playsInline = true;
+                    video.muted = true;
+
+                    await video.play();
+
                     video.classList.remove('hidden');
                     overlay.classList.add('hidden');
                     controls.classList.remove('hidden');
 
                     updateScanStatus('Mencari QR Code...', false);
 
-                    // Mulai deteksi barcode berkala
                     startScanningLoop();
                 } catch (err) {
-                    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    const name = err.name || '';
+                    if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
                         showError(
                             'Izin Kamera Ditolak',
-                            'Akses kamera tidak diizinkan. Silakan masukkan kode APAR secara manual di bawah.'
+                            'Akses kamera tidak diizinkan. Silakan berikan izin kamera pada browser Anda atau masukkan kode APAR secara manual di bawah.'
                         );
-                    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                    } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
                         showError(
                             'Kamera Tidak Ditemukan',
-                            'Perangkat kamera tidak ditemukan. Silakan masukkan kode APAR secara manual.'
+                            'Perangkat kamera tidak ditemukan. Silakan masukkan kode APAR secara manual di bawah.'
+                        );
+                    } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+                        showError(
+                            'Kamera Sedang Digunakan',
+                            'Kamera sedang dipakai oleh aplikasi lain. Tutup aplikasi tersebut atau gunakan pencarian kode APAR manual.'
+                        );
+                    } else if (name === 'SecurityError') {
+                        showError(
+                            'Koneksi Aman (HTTPS) Diperlukan',
+                            'Akses kamera diblokir browser pada koneksi HTTP tidak aman. Silakan gunakan HTTPS atau masukkan kode APAR manual.'
                         );
                     } else {
                         showError(
                             'Kamera Tidak Dapat Dibuka',
-                            'Kendala membuka kamera perangkat. Silakan masukkan kode APAR secara manual.'
+                            'Kendala membuka kamera perangkat. Silakan masukkan kode APAR secara manual di bawah.'
                         );
                     }
                 }
@@ -374,45 +405,107 @@
                     scanTimer = null;
                 }
                 if (mediaStream) {
-                    mediaStream.getTracks().forEach(track => track.stop());
+                    mediaStream.getTracks().forEach(track => {
+                        try {
+                            track.stop();
+                        } catch (e) {}
+                    });
                     mediaStream = null;
                 }
-                video.classList.add('hidden');
+                if (video) {
+                    video.srcObject = null;
+                    video.classList.add('hidden');
+                }
                 activeBadge.classList.add('hidden');
                 controls.classList.add('hidden');
             }
 
-            function onQrCodeDetected(code) {
-                if (!code) return;
+            function onQrCodeDetected(rawCode) {
+                if (isProcessing) return;
+                isProcessing = true;
+
+                const code = (rawCode || '').trim();
+                if (!code) {
+                    isProcessing = false;
+                    return;
+                }
+
                 stopCamera();
-                updateScanStatus('QR Code ditemukan. Memproses APAR...', true);
-                
+                updateScanStatus('QR Code terdeteksi: ' + code + '. Membuka APAR...', true);
+
                 autoPayload.value = code;
                 autoForm.submit();
             }
 
             function startScanningLoop() {
-                if (!barcodeDetector) return;
+                if (scanTimer) {
+                    clearInterval(scanTimer);
+                    scanTimer = null;
+                }
+                isProcessing = false;
 
                 scanTimer = setInterval(async () => {
-                    if (video.readyState >= 2) {
+                    if (isProcessing || !video || video.readyState < 2) return;
+
+                    const vw = video.videoWidth;
+                    const vh = video.videoHeight;
+                    if (!vw || !vh) return;
+
+                    let detectedCode = null;
+
+                    // 1. Coba BarcodeDetector native jika browser mendukung
+                    if (barcodeDetector) {
                         try {
                             const barcodes = await barcodeDetector.detect(video);
-                            if (barcodes.length > 0) {
-                                const detected = barcodes[0].rawValue;
-                                onQrCodeDetected(detected);
+                            if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                                detectedCode = barcodes[0].rawValue;
+                            }
+                        } catch (e) {
+                            // Abaikan dan lanjut ke decoder jsQR fallback
+                        }
+                    }
+
+                    // 2. Fallback ke jsQR jika belum terdeteksi dan jsQR tersedia
+                    if (!detectedCode && typeof window.jsQR === 'function') {
+                        try {
+                            let tw = vw;
+                            let th = vh;
+                            const maxDim = 800;
+                            if (tw > maxDim || th > maxDim) {
+                                const scale = Math.min(maxDim / tw, maxDim / th);
+                                tw = Math.round(tw * scale);
+                                th = Math.round(th * scale);
+                            }
+
+                            if (canvas.width !== tw || canvas.height !== tw) {
+                                canvas.width = tw;
+                                canvas.height = th;
+                            }
+
+                            ctx.drawImage(video, 0, 0, tw, th);
+                            const imageData = ctx.getImageData(0, 0, tw, th);
+                            const result = window.jsQR(imageData.data, imageData.width, imageData.height, {
+                                inversionAttempts: 'attemptBoth'
+                            });
+
+                            if (result && result.data) {
+                                detectedCode = result.data;
                             }
                         } catch (e) {
                             // Abaikan error individual frame
                         }
                     }
-                }, 300);
+
+                    if (detectedCode && !isProcessing) {
+                        onQrCodeDetected(detectedCode);
+                    }
+                }, 200);
             }
 
-            if (isBarcodeSupported) {
-                btnStart.addEventListener('click', startCamera);
-            }
+            btnStart.addEventListener('click', startCamera);
+
             btnStop.addEventListener('click', () => {
+                isProcessing = false;
                 stopCamera();
                 statePrompt.classList.remove('hidden');
                 stateError.classList.add('hidden');

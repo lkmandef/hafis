@@ -21,9 +21,10 @@ class ScanController extends Controller
     public function cari(Request $request)
     {
         $raw = trim($request->input('kode', ''));
+        $jadwalId = $request->input('jadwal_id');
 
         if (empty($raw)) {
-            return redirect()->route('scan.index')
+            return redirect()->route('scan.index', $jadwalId ? ['jadwal_id' => $jadwalId] : [])
                 ->with('error', 'Masukkan kode APAR atau lakukan pemindaian QR terlebih dahulu.');
         }
 
@@ -36,12 +37,15 @@ class ScanController extends Controller
                 if (! empty($queryParams['kode'])) {
                     $cleanInput = $queryParams['kode'];
                 }
+                if (empty($jadwalId) && ! empty($queryParams['jadwal_id'])) {
+                    $jadwalId = $queryParams['jadwal_id'];
+                }
             } elseif (isset($parsed['path'])) {
                 // Misal /apar/12 -> extract ID
                 if (preg_match('#/apar/(\d+)#', $parsed['path'], $matches)) {
                     $byId = Apar::find($matches[1]);
                     if ($byId) {
-                        return $this->handleAparFound($byId);
+                        return $this->handleAparFound($byId, $jadwalId);
                     }
                 }
             }
@@ -58,37 +62,42 @@ class ScanController extends Controller
 
         // 1. Jika QR / Kode TIDAK DITEMUKAN (Section 5)
         if (! $apar) {
-            return redirect()->route('scan.index')
+            return redirect()->route('scan.index', $jadwalId ? ['jadwal_id' => $jadwalId] : [])
                 ->withInput()
                 ->with('error', "APAR tidak ditemukan untuk kode: '{$raw}'. Pastikan label QR atau kode yang dimasukkan valid.");
         }
 
         // 2. Jika APAR DITEMUKAN
-        return $this->handleAparFound($apar);
+        return $this->handleAparFound($apar, $jadwalId);
     }
 
     /**
      * Response penanganan APAR yang ditemukan
      */
-    private function handleAparFound(Apar $apar)
+    private function handleAparFound(Apar $apar, $jadwalId = null)
     {
+        $redirectParams = ['id' => $apar->id];
+        if (! empty($jadwalId)) {
+            $redirectParams['jadwal_id'] = $jadwalId;
+        }
+
         // 1. Jika APAR sudah digantikan oleh unit baru (Tahap 8, Section 22)
         if ($apar->is_replaced) {
             $aparPengganti = $apar->aparPengganti;
             $kodePengganti = $aparPengganti ? $aparPengganti->kode : 'unit baru';
             $tglPenggantian = $apar->tanggal_nonaktif ? $apar->tanggal_nonaktif->format('d/m/Y') : '-';
 
-            return redirect()->route('apar.show', $apar->id)
+            return redirect()->route('apar.show', $redirectParams)
                 ->with('warning', "Unit APAR {$apar->kode} sudah tidak aktif karena telah digantikan oleh {$kodePengganti} pada {$tglPenggantian}.");
         }
 
         // 2. Jika APAR berstatus Tidak Aktif biasa (Section 5)
         if ($apar->status === Apar::STATUS_TIDAK_AKTIF) {
-            return redirect()->route('apar.show', $apar->id)
+            return redirect()->route('apar.show', $redirectParams)
                 ->with('warning', "Unit APAR {$apar->kode} berhasil ditemukan namun berstatus Tidak Aktif dan tidak dapat dijadikan target pemeriksaan.");
         }
 
-        return redirect()->route('apar.show', $apar->id)
+        return redirect()->route('apar.show', $redirectParams)
             ->with('success', "Unit APAR {$apar->kode} berhasil teridentifikasi dari pemindaian.");
     }
 }

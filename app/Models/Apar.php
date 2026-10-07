@@ -216,7 +216,24 @@ class Apar extends Model
      */
     public function getActiveJadwalAttribute(): ?Jadwal
     {
-        return $this->jadwals()->where('jadwals.status', 'berjalan')->first();
+        // Prioritas 1: Jadwal berjalan di mana APAR ini BELUM diperiksa (terbaru)
+        $uninspected = $this->jadwals()
+            ->where('jadwals.status', 'berjalan')
+            ->wherePivot('status_pemeriksaan', 'belum_diperiksa')
+            ->orderByDesc('jadwals.tanggal_mulai')
+            ->orderByDesc('jadwals.id')
+            ->first();
+
+        if ($uninspected) {
+            return $uninspected;
+        }
+
+        // Fallback: Jadwal berjalan terbaru
+        return $this->jadwals()
+            ->where('jadwals.status', 'berjalan')
+            ->orderByDesc('jadwals.tanggal_mulai')
+            ->orderByDesc('jadwals.id')
+            ->first();
     }
 
     /**

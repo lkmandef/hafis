@@ -226,6 +226,15 @@ class PemeriksaanController extends Controller
                         'catatan' => $validated['catatan_pemeriksaan'] ?? null,
                     ],
                 ]);
+
+                // Cek apakah seluruh target APAR dalam jadwal tersebut sudah berstatus sudah_diperiksa
+                $masihAdaBelumDiperiksa = $jadwal->apars()
+                    ->wherePivot('status_pemeriksaan', 'belum_diperiksa')
+                    ->exists();
+
+                if (! $masihAdaBelumDiperiksa) {
+                    $jadwal->update(['status' => 'selesai']);
+                }
             }
 
             return $pem;
