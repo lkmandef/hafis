@@ -23,7 +23,18 @@ class Pemeriksaan extends Model
     ];
 
     /**
-     * Item checklist fisik yang dapat dikonfigurasi (configurable)
+     * Item checklist fisik 5 parameter utama K3RS (Arsitektur Baru)
+     */
+    public const K3RS_CHECKLIST_ITEMS = [
+        1 => 'Tekanan',
+        2 => 'Pin/Segel',
+        3 => 'Handle',
+        4 => 'Kondisi Fisik',
+        5 => 'Nozel',
+    ];
+
+    /**
+     * Item checklist fisik yang dapat dikonfigurasi (configurable / legacy)
      */
     public const DEFAULT_CHECKLIST_ITEMS = [
         1 => 'Posisi APAR sesuai lokasi dan ketinggian pemasangan',
@@ -41,6 +52,8 @@ class Pemeriksaan extends Model
     protected $fillable = [
         'apar_id',
         'jadwal_id',
+        'periode_tahun',
+        'periode_bulan',
         'user_id',
         'pemeriksa_nama',
         'tanggal_pemeriksaan',
@@ -52,7 +65,63 @@ class Pemeriksaan extends Model
 
     protected $casts = [
         'tanggal_pemeriksaan' => 'datetime',
+        'periode_tahun' => 'integer',
+        'periode_bulan' => 'integer',
     ];
+
+    /**
+     * Validasi domain dan perlindungan invariant bulanan
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Pemeriksaan $pemeriksaan) {
+            if ($pemeriksaan->periode_bulan !== null) {
+                if ($pemeriksaan->periode_bulan < 1 || $pemeriksaan->periode_bulan > 12) {
+                    throw new \InvalidArgumentException('Periode bulan harus bernilai antara 1 sampai 12.');
+                }
+            }
+
+            if ($pemeriksaan->periode_tahun !== null) {
+                if ($pemeriksaan->periode_tahun < 1000 || $pemeriksaan->periode_tahun > 9999) {
+                    throw new \InvalidArgumentException('Periode tahun harus berupa 4 digit tahun yang valid.');
+                }
+            }
+
+            // Invariant target: Satu APAR hanya boleh memiliki satu hasil pemeriksaan per bulan kalender
+            if ($pemeriksaan->apar_id && $pemeriksaan->periode_tahun !== null && $pemeriksaan->periode_bulan !== null) {
+                $duplicateExists = static::where('apar_id', $pemeriksaan->apar_id)
+                    ->where('periode_tahun', $pemeriksaan->periode_tahun)
+                    ->where('periode_bulan', $pemeriksaan->periode_bulan)
+                    ->where('id', '!=', $pemeriksaan->id ?? 0)
+                    ->exists();
+
+                if ($duplicateExists) {
+                    throw new \DomainException("Unit APAR ID {$pemeriksaan->apar_id} sudah memiliki hasil pemeriksaan untuk periode {$pemeriksaan->periode_tahun}-{$pemeriksaan->periode_bulan}.");
+                }
+            }
+        });
+    }
+
+    /**
+     * Helper: Cari record pemeriksaan berdasarkan unit APAR dan periode bulan/tahun
+     */
+    public static function findByAparPeriod(int|Apar $apar, int $tahun, int $bulan): ?self
+    {
+        $aparId = $apar instanceof Apar ? $apar->id : $apar;
+
+        return static::where('apar_id', $aparId)
+            ->where('periode_tahun', $tahun)
+            ->where('periode_bulan', $bulan)
+            ->first();
+    }
+
+    /**
+     * Scope: Filter berdasarkan periode tahun dan bulan
+     */
+    public function scopeForPeriod($query, int $tahun, int $bulan)
+    {
+        return $query->where('periode_tahun', $tahun)->where('periode_bulan', $bulan);
+    }
 
     /**
      * Relasi ke unit APAR yang diperiksa

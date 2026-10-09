@@ -44,6 +44,7 @@ class Apar extends Model
         'kode',
         'nomor_register',
         'qr_code',
+        'lokasi_id',
         'ruangan_id',
         'posisi_detail',
         'koordinat_x',
@@ -78,6 +79,14 @@ class Apar extends Model
     public function getHasTitikAttribute(): bool
     {
         return ! is_null($this->koordinat_x) && ! is_null($this->koordinat_y);
+    }
+
+    /**
+     * Relasi: APAR berada di satu Titik Lokasi K3RS (Arsitektur Baru)
+     */
+    public function lokasi(): BelongsTo
+    {
+        return $this->belongsTo(Lokasi::class, 'lokasi_id');
     }
 
     /**
