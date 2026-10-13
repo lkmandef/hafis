@@ -212,86 +212,102 @@
             </div>
         </div>
 
-        <!-- Kolom Kanan: Jadwal Inspeksi Aktif (Step 6) -->
+        <!-- Kolom Kanan: Progres Inspeksi Bulanan (Tahap 4) -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-6 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between pb-3.5 mb-4 border-b border-slate-100">
                     <div>
                         <h3 class="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-                            Jadwal Inspeksi
+                            Hasil Inspeksi Bulanan
                         </h3>
                         <p class="text-xs text-slate-500 mt-0.5">
-                            Status putaran inspeksi berkala.
+                            Periode {{ $inspeksiBulanan['periode_label'] }}
                         </p>
                     </div>
-                    <a href="{{ route('jadwal.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
-                        Semua Jadwal &rarr;
+                    <a href="{{ route('pemeriksaan.index', ['bulan' => $inspeksiBulanan['bulan'], 'tahun' => $inspeksiBulanan['tahun']]) }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+                        Rekap Bulanan &rarr;
                     </a>
                 </div>
 
-                @if($jadwalData)
-                    <div class="space-y-3.5">
+                <div class="space-y-3.5">
+                    <!-- Target Operasional -->
+                    <div class="flex items-center justify-between gap-2">
                         <div>
+                            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Target Operasional K3RS</span>
+                            <span class="text-xs font-bold text-slate-800">Unit Terpasang Aktif</span>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-800 font-mono border border-slate-200">
+                            {{ $inspeksiBulanan['total_target'] }} APAR
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar Inspeksi Bulanan -->
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200/80">
+                        <div class="flex items-center justify-between text-xs mb-1.5">
+                            <span class="text-slate-600 font-medium">Kepatuhan Inspeksi</span>
+                            <span class="font-bold text-slate-900 font-mono">{{ $inspeksiBulanan['progress_pct'] }}%</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="bg-slate-900 h-full rounded-full transition-all duration-500" style="width: {{ $inspeksiBulanan['progress_pct'] }}%"></div>
+                        </div>
+                        <div class="mt-2 text-[11px] text-slate-500 flex items-center justify-between">
+                            <span>Sudah: <strong class="text-slate-800 font-mono">{{ $inspeksiBulanan['sudah_diperiksa'] }}</strong> APAR</span>
+                            <span>Tersisa: <strong class="text-amber-700 font-mono">{{ $inspeksiBulanan['belum_diperiksa'] }}</strong> APAR</span>
+                        </div>
+                    </div>
+
+                    <!-- Ringkasan Hasil Evaluasi Bulanan -->
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/60">
+                            <span class="block text-[10px] font-bold uppercase tracking-wider text-emerald-800">Kondisi Baik</span>
+                            <span class="text-lg font-black text-emerald-700 font-mono tabular-nums leading-none mt-1 block">{{ $inspeksiBulanan['baik'] }}</span>
+                            <span class="text-[10px] text-emerald-600 mt-0.5 block">Kelaikan terjaga</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg border border-rose-200 bg-rose-50/60">
+                            <span class="block text-[10px] font-bold uppercase tracking-wider text-rose-800">Perlu Tindakan</span>
+                            <span class="text-lg font-black text-rose-700 font-mono tabular-nums leading-none mt-1 block">{{ $inspeksiBulanan['perlu_tindakan'] }}</span>
+                            <span class="text-[10px] text-rose-600 mt-0.5 block">Temuan lapangan</span>
+                        </div>
+                    </div>
+
+                    @if($jadwalData)
+                        <!-- Putaran Jadwal Terkait (Legacy Schedule Compatibility) -->
+                        <div class="pt-2.5 border-t border-slate-100 text-xs">
                             <div class="flex items-center justify-between gap-2">
-                                <h4 class="text-xs font-bold text-slate-900 line-clamp-1" title="{{ $jadwalData['model']->nama }}">
-                                    {{ $jadwalData['model']->nama }}
-                                </h4>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Jadwal Berkala:</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                                     {{ $jadwalData['model']->status_label }}
                                 </span>
                             </div>
-                            <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5 font-mono">
-                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <span>{{ $jadwalData['model']->tanggal_mulai ? $jadwalData['model']->tanggal_mulai->format('d/m/Y') : '-' }} s/d {{ $jadwalData['model']->tanggal_selesai ? $jadwalData['model']->tanggal_selesai->format('d/m/Y') : '-' }}</span>
+                            <a href="{{ route('jadwal.show', $jadwalData['model']->id) }}" class="font-bold text-slate-800 hover:underline block truncate mt-0.5" title="{{ $jadwalData['model']->nama }}">
+                                {{ $jadwalData['model']->nama }}
+                            </a>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 mt-1">
+                                <span>Selesai: <strong class="font-mono text-slate-800">{{ $jadwalData['sudah_diperiksa'] }}</strong> dari <strong class="font-mono text-slate-800">{{ $jadwalData['total_target'] }}</strong> ({{ $jadwalData['progress_pct'] }}%)</span>
+                                <a href="{{ route('jadwal.show', $jadwalData['model']->id) }}" class="text-slate-700 font-semibold hover:underline">Lembar &rarr;</a>
                             </div>
                         </div>
-
-                        <!-- Progress Bar Jadwal -->
-                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200/80">
-                            <div class="flex items-center justify-between text-xs mb-1.5">
-                                <span class="text-slate-600 font-medium">Progres Pemeriksaan</span>
-                                <span class="font-bold text-slate-900 font-mono">{{ $jadwalData['progress_pct'] }}%</span>
-                            </div>
-                            <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                                <div class="bg-slate-900 h-full rounded-full transition-all duration-500" style="width: {{ $jadwalData['progress_pct'] }}%"></div>
-                            </div>
-                            <div class="mt-2 text-[11px] text-slate-500 flex items-center justify-between">
-                                <span>Selesai: <strong class="text-slate-800 font-mono">{{ $jadwalData['sudah_diperiksa'] }}</strong> APAR</span>
-                                <span>Target: <strong class="text-slate-800 font-mono">{{ $jadwalData['total_target'] }}</strong> APAR</span>
-                            </div>
+                    @else
+                        <!-- Status Putaran Jadwal Tanpa Tombol Buat Baru (Tahap 5) -->
+                        <div class="pt-2 border-t border-slate-100 text-center">
+                            <p class="text-[11px] text-slate-400">Tidak ada jadwal inspeksi aktif</p>
                         </div>
-                    </div>
-                @else
-                    <!-- Empty State Jadwal -->
-                    <div class="py-6 text-center">
-                        <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2.5">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <p class="text-xs font-semibold text-slate-700">Tidak ada jadwal inspeksi aktif</p>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Semua putaran inspeksi berkala telah selesai atau belum dimulai.</p>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
 
-            <div class="mt-4 pt-3 border-t border-slate-100">
-                @if($jadwalData)
-                    <a href="{{ route('jadwal.show', $jadwalData['model']->id) }}" 
-                       class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition min-h-[44px]">
-                        <span>Buka Lembar Jadwal</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                @else
-                    <a href="{{ route('jadwal.create') }}" 
-                       class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition min-h-[44px]">
-                        <span>Buat Jadwal Inspeksi Baru</span>
-                    </a>
-                @endif
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-2">
+                <a href="{{ route('scan.index', ['bulan' => $inspeksiBulanan['bulan'], 'tahun' => $inspeksiBulanan['tahun']]) }}" 
+                   class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition min-h-[44px]">
+                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                    </svg>
+                    <span>Scan QR APAR</span>
+                </a>
+                <a href="{{ route('pemeriksaan.index', ['bulan' => $inspeksiBulanan['bulan'], 'tahun' => $inspeksiBulanan['tahun']]) }}" 
+                   class="w-full sm:w-auto inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 transition min-h-[44px] whitespace-nowrap">
+                    <span>Lihat Hasil</span>
+                </a>
             </div>
         </div>
     </div>
@@ -350,8 +366,14 @@
                                 <span class="block text-[11px] text-slate-400 font-mono">{{ $apar->kapasitas }}</span>
                             </td>
                             <td class="py-3 px-4">
-                                <div class="font-semibold text-slate-900">{{ $apar->gedung?->nama ?? '-' }} - Lt. {{ $apar->lantai?->nomor_lantai ?? '-' }}</div>
-                                <div class="text-[11px] text-slate-500">{{ $apar->ruangan?->nama ?? '-' }}</div>
+                                <div class="font-semibold text-slate-900">{{ $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? '-' }}</div>
+                                <div class="text-[11px] text-slate-500">
+                                    @if($apar->lokasi)
+                                        {{ $apar->lokasi->keterangan ?? $apar->lokasi->nama }}
+                                    @else
+                                        {{ $apar->gedung?->nama ?? '-' }} - Lt. {{ $apar->lantai?->nomor_lantai ?? '-' }}
+                                    @endif
+                                </div>
                             </td>
                             <td class="py-3 px-4 whitespace-nowrap">
                                 @if($apar->status === 'rusak')

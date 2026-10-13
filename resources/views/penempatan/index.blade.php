@@ -257,7 +257,7 @@
                                             'kode' => $apar->kode,
                                             'gedung' => $selectedGedung->nama,
                                             'lantai' => $selectedLantai->nama,
-                                            'ruangan' => $apar->ruangan?->nama ?? '-',
+                                            'ruangan' => $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? '-',
                                             'posisi_detail' => $apar->posisi_detail ?? 'Belum dicatat secara detail',
                                             'jenis_media' => $apar->jenis_media,
                                             'kapasitas' => $apar->kapasitas,
@@ -432,7 +432,7 @@
                                     </x-badge>
                                 </div>
                                 <div class="text-[11px] text-slate-600">
-                                    <span>Ruangan: <strong>{{ $a->ruangan?->nama ?? '-' }}</strong></span>
+                                    <span>Lokasi: <strong>{{ $a->lokasi?->nama ?? $a->ruangan?->nama ?? '-' }}</strong></span>
                                     <div class="text-slate-400 mt-0.5">{{ $a->jenis_media }} &bull; {{ $a->kapasitas }}</div>
                                 </div>
                                 <div class="pt-1 flex items-center justify-between border-t border-slate-200">
@@ -468,7 +468,7 @@
                                     </x-badge>
                                 </div>
                                 <div class="text-[11px] text-slate-600">
-                                    <div>Ruangan: <strong>{{ $a->ruangan?->nama ?? '-' }}</strong></div>
+                                    <div>Lokasi: <strong>{{ $a->lokasi?->nama ?? $a->ruangan?->nama ?? '-' }}</strong></div>
                                     <div class="text-slate-400 mt-0.5">{{ $a->jenis_media }} &bull; {{ $a->kapasitas }}</div>
                                     <div class="font-mono text-[10px] text-slate-400 mt-0.5">X: {{ $a->koordinat_x }}% &bull; Y: {{ $a->koordinat_y }}%</div>
                                 </div>

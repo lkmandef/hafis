@@ -36,10 +36,16 @@
                         <td class="font-mono">{{ $a->nomor_register ?: '-' }}</td>
                         <td>{{ $a->jenis_media }}</td>
                         <td class="font-mono">{{ $a->kapasitas }}</td>
-                        <td>{{ $a->merek ?: '-' }} {{ $a->tipe_model ? "({$a->tipe_model})" : '' }}</td>
+                        <td>{{ $a->merek ?: 'Belum terdata' }} {{ $a->tipe_model ? "({$a->tipe_model})" : '' }}</td>
                         <td>
-                            <strong>{{ $a->gedung?->nama ?? '-' }}</strong> - Lt. {{ $a->lantai?->nomor_lantai ?? '-' }}
-                            <div>{{ $a->ruangan?->nama ?? '-' }}</div>
+                            <strong>{{ $a->lokasi?->nama ?? $a->ruangan?->nama ?? '-' }}</strong>
+                            <div>
+                                @if($a->lokasi)
+                                    {{ $a->lokasi->keterangan ?? $a->lokasi->nama }}
+                                @else
+                                    {{ $a->gedung?->nama ?? '-' }} - Lt. {{ $a->lantai?->nomor_lantai ?? '-' }}
+                                @endif
+                            </div>
                             @if($a->posisi_detail)
                                 <div style="font-size: 7pt; color: #64748b;">{{ $a->posisi_detail }}</div>
                             @endif
@@ -287,9 +293,13 @@
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    <div class="font-medium text-slate-900">{{ $a->ruangan?->nama ?? '-' }}</div>
+                                    <div class="font-medium text-slate-900">{{ $a->lokasi?->nama ?? $a->ruangan?->nama ?? '-' }}</div>
                                     <div class="text-[11px] text-slate-500">
-                                        {{ $a->gedung?->nama ?? '-' }} &bull; Lt. {{ $a->lantai?->nomor_lantai ?? '-' }}
+                                        @if($a->lokasi)
+                                            {{ $a->lokasi->keterangan ?? $a->lokasi->nama }}
+                                        @else
+                                            {{ $a->gedung?->nama ?? '-' }} &bull; Lt. {{ $a->lantai?->nomor_lantai ?? '-' }}
+                                        @endif
                                     </div>
                                     @if($a->posisi_detail)
                                         <div class="text-[11px] text-slate-400 italic line-clamp-1">{{ $a->posisi_detail }}</div>
@@ -302,7 +312,7 @@
                                 </td>
 
                                 <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="text-slate-800">{{ $a->merek ?: '-' }}</div>
+                                    <div class="text-slate-800 {{ ! $a->merek ? 'text-slate-400 italic' : '' }}">{{ $a->merek ?: 'Belum terdata' }}</div>
                                     <div class="text-[11px] text-slate-400">{{ $a->tipe_model ?: '-' }}</div>
                                 </td>
 

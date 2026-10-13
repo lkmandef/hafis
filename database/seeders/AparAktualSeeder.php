@@ -6,7 +6,6 @@ use App\Models\Apar;
 use App\Models\Gedung;
 use App\Models\Lantai;
 use App\Models\Lokasi;
-use App\Models\Pemeriksaan;
 use App\Models\Ruangan;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -15,22 +14,21 @@ class AparAktualSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * Mengimpor master data APAR aktual K3RS berdasarkan LOCATION_APAR_MASTER.md.
+     * Mengimpor master data APAR aktual K3RS berdasarkan LOCATION_APAR_MASTER.md
+     * dan LOCATION_CODE_MAPPING.md dengan format definitif APAR-{KODE_LOKASI}-{NOMOR_URUT}.
      */
     public function run(): void
     {
-        // 1. Pastikan seluruh 64 master lokasi terdaftar
+        // 1. Pastikan seluruh 64 master lokasi terdaftar beserta kode definitifnya
         $this->call(LokasiAktualSeeder::class);
 
-        // 2. Tangani data dummy / uji coba lama secara aman tanpa merusak riwayat
-        $this->handleLegacyDummyData();
+        // 2. Bersihkan record dummy legacy lama secara aman dan permanen jika masih ada
+        $this->purgeLegacyDummyData();
 
         // 3. Siapkan fallback ruangan legacy untuk integritas constraint ruangan_id
         $legacyRuangan = $this->resolveFallbackLegacyRuangan();
 
         // 4. Impor tepat 173 APAR terpasang/aktif dengan identifikasi deterministik
-        $aparIndex = 1;
-
         foreach (LokasiAktualSeeder::LOCATIONS_DATA as $locationDef) {
             $targetCount = $locationDef['target_apar'];
 
@@ -42,42 +40,75 @@ class AparAktualSeeder extends Seeder
             $lokasi = Lokasi::where('nama', $locationDef['nama'])->firstOrFail();
 
             for ($i = 1; $i <= $targetCount; $i++) {
-                $kode = sprintf('TEMP-APAR-%03d', $aparIndex);
-                $qrCode = sprintf('HAFIS-QR-TEMP-APAR-%03d', $aparIndex);
+                $kode = sprintf('APAR-%s-%02d', $lokasi->kode, $i);
+                $qrCode = sprintf('HAFIS-QR-%s', $kode);
 
-                Apar::updateOrCreate(
-                    ['kode' => $kode],
-                    [
-                        'nomor_register' => null,
+                // Cari APAR yang sudah ada untuk posisi ini
+                $apar = Apar::where('kode', $kode)->first();
+
+                if (! $apar) {
+                    // Cari jika masih menggunakan kode sementara TEMP-APAR-xxx
+                    $apar = Apar::where('lokasi_id', $lokasi->id)
+                        ->where('kode', 'like', 'TEMP-APAR-%')
+                        ->orderBy('id')
+                        ->skip($i - 1)
+                        ->first();
+                }
+
+                if (! $apar) {
+                    // Cari berdasarkan urutan ID di lokasi tersebut
+                    $apar = Apar::where('lokasi_id', $lokasi->id)
+                        ->orderBy('id')
+                        ->skip($i - 1)
+                        ->first();
+                }
+
+                $itemSpec = $locationDef['items'][$i - 1] ?? [
+                    'media' => 'Dry Chemical Powder',
+                    'kapasitas' => '6 kg',
+                ];
+
+                if ($apar) {
+                    // Update kode & identitas struktural serta atribut fisik terverifikasi,
+                    // TANPA menimpa status operasional, tanggal periksa, atau koordinat
+                    $apar->update([
+                        'kode' => $kode,
+                        'qr_code' => $qrCode,
+                        'lokasi_id' => $lokasi->id,
+                        'ruangan_id' => $legacyRuangan->id,
+                        'jenis_media' => $itemSpec['media'],
+                        'kapasitas' => $itemSpec['kapasitas'],
+                        'merek' => null, // Dikosongkan karena tidak ada data merek resmi di sumber
+                    ]);
+                } else {
+                    // Buat baru jika belum ada record sama sekali
+                    Apar::create([
+                        'kode' => $kode,
                         'qr_code' => $qrCode,
                         'lokasi_id' => $lokasi->id,
                         'ruangan_id' => $legacyRuangan->id,
                         'posisi_detail' => null,
-                        'jenis_media' => 'Dry Chemical Powder',
-                        'kapasitas' => '6 kg',
-                        'merek' => 'Servvo',
+                        'jenis_media' => $itemSpec['media'],
+                        'kapasitas' => $itemSpec['kapasitas'],
+                        'merek' => null,
                         'tipe_model' => null,
                         'status' => Apar::STATUS_BAIK,
                         'tanggal_pemasangan' => null,
                         'tanggal_kadaluarsa' => null,
                         'tanggal_pemeriksaan_terakhir' => null,
-                        'keterangan' => 'Master data K3RS - Phase 2 import (kode sementara)',
-                    ]
-                );
-
-                $aparIndex++;
+                        'keterangan' => 'Master data K3RS APAR terpasang',
+                    ]);
+                }
             }
         }
     }
 
     /**
-     * Tangani data APAR dummy / pengujian lama:
-     * - Record terisolasi tanpa dependensi (APAR-NONAKTIF-01) dihapus secara aman.
-     * - Record yang memiliki relasi historis (pemeriksaan, detail, jadwal) diproteksi sebagai arsip legacy.
+     * Bersihkan secara permanen record dummy lama beserta seluruh riwayat dependennya
+     * agar tidak terjadi resurrect dummy APAR saat seeder dijalankan ulang.
      */
-    private function handleLegacyDummyData(): void
+    private function purgeLegacyDummyData(): void
     {
-        // List kode APAR dummy yang ada sebelum Phase 2
         $legacyCodes = [
             'APAR-IGD-01',
             'APAR-IGD-02',
@@ -87,33 +118,29 @@ class AparAktualSeeder extends Seeder
             'Emerald-001',
         ];
 
-        foreach ($legacyCodes as $kode) {
-            $legacyApar = Apar::where('kode', $kode)->first();
-            if (! $legacyApar) {
-                continue;
-            }
-
-            // Hitung dependensi historis
-            $hasPemeriksaan = Pemeriksaan::where('apar_id', $legacyApar->id)->exists();
-            $hasJadwal = DB::table('jadwal_apars')->where('apar_id', $legacyApar->id)->exists();
-            $hasPenggantian = DB::table('penggantian_apars')
-                ->where('apar_lama_id', $legacyApar->id)
-                ->orWhere('apar_baru_id', $legacyApar->id)
-                ->exists();
-            $hasTindakLanjut = DB::table('tindak_lanjuts')->where('apar_id', $legacyApar->id)->exists();
-
-            if (! $hasPemeriksaan && ! $hasJadwal && ! $hasPenggantian && ! $hasTindakLanjut) {
-                // Record uji coba terisolasi tanpa ketergantungan relasi apapun
-                $legacyApar->forceDelete();
-            } else {
-                // Record yang memiliki riwayat pemeriksaan/jadwal diproteksi sebagai legacy
-                $legacyApar->update([
-                    'status' => Apar::STATUS_TIDAK_AKTIF,
-                    'lokasi_id' => null,
-                    'keterangan' => 'Arsip pengujian lama (legacy pre-Phase 2) - diproteksi demi integritas riwayat',
-                ]);
-            }
+        $legacyApars = Apar::whereIn('kode', $legacyCodes)->get();
+        if ($legacyApars->isEmpty()) {
+            return;
         }
+
+        $dummyIds = $legacyApars->pluck('id')->toArray();
+
+        DB::transaction(function () use ($dummyIds) {
+            $pemeriksaanIds = DB::table('pemeriksaans')->whereIn('apar_id', $dummyIds)->pluck('id')->toArray();
+            if (! empty($pemeriksaanIds)) {
+                DB::table('pemeriksaan_details')->whereIn('pemeriksaan_id', $pemeriksaanIds)->delete();
+                DB::table('pemeriksaans')->whereIn('id', $pemeriksaanIds)->delete();
+            }
+
+            DB::table('jadwal_apars')->whereIn('apar_id', $dummyIds)->delete();
+            DB::table('tindak_lanjuts')->whereIn('apar_id', $dummyIds)->delete();
+            DB::table('penggantian_apars')
+                ->whereIn('apar_lama_id', $dummyIds)
+                ->orWhereIn('apar_baru_id', $dummyIds)
+                ->delete();
+
+            Apar::whereIn('id', $dummyIds)->forceDelete();
+        });
     }
 
     /**

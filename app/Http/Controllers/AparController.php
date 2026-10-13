@@ -28,7 +28,7 @@ class AparController extends Controller
             $status = 'aktif';
         }
 
-        $query = Apar::with(['ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
+        $query = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
 
         // 1. Pencarian teks (Section 21: termasuk kode APAR dan qr_code)
         if ($search) {
@@ -40,6 +40,10 @@ class AparController extends Controller
                     ->orWhere('tipe_model', 'like', "%{$search}%")
                     ->orWhere('posisi_detail', 'like', "%{$search}%")
                     ->orWhere('keterangan', 'like', "%{$search}%")
+                    ->orWhereHas('lokasi', function ($lq) use ($search) {
+                        $lq->where('nama', 'like', "%{$search}%")
+                            ->orWhere('kode', 'like', "%{$search}%");
+                    })
                     ->orWhereHas('ruangan', function ($rq) use ($search) {
                         $rq->where('nama', 'like', "%{$search}%")
                             ->orWhere('kode', 'like', "%{$search}%")
@@ -219,6 +223,7 @@ class AparController extends Controller
     {
         $apar = is_numeric($id)
             ? Apar::with([
+                'lokasi',
                 'ruangan.lantai.gedung',
                 'tindakLanjuts.pemeriksaan',
                 'penggantianKeluar.aparBaru.ruangan.lantai.gedung',
@@ -227,6 +232,7 @@ class AparController extends Controller
                 'aparDigantikan',
             ])->findOrFail($id)
             : Apar::with([
+                'lokasi',
                 'ruangan.lantai.gedung',
                 'tindakLanjuts.pemeriksaan',
                 'penggantianKeluar.aparBaru.ruangan.lantai.gedung',
@@ -244,8 +250,8 @@ class AparController extends Controller
     public function edit($id)
     {
         $apar = is_numeric($id)
-            ? Apar::with(['ruangan.lantai.gedung'])->findOrFail($id)
-            : Apar::with(['ruangan.lantai.gedung'])->where('kode', $id)->firstOrFail();
+            ? Apar::with(['lokasi', 'ruangan.lantai.gedung'])->findOrFail($id)
+            : Apar::with(['lokasi', 'ruangan.lantai.gedung'])->where('kode', $id)->firstOrFail();
 
         $gedungs = Gedung::with([
             'lantais' => fn ($q) => $q->orderBy('nomor_lantai', 'asc'),
@@ -347,8 +353,8 @@ class AparController extends Controller
     public function cetakQr($id)
     {
         $apar = is_numeric($id)
-            ? Apar::with(['ruangan.lantai.gedung'])->findOrFail($id)
-            : Apar::with(['ruangan.lantai.gedung'])->where('kode', $id)->firstOrFail();
+            ? Apar::with(['lokasi', 'ruangan.lantai.gedung'])->findOrFail($id)
+            : Apar::with(['lokasi', 'ruangan.lantai.gedung'])->where('kode', $id)->firstOrFail();
 
         return view('apar.cetak-qr', compact('apar'));
     }

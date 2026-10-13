@@ -255,10 +255,14 @@
                             <!-- Lokasi Berjenjang -->
                             <td class="px-4 py-3">
                                 <div class="font-medium text-slate-900">
-                                    {{ $apar->ruangan?->nama ?? '-' }}
+                                    {{ $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? '-' }}
                                 </div>
                                 <div class="text-[11px] text-slate-500">
-                                    {{ $apar->gedung?->nama ?? '-' }} &bull; {{ $apar->lantai?->nama ?? '-' }}
+                                    @if($apar->lokasi)
+                                        {{ $apar->lokasi->keterangan ?? $apar->lokasi->nama }}
+                                    @else
+                                        {{ $apar->gedung?->nama ?? '-' }} &bull; {{ $apar->lantai?->nama ?? '-' }}
+                                    @endif
                                 </div>
                                 @if($apar->posisi_detail)
                                     <div class="text-[11px] text-slate-400 italic mt-0.5 line-clamp-1">
@@ -290,7 +294,7 @@
 
                             <!-- Merek & Tipe -->
                             <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-slate-800">{{ $apar->merek ?: '-' }}</div>
+                                <div class="text-slate-800 {{ ! $apar->merek ? 'text-slate-400 italic' : '' }}">{{ $apar->merek ?: 'Belum terdata' }}</div>
                                 <div class="text-[11px] text-slate-400">{{ $apar->tipe_model ?: '-' }}</div>
                             </td>
 

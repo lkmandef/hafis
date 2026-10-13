@@ -54,7 +54,7 @@
                         <x-input
                             name="kode"
                             label="Kode APAR"
-                            placeholder="Contoh: APAR-IGD-01"
+                            placeholder="Contoh: APAR-EMR1-01"
                             value="{{ old('kode') }}"
                             :required="true"
                             :error="$errors->first('kode')"

@@ -41,8 +41,14 @@
                             <div style="font-size: 7.5pt; color: #64748b;">{{ $p->aparBaru?->jenis_media ?? '-' }} ({{ $p->aparBaru?->kapasitas ?? '-' }})</div>
                         </td>
                         <td>
-                            <strong>{{ $p->aparBaru?->gedung?->nama ?? $p->aparLama?->gedung?->nama ?? '-' }}</strong>
-                            <div>{{ $p->aparBaru?->ruangan?->nama ?? $p->aparLama?->ruangan?->nama ?? '-' }}</div>
+                            <strong>{{ $p->aparBaru?->lokasi?->nama ?? $p->aparLama?->lokasi?->nama ?? $p->aparBaru?->ruangan?->nama ?? $p->aparLama?->ruangan?->nama ?? '-' }}</strong>
+                            <div>
+                                @if($p->aparBaru?->lokasi || $p->aparLama?->lokasi)
+                                    {{ ($p->aparBaru?->lokasi ?? $p->aparLama?->lokasi)->keterangan ?? ($p->aparBaru?->lokasi ?? $p->aparLama?->lokasi)->nama }}
+                                @else
+                                    {{ $p->aparBaru?->gedung?->nama ?? $p->aparLama?->gedung?->nama ?? '-' }}
+                                @endif
+                            </div>
                         </td>
                         <td>
                             <strong>{{ $p->alasan_label }}</strong>
@@ -297,10 +303,14 @@
                                 </td>
                                 <td class="py-3 px-3.5">
                                     <div class="font-semibold text-slate-900">
-                                        {{ $p->aparBaru?->gedung?->nama ?? $p->aparLama?->gedung?->nama ?? '-' }} - Lt. {{ $p->aparBaru?->lantai?->nomor_lantai ?? $p->aparLama?->lantai?->nomor_lantai ?? '-' }}
+                                        {{ $p->aparBaru?->lokasi?->nama ?? $p->aparLama?->lokasi?->nama ?? $p->aparBaru?->ruangan?->nama ?? $p->aparLama?->ruangan?->nama ?? '-' }}
                                     </div>
                                     <div class="text-[11px] text-slate-500">
-                                        {{ $p->aparBaru?->ruangan?->nama ?? $p->aparLama?->ruangan?->nama ?? '-' }}
+                                        @if($p->aparBaru?->lokasi || $p->aparLama?->lokasi)
+                                            {{ ($p->aparBaru?->lokasi ?? $p->aparLama?->lokasi)->keterangan ?? ($p->aparBaru?->lokasi ?? $p->aparLama?->lokasi)->nama }}
+                                        @else
+                                            {{ $p->aparBaru?->gedung?->nama ?? $p->aparLama?->gedung?->nama ?? '-' }} - Lt. {{ $p->aparBaru?->lantai?->nomor_lantai ?? $p->aparLama?->lantai?->nomor_lantai ?? '-' }}
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">

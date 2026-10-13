@@ -156,7 +156,7 @@ class Phase2MasterDataImportTest extends TestCase
     }
 
     /**
-     * 8. Temporary APAR identifiers are unique and follow deterministic pattern TEMP-APAR-001 s.d. TEMP-APAR-173.
+     * 8. APAR identifiers are unique and follow deterministic location pattern APAR-{KODE_LOKASI}-{NOMOR_URUT}.
      */
     public function test_temporary_apar_identifiers_are_unique_and_deterministic(): void
     {
@@ -170,19 +170,20 @@ class Phase2MasterDataImportTest extends TestCase
         $uniqueCodes = array_unique($codes);
         $this->assertCount(173, $uniqueCodes);
 
-        $first = $apars->first();
-        $this->assertEquals('TEMP-APAR-001', $first->kode);
-        $this->assertEquals('HAFIS-QR-TEMP-APAR-001', $first->qr_code);
+        $qrCodes = $apars->pluck('qr_code')->toArray();
+        $uniqueQrs = array_unique($qrCodes);
+        $this->assertCount(173, $uniqueQrs);
 
-        $last = $apars->last();
-        $this->assertEquals('TEMP-APAR-173', $last->kode);
-        $this->assertEquals('HAFIS-QR-TEMP-APAR-173', $last->qr_code);
-
-        // Verify sequential continuity
-        for ($i = 1; $i <= 173; $i++) {
-            $expectedCode = sprintf('TEMP-APAR-%03d', $i);
-            $this->assertTrue(in_array($expectedCode, $codes), "Kode {$expectedCode} harus ada.");
+        foreach ($apars as $apar) {
+            $this->assertMatchesRegularExpression('/^APAR-[A-Z0-9]+-\d{2}$/', $apar->kode);
+            $this->assertEquals("HAFIS-QR-{$apar->kode}", $apar->qr_code);
         }
+
+        // Check specific known deterministic codes
+        $this->assertTrue(in_array('APAR-SEC-01', $codes));
+        $this->assertTrue(in_array('APAR-EMR1-01', $codes));
+        $this->assertTrue(in_array('APAR-ITD-01', $codes));
+        $this->assertTrue(in_array('APAR-OKC-02', $codes));
     }
 
     /**
@@ -217,7 +218,7 @@ class Phase2MasterDataImportTest extends TestCase
     }
 
     /**
-     * 11. Existing legacy inspection records and dependencies are preserved safely.
+     * 11. Legacy dummy APARs and exclusively dependent history are permanently purged by seeder.
      */
     public function test_existing_legacy_inspection_records_are_not_destroyed(): void
     {
@@ -275,22 +276,17 @@ class Phase2MasterDataImportTest extends TestCase
             'status' => Apar::STATUS_TIDAK_AKTIF,
         ]);
 
-        // Jalankan seeder Phase 2
+        // Jalankan seeder Phase 4.5
         $this->seed(AparAktualSeeder::class);
 
-        // Verifikasi: Record legacy dengan dependensi diproteksi
-        $preservedApar = Apar::where('kode', 'APAR-IGD-01')->first();
-        $this->assertNotNull($preservedApar);
-        $this->assertEquals(Apar::STATUS_TIDAK_AKTIF, $preservedApar->status);
-        $this->assertNull($preservedApar->lokasi_id);
-        $this->assertEquals(1, Pemeriksaan::where('apar_id', $preservedApar->id)->count());
-        $this->assertEquals(1, PemeriksaanDetail::where('pemeriksaan_id', $pemeriksaan->id)->count());
-        $this->assertEquals(1, DB::table('jadwal_apars')->where('apar_id', $preservedApar->id)->count());
-
-        // Verifikasi: Dummy terisolasi dibersihkan
+        // Verifikasi: Dummy APAR dan riwayatnya dibersihkan permanen sesuai Phase 4.5 decision
+        $this->assertNull(Apar::where('kode', 'APAR-IGD-01')->first());
         $this->assertNull(Apar::where('kode', 'APAR-NONAKTIF-01')->first());
+        $this->assertEquals(0, Pemeriksaan::where('apar_id', $legacyAparWithHistory->id)->count());
+        $this->assertEquals(0, PemeriksaanDetail::where('pemeriksaan_id', $pemeriksaan->id)->count());
+        $this->assertEquals(0, DB::table('jadwal_apars')->where('apar_id', $legacyAparWithHistory->id)->count());
 
-        // Verifikasi total active tetap tepat 173
+        // Verifikasi total active APAR tetap tepat 173
         $this->assertEquals(173, Apar::where('status', Apar::STATUS_BAIK)->count());
     }
 
@@ -341,13 +337,16 @@ class Phase2MasterDataImportTest extends TestCase
     }
 
     /**
-     * 15. Location codes remain NULL; no official codes invented.
+     * 15. Location codes are populated with unique deterministic codes from LOCATION_CODE_MAPPING.md.
      */
     public function test_location_codes_remain_null(): void
     {
         $this->seed(LokasiAktualSeeder::class);
 
         $nonNullCodes = Lokasi::whereNotNull('kode')->count();
-        $this->assertEquals(0, $nonNullCodes, 'Kode lokasi resmi belum final; seluruh kode harus NULL.');
+        $this->assertEquals(64, $nonNullCodes, 'Seluruh 64 lokasi harus memiliki kode lokasi definitif.');
+
+        $uniqueCodes = Lokasi::pluck('kode')->unique()->count();
+        $this->assertEquals(64, $uniqueCodes, 'Seluruh 64 kode lokasi harus unik.');
     }
 }

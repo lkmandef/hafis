@@ -120,10 +120,14 @@
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
                         <dt class="font-semibold text-slate-500 mb-0.5">Lokasi Penempatan</dt>
                         <dd class="font-semibold text-slate-900">
-                            {{ $apar->gedung?->nama ?? '-' }} &bull; {{ $apar->lantai?->nama ?? '-' }}
+                            {{ $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? '-' }}
                         </dd>
                         <dd class="text-slate-600 text-[11px] mt-0.5">
-                            Ruangan: <span class="font-medium text-slate-800">{{ $apar->ruangan?->nama ?? '-' }}</span>
+                            @if($apar->lokasi)
+                                {{ $apar->lokasi->keterangan ?? $apar->lokasi->nama }}
+                            @else
+                                Ruangan: <span class="font-medium text-slate-800">{{ $apar->ruangan?->nama ?? '-' }}</span>
+                            @endif
                         </dd>
                         @if($apar->posisi_detail)
                             <dd class="text-slate-500 text-[11px] italic mt-1 border-t border-slate-200/60 pt-1">

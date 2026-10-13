@@ -58,7 +58,7 @@ class LaporanController extends Controller
      */
     public function apar(Request $request)
     {
-        $query = Apar::with(['ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
+        $query = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
 
         // 1. Filter Lokasi
         if ($request->filled('gedung_id')) {
@@ -100,7 +100,8 @@ class LaporanController extends Controller
                     ->orWhere('nomor_register', 'like', "%{$q}%")
                     ->orWhere('merek', 'like', "%{$q}%")
                     ->orWhere('tipe_model', 'like', "%{$q}%")
-                    ->orWhere('posisi_detail', 'like', "%{$q}%");
+                    ->orWhere('posisi_detail', 'like', "%{$q}%")
+                    ->orWhereHas('lokasi', fn ($loc) => $loc->where('nama', 'like', "%{$q}%")->orWhere('kode', 'like', "%{$q}%"));
             });
         }
 
@@ -126,11 +127,11 @@ class LaporanController extends Controller
                     $a->qr_code,
                     $a->jenis_media,
                     $a->kapasitas,
-                    $a->merek ?: '-',
+                    $a->merek ?: 'Belum terdata',
                     $a->tipe_model ?: '-',
                     $a->gedung?->nama ?? '-',
                     $a->lantai?->nama ?? '-',
-                    $a->ruangan?->nama ?? '-',
+                    $a->lokasi?->nama ?? $a->ruangan?->nama ?? '-',
                     $a->posisi_detail ?: '-',
                     $a->status_label,
                     $a->tanggal_kadaluarsa ? $a->tanggal_kadaluarsa->format('d/m/Y') : '-',

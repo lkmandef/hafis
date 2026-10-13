@@ -8,6 +8,9 @@
                 <span class="text-slate-300">/</span>
                 <a href="{{ route('jadwal.show', $jadwal->id) }}" class="hover:text-slate-800 transition-colors">{{ $jadwal->nama }}</a>
                 <span class="text-slate-300">/</span>
+            @elseif(isset($periodeBulan) && isset($periodeTahun))
+                <a href="{{ route('pemeriksaan.index', ['bulan' => $periodeBulan, 'tahun' => $periodeTahun]) }}" class="hover:text-slate-800 transition-colors">Hasil Inspeksi ({{ \App\Models\Pemeriksaan::NAMA_BULAN[$periodeBulan] ?? $periodeBulan }} {{ $periodeTahun }})</a>
+                <span class="text-slate-300">/</span>
             @else
                 <a href="{{ route('apar.index') }}" class="hover:text-slate-800 transition-colors">Data APAR</a>
                 <span class="text-slate-300">/</span>
@@ -29,6 +32,11 @@
                     <x-badge :variant="$apar->status_badge_variant" :dot="true">
                         {{ $apar->status_label }}
                     </x-badge>
+                    @if(isset($periodeBulan) && isset($periodeTahun))
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
+                            Periode: {{ \App\Models\Pemeriksaan::NAMA_BULAN[$periodeBulan] ?? $periodeBulan }} {{ $periodeTahun }}
+                        </span>
+                    @endif
                 </div>
                 <p class="text-xs text-slate-500 mt-1">
                     Verifikasi kondisi visual dan fisik komponen tabung pemadam di lapangan.
@@ -37,12 +45,21 @@
 
             <!-- Header Action -->
             <div class="flex items-center gap-2">
-                <x-button variant="secondary" href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id, 'jadwal_id' => $jadwal?->id]) }}" class="min-h-[44px]">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    <span>Kembali</span>
-                </x-button>
+                @if(isset($periodeBulan) && isset($periodeTahun) && !$jadwal)
+                    <x-button variant="secondary" href="{{ route('pemeriksaan.index', ['bulan' => $periodeBulan, 'tahun' => $periodeTahun]) }}" class="min-h-[44px]">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Kembali ke Hasil Inspeksi</span>
+                    </x-button>
+                @else
+                    <x-button variant="secondary" href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id, 'jadwal_id' => $jadwal?->id]) }}" class="min-h-[44px]">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Kembali</span>
+                    </x-button>
+                @endif
             </div>
         </div>
     </div>
@@ -84,6 +101,10 @@
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200 font-medium">
                             {{ $jadwal->nama }}
                         </span>
+                    @elseif(isset($periodeBulan) && isset($periodeTahun))
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium">
+                            Inspeksi Bulanan ({{ \App\Models\Pemeriksaan::NAMA_BULAN[$periodeBulan] ?? $periodeBulan }} {{ $periodeTahun }})
+                        </span>
                     @else
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
                             Pemeriksaan Mandiri (Ad-Hoc)
@@ -100,8 +121,14 @@
                 </div>
                 <div>
                     <span class="block text-slate-400 text-[11px] font-medium">Lokasi Penempatan</span>
-                    <span class="font-semibold text-slate-800 text-xs">{{ $apar->gedung?->nama ?? '-' }} &bull; {{ $apar->lantai?->nama ?? '-' }}</span>
-                    <span class="block text-[11px] text-slate-500 truncate">{{ $apar->ruangan?->nama ?? '-' }}</span>
+                    <span class="font-semibold text-slate-800 text-xs">{{ $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? '-' }}</span>
+                    <span class="block text-[11px] text-slate-500 truncate">
+                        @if($apar->lokasi)
+                            {{ $apar->lokasi->keterangan ?? $apar->lokasi->nama }}
+                        @else
+                            {{ $apar->gedung?->nama ?? '-' }} &bull; {{ $apar->lantai?->nama ?? '-' }}
+                        @endif
+                    </span>
                 </div>
                 <div>
                     <span class="block text-slate-400 text-[11px] font-medium">Petugas Pemeriksa</span>
@@ -124,6 +151,12 @@
             @csrf
             <input type="hidden" name="apar_id" value="{{ $apar->id }}">
             <input type="hidden" name="jadwal_id" value="{{ $jadwal?->id }}">
+            @if(isset($periodeTahun))
+                <input type="hidden" name="periode_tahun" value="{{ $periodeTahun }}">
+            @endif
+            @if(isset($periodeBulan))
+                <input type="hidden" name="periode_bulan" value="{{ $periodeBulan }}">
+            @endif
             <input type="hidden" name="pemeriksa_nama" value="{{ $petugas }}">
 
             <!-- 3. Checklist Pemeriksaan Fisik (Section 4, 5, 6, 7) -->

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Apar;
+use App\Models\Lokasi;
+use App\Models\Pemeriksaan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ScanController extends Controller
@@ -10,9 +13,23 @@ class ScanController extends Controller
     /**
      * Tampilkan halaman Scan QR APAR dengan kamera & formulir input kode manual
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('scan.index');
+        $hasPeriod = $request->filled('bulan') || $request->filled('periode_bulan');
+        $bulan = $hasPeriod ? (int) $request->input('bulan', $request->input('periode_bulan')) : null;
+        $tahun = $hasPeriod ? (int) $request->input('tahun', $request->input('periode_tahun', Carbon::now()->year)) : null;
+
+        if ($bulan !== null && ($bulan < 1 || $bulan > 12)) {
+            $bulan = (int) Carbon::now()->month;
+        }
+
+        if ($tahun !== null && ($tahun < 2000 || $tahun > 2100)) {
+            $tahun = (int) Carbon::now()->year;
+        }
+
+        $jadwalId = $request->input('jadwal_id');
+
+        return view('scan.index', compact('bulan', 'tahun', 'jadwalId'));
     }
 
     /**
@@ -22,9 +39,29 @@ class ScanController extends Controller
     {
         $raw = trim($request->input('kode', ''));
         $jadwalId = $request->input('jadwal_id');
+        $hasPeriod = $request->filled('bulan') || $request->filled('periode_bulan');
+        $bulan = $hasPeriod ? (int) $request->input('bulan', $request->input('periode_bulan')) : null;
+        $tahun = $hasPeriod ? (int) $request->input('tahun', $request->input('periode_tahun', Carbon::now()->year)) : null;
+
+        if ($bulan !== null && ($bulan < 1 || $bulan > 12)) {
+            $bulan = (int) Carbon::now()->month;
+        }
+
+        if ($tahun !== null && ($tahun < 2000 || $tahun > 2100)) {
+            $tahun = (int) Carbon::now()->year;
+        }
+
+        $fallbackParams = [];
+        if (! empty($jadwalId)) {
+            $fallbackParams['jadwal_id'] = $jadwalId;
+        }
+        if ($hasPeriod) {
+            $fallbackParams['bulan'] = $bulan;
+            $fallbackParams['tahun'] = $tahun;
+        }
 
         if (empty($raw)) {
-            return redirect()->route('scan.index', $jadwalId ? ['jadwal_id' => $jadwalId] : [])
+            return redirect()->route('scan.index', $fallbackParams)
                 ->with('error', 'Masukkan kode APAR atau lakukan pemindaian QR terlebih dahulu.');
         }
 
@@ -40,19 +77,25 @@ class ScanController extends Controller
                 if (empty($jadwalId) && ! empty($queryParams['jadwal_id'])) {
                     $jadwalId = $queryParams['jadwal_id'];
                 }
+                if (! empty($queryParams['bulan'])) {
+                    $bulan = (int) $queryParams['bulan'];
+                }
+                if (! empty($queryParams['tahun'])) {
+                    $tahun = (int) $queryParams['tahun'];
+                }
             } elseif (isset($parsed['path'])) {
                 // Misal /apar/12 -> extract ID
                 if (preg_match('#/apar/(\d+)#', $parsed['path'], $matches)) {
-                    $byId = Apar::find($matches[1]);
+                    $byId = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti'])->find($matches[1]);
                     if ($byId) {
-                        return $this->handleAparFound($byId, $jadwalId);
+                        return $this->handleAparFound($byId, $jadwalId, $bulan, $tahun);
                     }
                 }
             }
         }
 
         // Pencarian APAR secara fleksibel (qr_code, kode APAR, atau nomor register)
-        $apar = Apar::with(['ruangan.lantai.gedung'])
+        $apar = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti'])
             ->where('qr_code', $cleanInput)
             ->orWhere('kode', $cleanInput)
             ->orWhere('nomor_register', $cleanInput)
@@ -60,43 +103,77 @@ class ScanController extends Controller
             ->orWhereRaw('LOWER(qr_code) = ?', [strtolower($cleanInput)])
             ->first();
 
-        // 1. Jika QR / Kode TIDAK DITEMUKAN (Section 5)
+        // 1. Jika QR / Kode TIDAK DITEMUKAN
         if (! $apar) {
-            return redirect()->route('scan.index', $jadwalId ? ['jadwal_id' => $jadwalId] : [])
+            return redirect()->route('scan.index', $fallbackParams)
                 ->withInput()
                 ->with('error', "APAR tidak ditemukan untuk kode: '{$raw}'. Pastikan label QR atau kode yang dimasukkan valid.");
         }
 
         // 2. Jika APAR DITEMUKAN
-        return $this->handleAparFound($apar, $jadwalId);
+        return $this->handleAparFound($apar, $jadwalId, $bulan, $tahun);
     }
 
     /**
      * Response penanganan APAR yang ditemukan
      */
-    private function handleAparFound(Apar $apar, $jadwalId = null)
+    private function handleAparFound(Apar $apar, $jadwalId = null, $bulan = null, $tahun = null)
     {
         $redirectParams = ['id' => $apar->id];
         if (! empty($jadwalId)) {
             $redirectParams['jadwal_id'] = $jadwalId;
         }
 
-        // 1. Jika APAR sudah digantikan oleh unit baru (Tahap 8, Section 22)
+        // 1. Jika APAR sudah digantikan oleh unit baru (Tahap 8)
         if ($apar->is_replaced) {
             $aparPengganti = $apar->aparPengganti;
             $kodePengganti = $aparPengganti ? $aparPengganti->kode : 'unit baru';
             $tglPenggantian = $apar->tanggal_nonaktif ? $apar->tanggal_nonaktif->format('d/m/Y') : '-';
 
             return redirect()->route('apar.show', $redirectParams)
-                ->with('warning', "Unit APAR {$apar->kode} sudah tidak aktif karena telah digantikan oleh {$kodePengganti} pada {$tglPenggantian}.");
+                ->with('warning', "Unit APAR {$apar->kode} sudah tidak aktif karena telah digantikan oleh {$kodePengganti} pada {$tglPenggantian} dan tidak dapat diinspeksi.");
         }
 
-        // 2. Jika APAR berstatus Tidak Aktif biasa (Section 5)
+        // 2. Jika APAR berstatus Tidak Aktif biasa (Section 5 / Legacy Inactive)
         if ($apar->status === Apar::STATUS_TIDAK_AKTIF) {
             return redirect()->route('apar.show', $redirectParams)
-                ->with('warning', "Unit APAR {$apar->kode} berhasil ditemukan namun berstatus Tidak Aktif dan tidak dapat dijadikan target pemeriksaan.");
+                ->with('warning', "Unit APAR {$apar->kode} berstatus Tidak Aktif dan tidak memenuhi syarat untuk inspeksi operasional bulanan.");
         }
 
+        // 3. Jika APAR berada di lokasi stok sediaan (GUDANG K3RS)
+        if ($apar->lokasi && $apar->lokasi->status === Lokasi::STATUS_STOK) {
+            return redirect()->route('apar.show', $redirectParams)
+                ->with('warning', "Unit APAR {$apar->kode} berada di lokasi stok sediaan ({$apar->lokasi->nama}) dan bukan target inspeksi operasional bulanan.");
+        }
+
+        // 4. Jika ada periode terpilih: Alur Integrasi Inspeksi Bulanan (Tahap 4)
+        if (! empty($bulan) && ! empty($tahun)) {
+            $namaBulan = Pemeriksaan::NAMA_BULAN[$bulan] ?? $bulan;
+
+            // Cek apakah sudah ada catatan pemeriksaan untuk periode bulan/tahun ini
+            $existingPemeriksaan = Pemeriksaan::findByAparPeriod($apar->id, $tahun, $bulan);
+            if ($existingPemeriksaan) {
+                return redirect()->route('pemeriksaan.show', $existingPemeriksaan->id)
+                    ->with('info', "Unit APAR {$apar->kode} sudah memiliki catatan hasil pemeriksaan untuk periode {$namaBulan} {$tahun}.");
+            }
+
+            // Jika belum diperiksa pada periode ini, buka formulir pemeriksaan baru
+            $createParams = [
+                'apar_id' => $apar->id,
+                'periode_bulan' => $bulan,
+                'periode_tahun' => $tahun,
+            ];
+            if (! empty($jadwalId)) {
+                $createParams['jadwal_id'] = $jadwalId;
+            }
+
+            $lokasiNama = $apar->lokasi?->nama ? " ({$apar->lokasi->nama})" : '';
+
+            return redirect()->route('pemeriksaan.create', $createParams)
+                ->with('success', "Unit APAR {$apar->kode}{$lokasiNama} teridentifikasi. Silakan isi checklist pemeriksaan untuk periode {$namaBulan} {$tahun}.");
+        }
+
+        // 5. Default/General Scan Lookup (tanpa parameter periode)
         return redirect()->route('apar.show', $redirectParams)
             ->with('success', "Unit APAR {$apar->kode} berhasil teridentifikasi dari pemindaian.");
     }

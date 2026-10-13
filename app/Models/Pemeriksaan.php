@@ -34,6 +34,17 @@ class Pemeriksaan extends Model
     ];
 
     /**
+     * Nama kanonikal 5 parameter checklist bulanan K3RS
+     */
+    public const CANONICAL_CHECKLIST_ITEMS = [
+        'Tekanan',
+        'Pin/Segel',
+        'Handle',
+        'Kondisi Fisik',
+        'Nozel',
+    ];
+
+    /**
      * Item checklist fisik yang dapat dikonfigurasi (configurable / legacy)
      */
     public const DEFAULT_CHECKLIST_ITEMS = [
@@ -69,6 +80,21 @@ class Pemeriksaan extends Model
         'periode_bulan' => 'integer',
     ];
 
+    public const NAMA_BULAN = [
+        1 => 'Januari',
+        2 => 'Februari',
+        3 => 'Maret',
+        4 => 'April',
+        5 => 'Mei',
+        6 => 'Juni',
+        7 => 'Juli',
+        8 => 'Agustus',
+        9 => 'September',
+        10 => 'Oktober',
+        11 => 'November',
+        12 => 'Desember',
+    ];
+
     /**
      * Validasi domain dan perlindungan invariant bulanan
      */
@@ -82,8 +108,16 @@ class Pemeriksaan extends Model
             }
 
             if ($pemeriksaan->periode_tahun !== null) {
-                if ($pemeriksaan->periode_tahun < 1000 || $pemeriksaan->periode_tahun > 9999) {
-                    throw new \InvalidArgumentException('Periode tahun harus berupa 4 digit tahun yang valid.');
+                if ($pemeriksaan->periode_tahun < 2000 || $pemeriksaan->periode_tahun > 2100) {
+                    throw new \InvalidArgumentException('Periode tahun harus bernilai antara 2000 sampai 2100.');
+                }
+            }
+
+            // Cegah pemeriksaan baru pada APAR yang tidak memenuhi syarat operasional (Section 1)
+            if ($pemeriksaan->apar_id && ! $pemeriksaan->exists) {
+                $apar = $pemeriksaan->apar ?? Apar::find($pemeriksaan->apar_id);
+                if ($apar && ! $apar->isEligibleForInspection()) {
+                    throw new \DomainException("Unit APAR ID {$apar->id} ({$apar->kode}) tidak memenuhi syarat untuk pemeriksaan operasional.");
                 }
             }
 
@@ -100,6 +134,36 @@ class Pemeriksaan extends Model
                 }
             }
         });
+    }
+
+    /**
+     * Helper: Cek apakah ini pemeriksaan bulanan K3RS
+     */
+    public function isMonthlyInspection(): bool
+    {
+        return $this->periode_tahun !== null && $this->periode_bulan !== null;
+    }
+
+    /**
+     * Helper: Cek apakah ini pemeriksaan legacy
+     */
+    public function isLegacyInspection(): bool
+    {
+        return ! $this->isMonthlyInspection();
+    }
+
+    /**
+     * Label periode bulan dan tahun (misal: "Oktober 2026")
+     */
+    public function getPeriodeLabelAttribute(): ?string
+    {
+        if (! $this->isMonthlyInspection()) {
+            return null;
+        }
+
+        $namaBulan = self::NAMA_BULAN[$this->periode_bulan] ?? "Bulan {$this->periode_bulan}";
+
+        return "{$namaBulan} {$this->periode_tahun}";
     }
 
     /**

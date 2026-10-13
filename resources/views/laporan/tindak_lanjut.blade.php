@@ -36,8 +36,14 @@
                         </td>
                         <td class="font-mono font-bold">{{ $tl->apar?->kode ?? '-' }}</td>
                         <td>
-                            <strong>{{ $tl->apar?->gedung?->nama ?? '-' }}</strong> - Lt. {{ $tl->apar?->lantai?->nomor_lantai ?? '-' }}
-                            <div>{{ $tl->apar?->ruangan?->nama ?? '-' }}</div>
+                            <strong>{{ $tl->apar?->lokasi?->nama ?? $tl->apar?->ruangan?->nama ?? '-' }}</strong>
+                            <div>
+                                @if($tl->apar?->lokasi)
+                                    {{ $tl->apar->lokasi->keterangan ?? $tl->apar->lokasi->nama }}
+                                @else
+                                    {{ $tl->apar?->gedung?->nama ?? '-' }} - Lt. {{ $tl->apar?->lantai?->nomor_lantai ?? '-' }}
+                                @endif
+                            </div>
                         </td>
                         <td>
                             @if($tl->pemeriksaan)
@@ -312,8 +318,14 @@
                                     </a>
                                 </td>
                                 <td class="py-3 px-3.5">
-                                    <div class="font-semibold text-slate-900">{{ $tl->apar?->gedung?->nama ?? '-' }} - Lt. {{ $tl->apar?->lantai?->nomor_lantai ?? '-' }}</div>
-                                    <div class="text-[11px] text-slate-500">{{ $tl->apar?->ruangan?->nama ?? '-' }}</div>
+                                    <div class="font-semibold text-slate-900">{{ $tl->apar?->lokasi?->nama ?? $tl->apar?->ruangan?->nama ?? '-' }}</div>
+                                    <div class="text-[11px] text-slate-500">
+                                        @if($tl->apar?->lokasi)
+                                            {{ $tl->apar->lokasi->keterangan ?? $tl->apar->lokasi->nama }}
+                                        @else
+                                            {{ $tl->apar?->gedung?->nama ?? '-' }} - Lt. {{ $tl->apar?->lantai?->nomor_lantai ?? '-' }}
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-3 px-3.5 max-w-xs">
                                     <div class="font-medium text-slate-800">{{ $tl->deskripsi_temuan ?: '-' }}</div>

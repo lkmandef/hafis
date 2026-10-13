@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Apar;
 use App\Models\Gedung;
 use App\Models\Jadwal;
+use App\Models\Lokasi;
 use App\Models\Pemeriksaan;
 use App\Models\PenggantianApar;
 use App\Models\TindakLanjut;
@@ -67,7 +68,7 @@ class DashboardController extends Controller
             'perlu_tindakan' => Pemeriksaan::where('hasil_keseluruhan', Pemeriksaan::HASIL_PERLU_TINDAKAN)->count(),
         ];
 
-        $pemeriksaanTerbaru = Pemeriksaan::with(['apar.ruangan.lantai.gedung', 'jadwal'])
+        $pemeriksaanTerbaru = Pemeriksaan::with(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'jadwal'])
             ->orderBy('tanggal_pemeriksaan', 'desc')
             ->take(5)
             ->get();
@@ -80,12 +81,60 @@ class DashboardController extends Controller
             'selesai' => TindakLanjut::where('status', TindakLanjut::STATUS_SELESAI)->count(),
         ];
 
-        $tindakLanjutTerbaru = TindakLanjut::with(['apar.ruangan.lantai.gedung'])
+        $tindakLanjutTerbaru = TindakLanjut::with(['apar.lokasi', 'apar.ruangan.lantai.gedung'])
             ->orderBy('tanggal_tindakan', 'desc')
             ->take(4)
             ->get();
 
-        // 5. Ringkasan Jadwal Inspeksi (Step 6)
+        // 5. Progres Inspeksi Bulanan (Tahap 4)
+        $tahunSekarang = (int) $now->year;
+        $bulanSekarang = (int) $now->month;
+        $namaBulanSekarang = Pemeriksaan::NAMA_BULAN[$bulanSekarang] ?? $now->translatedFormat('F');
+
+        $eligibleAparFilter = fn ($q) => $q->where('status', '!=', Apar::STATUS_TIDAK_AKTIF)
+            ->whereNotNull('lokasi_id')
+            ->whereDoesntHave('lokasi', fn ($loc) => $loc->where('status', Lokasi::STATUS_STOK));
+
+        $totalTargetBulanan = Apar::where('status', '!=', Apar::STATUS_TIDAK_AKTIF)
+            ->whereNotNull('lokasi_id')
+            ->whereDoesntHave('lokasi', fn ($q) => $q->where('status', Lokasi::STATUS_STOK))
+            ->count();
+
+        $sudahDiperiksaBulanan = Pemeriksaan::where('periode_tahun', $tahunSekarang)
+            ->where('periode_bulan', $bulanSekarang)
+            ->whereHas('apar', $eligibleAparFilter)
+            ->distinct('apar_id')
+            ->count('apar_id');
+
+        $baikBulanan = Pemeriksaan::where('periode_tahun', $tahunSekarang)
+            ->where('periode_bulan', $bulanSekarang)
+            ->where('hasil_keseluruhan', Pemeriksaan::HASIL_BAIK)
+            ->whereHas('apar', $eligibleAparFilter)
+            ->count();
+
+        $perluTindakanBulanan = Pemeriksaan::where('periode_tahun', $tahunSekarang)
+            ->where('periode_bulan', $bulanSekarang)
+            ->where('hasil_keseluruhan', Pemeriksaan::HASIL_PERLU_TINDAKAN)
+            ->whereHas('apar', $eligibleAparFilter)
+            ->count();
+
+        $belumDiperiksaBulanan = max(0, $totalTargetBulanan - $sudahDiperiksaBulanan);
+        $progressPctBulanan = $totalTargetBulanan > 0 ? round(($sudahDiperiksaBulanan / $totalTargetBulanan) * 100) : 0;
+
+        $inspeksiBulanan = [
+            'tahun' => $tahunSekarang,
+            'bulan' => $bulanSekarang,
+            'nama_bulan' => $namaBulanSekarang,
+            'periode_label' => "{$namaBulanSekarang} {$tahunSekarang}",
+            'total_target' => $totalTargetBulanan,
+            'sudah_diperiksa' => $sudahDiperiksaBulanan,
+            'belum_diperiksa' => $belumDiperiksaBulanan,
+            'baik' => $baikBulanan,
+            'perlu_tindakan' => $perluTindakanBulanan,
+            'progress_pct' => $progressPctBulanan,
+        ];
+
+        // Kompatibilitas alur jadwal legacy jika masih ada komponen yang memerlukan
         $jadwalAktif = Jadwal::with(['apars'])
             ->whereIn('status', ['berjalan', 'belum_dimulai'])
             ->orderByRaw("CASE WHEN status = 'berjalan' THEN 1 ELSE 2 END")
@@ -146,6 +195,7 @@ class DashboardController extends Controller
             'pemeriksaanTerbaru',
             'tindakLanjutStats',
             'tindakLanjutTerbaru',
+            'inspeksiBulanan',
             'jadwalData',
             'aparPerluPerhatian',
             'penggantianTerbaru',

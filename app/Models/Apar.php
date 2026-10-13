@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\QrCodeService;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -90,6 +91,83 @@ class Apar extends Model
     }
 
     /**
+     * Helper: Cek apakah APAR memenuhi syarat untuk inspeksi operasional aktif
+     */
+    public function isEligibleForInspection(): bool
+    {
+        if ($this->status === self::STATUS_TIDAK_AKTIF) {
+            return false;
+        }
+
+        if ($this->lokasi && $this->lokasi->status === Lokasi::STATUS_STOK) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Helper: Cari record pemeriksaan APAR untuk periode tahun dan bulan tertentu
+     */
+    public function pemeriksaanForPeriod(int $tahun, int $bulan): ?Pemeriksaan
+    {
+        return $this->pemeriksaans()
+            ->where('periode_tahun', $tahun)
+            ->where('periode_bulan', $bulan)
+            ->first();
+    }
+
+    /**
+     * Helper: Cek apakah APAR sudah diperiksa pada periode tertentu
+     */
+    public function isInspectedForPeriod(int $tahun, int $bulan): bool
+    {
+        return $this->pemeriksaans()
+            ->where('periode_tahun', $tahun)
+            ->where('periode_bulan', $bulan)
+            ->exists();
+    }
+
+    /**
+     * Sinkronisasi kondisi operasional dan tanggal periksa terakhir APAR secara aman
+     * setelah pemeriksaan dibuat atau dikoreksi.
+     */
+    public function syncStatusAfterInspection(Pemeriksaan $pemeriksaan): void
+    {
+        // 1. Tanggal pemeriksaan terakhir: jangan regresi jika tanggal pemeriksaan lebih lama
+        if ($pemeriksaan->tanggal_pemeriksaan) {
+            $pemeriksaanDate = Carbon::parse($pemeriksaan->tanggal_pemeriksaan)->startOfDay();
+            $currentDate = $this->tanggal_pemeriksaan_terakhir
+                ? Carbon::parse($this->tanggal_pemeriksaan_terakhir)->startOfDay()
+                : null;
+
+            if ($currentDate === null || $pemeriksaanDate->greaterThanOrEqualTo($currentDate)) {
+                $this->tanggal_pemeriksaan_terakhir = $pemeriksaanDate->toDateString();
+            }
+        }
+
+        // 2. Evaluasi status operasional APAR
+        if ($pemeriksaan->hasil_keseluruhan === Pemeriksaan::HASIL_PERLU_TINDAKAN) {
+            if ($this->status === self::STATUS_BAIK) {
+                $this->status = self::STATUS_PERHATIAN;
+            }
+        } elseif ($pemeriksaan->hasil_keseluruhan === Pemeriksaan::HASIL_BAIK) {
+            if ($this->status === self::STATUS_PERHATIAN) {
+                // Jangan pulihkan jika masih ada tiket tindak lanjut yang belum selesai
+                $hasOpenFollowUps = $this->tindakLanjuts()
+                    ->whereNotIn('status', [TindakLanjut::STATUS_SELESAI])
+                    ->exists();
+
+                if (! $hasOpenFollowUps) {
+                    $this->status = self::STATUS_BAIK;
+                }
+            }
+        }
+
+        $this->save();
+    }
+
+    /**
      * Relasi: APAR berada di satu Ruangan / Area
      */
     public function ruangan(): BelongsTo
@@ -114,10 +192,30 @@ class Apar extends Model
     }
 
     /**
+     * Accessor: Teks nama lokasi penempatan aktual
+     */
+    public function getLokasiNamaAttribute(): string
+    {
+        return $this->lokasi?->nama ?? $this->ruangan?->nama ?? '-';
+    }
+
+    /**
+     * Accessor: Label tampilan merek yang jujur tanpa asumsi data
+     */
+    public function getMerekLabelAttribute(): string
+    {
+        return filled($this->merek) ? $this->merek : 'Belum terdata';
+    }
+
+    /**
      * Accessor: Teks lokasi berjenjang lengkap
      */
     public function getLokasiLengkapAttribute(): string
     {
+        if ($this->lokasi) {
+            return $this->lokasi->nama;
+        }
+
         $gedungNama = $this->gedung?->nama ?? '-';
         $lantaiNama = $this->lantai?->nama ?? '-';
         $ruanganNama = $this->ruangan?->nama ?? '-';

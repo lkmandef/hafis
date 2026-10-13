@@ -38,8 +38,14 @@
                         </td>
                         <td class="font-mono font-bold">{{ $t->pemeriksaan?->apar?->kode ?? '-' }}</td>
                         <td>
-                            <strong>{{ $t->pemeriksaan?->apar?->gedung?->nama ?? '-' }}</strong> - Lt. {{ $t->pemeriksaan?->apar?->lantai?->nomor_lantai ?? '-' }}
-                            <div>{{ $t->pemeriksaan?->apar?->ruangan?->nama ?? '-' }}</div>
+                            <strong>{{ $t->pemeriksaan?->apar?->lokasi?->nama ?? $t->pemeriksaan?->apar?->ruangan?->nama ?? '-' }}</strong>
+                            <div>
+                                @if($t->pemeriksaan?->apar?->lokasi)
+                                    {{ $t->pemeriksaan->apar->lokasi->keterangan ?? $t->pemeriksaan->apar->lokasi->nama }}
+                                @else
+                                    {{ $t->pemeriksaan?->apar?->gedung?->nama ?? '-' }} - Lt. {{ $t->pemeriksaan?->apar?->lantai?->nomor_lantai ?? '-' }}
+                                @endif
+                            </div>
                         </td>
                         <td><strong>{{ $t->item_nama }}</strong></td>
                         <td><span class="status-kritis">Tidak Baik</span></td>
@@ -286,9 +292,15 @@
                                 </td>
                                 <td class="py-3 px-3.5">
                                     <div class="font-semibold text-slate-900">
-                                        {{ $t->pemeriksaan?->apar?->gedung?->nama ?? '-' }} - Lt. {{ $t->pemeriksaan?->apar?->lantai?->nomor_lantai ?? '-' }}
+                                        {{ $t->pemeriksaan?->apar?->lokasi?->nama ?? $t->pemeriksaan?->apar?->ruangan?->nama ?? '-' }}
                                     </div>
-                                    <div class="text-[11px] text-slate-500">{{ $t->pemeriksaan?->apar?->ruangan?->nama ?? '-' }}</div>
+                                    <div class="text-[11px] text-slate-500">
+                                        @if($t->pemeriksaan?->apar?->lokasi)
+                                            {{ $t->pemeriksaan->apar->lokasi->keterangan ?? $t->pemeriksaan->apar->lokasi->nama }}
+                                        @else
+                                            {{ $t->pemeriksaan?->apar?->gedung?->nama ?? '-' }} - Lt. {{ $t->pemeriksaan?->apar?->lantai?->nomor_lantai ?? '-' }}
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap font-medium text-slate-900">
                                     {{ $t->item_nama }}

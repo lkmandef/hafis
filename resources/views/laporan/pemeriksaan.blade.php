@@ -36,8 +36,14 @@
                         </td>
                         <td class="font-mono font-bold">{{ $p->apar?->kode ?? '-' }}</td>
                         <td>
-                            <strong>{{ $p->apar?->gedung?->nama ?? '-' }}</strong> - Lt. {{ $p->apar?->lantai?->nomor_lantai ?? '-' }}
-                            <div>{{ $p->apar?->ruangan?->nama ?? '-' }}</div>
+                            <strong>{{ $p->apar?->lokasi?->nama ?? $p->apar?->ruangan?->nama ?? '-' }}</strong>
+                            <div>
+                                @if($p->apar?->lokasi)
+                                    {{ $p->apar->lokasi->keterangan ?? $p->apar->lokasi->nama }}
+                                @else
+                                    {{ $p->apar?->gedung?->nama ?? '-' }} - Lt. {{ $p->apar?->lantai?->nomor_lantai ?? '-' }}
+                                @endif
+                            </div>
                         </td>
                         <td>
                             @if($p->jadwal)
@@ -313,8 +319,14 @@
                                     <div class="text-[10px] font-normal text-slate-500">{{ $p->apar?->jenis_media ?? '-' }}</div>
                                 </td>
                                 <td class="py-3 px-3.5">
-                                    <div class="font-semibold text-slate-900">{{ $p->apar?->gedung?->nama ?? '-' }} - Lt. {{ $p->apar?->lantai?->nomor_lantai ?? '-' }}</div>
-                                    <div class="text-[11px] text-slate-500">{{ $p->apar?->ruangan?->nama ?? '-' }}</div>
+                                    <div class="font-semibold text-slate-900">{{ $p->apar?->lokasi?->nama ?? $p->apar?->ruangan?->nama ?? '-' }}</div>
+                                    <div class="text-[11px] text-slate-500">
+                                        @if($p->apar?->lokasi)
+                                            {{ $p->apar->lokasi->keterangan ?? $p->apar->lokasi->nama }}
+                                        @else
+                                            {{ $p->apar?->gedung?->nama ?? '-' }} - Lt. {{ $p->apar?->lantai?->nomor_lantai ?? '-' }}
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-3 px-3.5">
                                     @if($p->jadwal)

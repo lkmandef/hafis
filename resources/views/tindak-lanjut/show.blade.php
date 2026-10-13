@@ -168,7 +168,7 @@
 
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-medium">Merek / Tipe</span>
-                        <span class="text-slate-800">{{ $tindakLanjut->apar->merek ?: '-' }} / {{ $tindakLanjut->apar->tipe_model ?: '-' }}</span>
+                        <span class="text-slate-800 {{ ! $tindakLanjut->apar->merek ? 'text-slate-400 italic' : '' }}">{{ $tindakLanjut->apar->merek ?: 'Belum terdata' }} / {{ $tindakLanjut->apar->tipe_model ?: '-' }}</span>
                     </div>
 
                     <div class="flex items-center justify-between">

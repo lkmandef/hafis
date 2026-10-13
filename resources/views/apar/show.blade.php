@@ -28,9 +28,9 @@
                     </x-badge>
                 </div>
                 <p class="text-xs text-slate-500 flex items-center gap-1.5 pl-10.5">
-                    <span>{{ $apar->ruangan?->nama ?? 'Area Umum' }}</span>
+                    <span>{{ $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? 'Area Umum' }}</span>
                     <span>&bull;</span>
-                    <span>Lantai {{ $apar->lantai?->nomor_lantai ?? '-' }} {{ $apar->gedung?->nama ?? '' }}</span>
+                    <span>{{ $apar->lokasi ? ($apar->lokasi->keterangan ?? 'Titik Master K3RS') : ('Lantai ' . ($apar->lantai?->nomor_lantai ?? '-') . ' ' . ($apar->gedung?->nama ?? '')) }}</span>
                 </p>
             </div>
 
@@ -78,8 +78,23 @@
                         </svg>
                         <span>Tidak Aktif</span>
                     </span>
+                @elseif($apar->lokasi && $apar->lokasi->status === \App\Models\Lokasi::STATUS_STOK)
+                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed min-h-[40px]" title="APAR berada di gudang stok sediaan">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        <span>Stok Sediaan</span>
+                    </span>
                 @else
-                    <a href="{{ route('pemeriksaan.mulai', ['apar_id' => $apar->id, 'jadwal_id' => request('jadwal_id') ?? $apar->active_jadwal?->id]) }}" 
+                    @php
+                        $periksaParams = array_filter([
+                            'apar_id' => $apar->id,
+                            'periode_bulan' => request('bulan', request('periode_bulan')),
+                            'periode_tahun' => request('tahun', request('periode_tahun')),
+                            'jadwal_id' => request('jadwal_id') ?? $apar->active_jadwal?->id,
+                        ]);
+                    @endphp
+                    <a href="{{ route('pemeriksaan.create', $periksaParams) }}" 
                        class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[40px]">
                         <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -306,7 +321,7 @@
                     <!-- Merek -->
                     <div class="pb-3 border-b border-slate-100">
                         <dt class="font-semibold text-slate-500 mb-1">Merek Tabung</dt>
-                        <dd class="font-medium text-slate-900 text-sm">{{ $apar->merek ?: '-' }}</dd>
+                        <dd class="font-medium text-slate-900 text-sm {{ ! $apar->merek ? 'text-slate-400 italic' : '' }}">{{ $apar->merek ?: 'Belum terdata' }}</dd>
                     </div>
 
                     <!-- Tipe / Model -->
@@ -344,12 +359,12 @@
 
                     <!-- Ruangan / Area -->
                     <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                        <dt class="font-semibold text-slate-500 text-[11px] uppercase tracking-wider mb-1">Ruangan / Area</dt>
+                        <dt class="font-semibold text-slate-500 text-[11px] uppercase tracking-wider mb-1">Lokasi / Ruangan</dt>
                         <dd class="font-bold text-slate-900 text-sm">
-                            {{ $apar->ruangan?->nama ?? '-' }}
+                            {{ $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? '-' }}
                         </dd>
                         <div class="text-[11px] text-slate-400 mt-0.5">
-                            {{ $apar->ruangan?->kategori ?: 'Area umum' }}
+                            {{ $apar->lokasi ? ($apar->lokasi->keterangan ?? 'Titik Master K3RS') : ($apar->ruangan?->kategori ?: 'Area umum') }}
                         </div>
                     </div>
                 </dl>

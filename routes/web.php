@@ -69,6 +69,8 @@ Route::prefix('pemeriksaan')->name('pemeriksaan.')->group(function () {
     Route::get('/create', [PemeriksaanController::class, 'create'])->name('create');
     Route::post('/', [PemeriksaanController::class, 'store'])->name('store');
     Route::get('/{pemeriksaan}', [PemeriksaanController::class, 'show'])->name('show');
+    Route::get('/{pemeriksaan}/edit', [PemeriksaanController::class, 'edit'])->name('edit');
+    Route::put('/{pemeriksaan}', [PemeriksaanController::class, 'update'])->name('update');
 });
 
 use App\Http\Controllers\TindakLanjutController;
@@ -131,8 +133,8 @@ Route::prefix('penempatan')->name('penempatan.')->group(function () {
     Route::get('/atur', function () {
         return redirect()->route('penempatan.index');
     });
-    Route::get('/atur/{id}', function ($id = 'APAR-IGD-01') {
-        return redirect()->route('penempatan.index', ['highlight' => $id]);
+    Route::get('/atur/{id?}', function ($id = null) {
+        return redirect()->route('penempatan.index', array_filter(['highlight' => $id]));
     });
 });
 

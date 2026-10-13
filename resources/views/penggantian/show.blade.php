@@ -115,7 +115,7 @@
 
                         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                             <span class="text-slate-500 font-semibold">Merek / Model</span>
-                            <span class="font-medium text-slate-900">{{ $lama->merek ?: '-' }} / {{ $lama->tipe_model ?: '-' }}</span>
+                            <span class="font-medium text-slate-900 {{ ! $lama->merek ? 'text-slate-400 italic' : '' }}">{{ $lama->merek ?: 'Belum terdata' }} / {{ $lama->tipe_model ?: '-' }}</span>
                         </div>
 
                         <div class="flex items-start justify-between pb-3 border-b border-slate-100">
@@ -174,7 +174,7 @@
 
                         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                             <span class="text-slate-500 font-semibold">Merek / Model</span>
-                            <span class="font-medium text-slate-900">{{ $baru->merek ?: '-' }} / {{ $baru->tipe_model ?: '-' }}</span>
+                            <span class="font-medium text-slate-900 {{ ! $baru->merek ? 'text-slate-400 italic' : '' }}">{{ $baru->merek ?: 'Belum terdata' }} / {{ $baru->tipe_model ?: '-' }}</span>
                         </div>
 
                         <div class="flex items-start justify-between pb-3 border-b border-slate-100">

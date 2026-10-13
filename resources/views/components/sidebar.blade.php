@@ -42,7 +42,7 @@
             @php
             $isDashboard = request()->is('/') || request()->is('dashboard');
             $isApar = request()->is('apar*');
-            $isJadwal = request()->is('jadwal*');
+            $isHasilInspeksi = request()->is('pemeriksaan*') || request()->is('scan*');
             $isTindakLanjut = request()->is('tindak-lanjut*');
             $isPenggantian = request()->is('penggantian*');
             $isLaporan = request()->is('laporan*') || request()->is('riwayat*');
@@ -65,12 +65,12 @@
                 <span>Data APAR</span>
             </a>
 
-            <!-- Jadwal Inspeksi -->
-            <a href="{{ url('/jadwal') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] {{ $isJadwal ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }} focus:outline-none focus:ring-2 focus:ring-slate-900">
-                <svg class="w-4 h-4 shrink-0 {{ $isJadwal ? 'text-slate-900' : 'text-slate-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            <!-- Hasil Inspeksi (Tahap 4) -->
+            <a href="{{ route('pemeriksaan.index') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] {{ $isHasilInspeksi ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }} focus:outline-none focus:ring-2 focus:ring-slate-900">
+                <svg class="w-4 h-4 shrink-0 {{ $isHasilInspeksi ? 'text-slate-900' : 'text-slate-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                 </svg>
-                <span>Jadwal Inspeksi</span>
+                <span>Hasil Inspeksi</span>
             </a>
 
             <!-- Tindak Lanjut & Pemeliharaan (Tahap 7) -->

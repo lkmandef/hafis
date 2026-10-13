@@ -187,7 +187,7 @@
                             <!-- Lokasi (Section 12: Gedung - Lantai - Ruangan) -->
                             <td class="px-4 py-3">
                                 <div class="font-medium text-slate-900">
-                                    {{ $a->gedung?->nama ?? '-' }} &bull; {{ $a->lantai?->nama ?? '-' }} &bull; {{ $a->ruangan?->nama ?? '-' }}
+                                    {{ $a->lokasi?->nama ?? ($a->gedung?->nama ? ($a->gedung->nama . ' &bull; ' . ($a->lantai?->nama ?? '-') . ' &bull; ' . ($a->ruangan?->nama ?? '-')) : ($a->ruangan?->nama ?? '-')) }}
                                 </div>
                                 @if($a->posisi_detail)
                                     <div class="text-[11px] text-slate-500 italic mt-0.5 line-clamp-1">

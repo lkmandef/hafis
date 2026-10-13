@@ -133,12 +133,18 @@ Total aset keseluruhan: 237 total APAR assets (173 installed/active + 64 stock).
 ### 6.1 Identitas & Atribut Model `Apar`
 - `id`: bigint (Primary Key)
 - `lokasi_id`: foreignId constrained ke `lokasis`
-- `kode`: string(50), unique — kode penomoran standar (contoh: `APAR-EMR1-01`)
+- `kode`: string(50), unique — identitas penomoran internal sistem HAFIS (contoh: `APAR-EMR1-01`). **Catatan:** Kode ini adalah identitas sistem HAFIS untuk penelusuran QR dan operasional digital, bukan nomor seri fisik resmi pabrikan/K3RS.
 - `qr_code`: string(100), unique — payload QR sistem (format: `HAFIS-QR-{KODE}-{RANDOM6}`)
 - `posisi_detail`: string(255), nullable — deskripsi posisi spesifik di titik lokasi
-- `jenis_media`: string(50) — pilihan standar: `Dry Chemical Powder`, `CO2 (Carbon Dioxide)`, `Foam (AFFF)`, `Clean Agent`, `Wet Chemical`
-- `kapasitas`: string(30) — contoh: `3 kg`, `5 kg`, `6 kg`, `9 kg`
-- `merek`: string(100), nullable — contoh: `Servvo`, `Yamato`, `Chubb`
+- `jenis_media`: string(50) — bersumber dari Tabel 12 *LAPORAN TRIWULAN KE-3 2026*:
+  - `Dry Chemical Powder`: 115 unit
+  - `CO2 (Carbon Dioxide)`: 58 unit
+  - Total: 173 unit terpasang
+- `kapasitas`: string(30) — bersumber dari rincian Tabel 12:
+  - Powder: `25 kg` (3 unit), `6 kg` (108 unit), `3 kg` (4 unit)
+  - CO2: `7 kg` (17 unit), `5 kg` (7 unit), `3 kg` (34 unit)
+  - Total: 173 unit terpasang
+- `merek`: string(100), nullable — nilai tersimpan adalah `NULL` karena dokumen sumber triwulan asli tidak mencantumkan merek APAR. Sistem menampilkan label UI `Belum terdata` saat merek bernilai kosong/null. Dilarang mengasumsikan merek tertentu (seperti Servvo) tanpa bukti fisik.
 - `tipe_model`: string(100), nullable
 - `status`: string(30), default `baik` — state aset:
   - `baik`: Siap pakai, kondisi prima.
@@ -154,23 +160,25 @@ Total aset keseluruhan: 237 total APAR assets (173 installed/active + 64 stock).
 - `softDeletes` & `timestamps`
 
 ### 6.2 Pemisahan Tegas: APAR Terpasang vs Stok Sediaan
-- **APAR Terpasang** (173 installed/active APAR units): Terikat ke lokasi operasional, wajib memiliki stiker QR, dan wajib mengikuti siklus 12 bulan inspeksi.
-- **Stok Sediaan** (64 unit di Gudang K3RS): Dicatat terpisah sebagai persediaan logistik K3RS. Sebelum ada persetujuan resmi dari K3RS, 64 unit stok **tidak didaftarkan sebagai APAR aktif yang diinspeksi bulanan**, guna mencegah distorsi rasio kepatuhan bulanan rumah sakit.
-- **Grand Total Aset**: 237 total APAR assets (173 installed/active + 64 stock).
+- **APAR Terpasang** (173 installed/active APAR units): Tersebar di 59 lokasi aktif, terikat ke lokasi operasional, wajib memiliki stiker QR, dan wajib mengikuti siklus 12 bulan inspeksi bulanan.
+- **Stok Sediaan** (64 unit di Gudang K3RS): Dicatat terpisah sebagai persediaan logistik K3RS pada lokasi `GUDANG K3RS`. Sesuai fakta dokumen triwulan, 64 unit stok **bukan APAR terpasang operasional** dan tidak didaftarkan sebagai record APAR aktif yang diinspeksi bulanan, guna mencegah distorsi kepatuhan inspeksi.
+- **Grand Total Aset**: 237 unit aset (173 unit terpasang + 64 unit stok sediaan).
 
-### 6.3 Standarisasi Format Kode APAR
+### 6.3 Standarisasi Format Kode APAR & Batasan Alokasi Atribut
 Pola penamaan resmi:
 ```text
 APAR-{KODE_LOKASI}-{NOMOR_URUT_2DIGIT}
 ```
 Contoh:
-- Lokasi `EMERALD Lt 1` (kode `EMR1`, kuota 5 APAR):
-  `APAR-EMR1-01`, `APAR-EMR1-02`, `APAR-EMR1-03`, `APAR-EMR1-04`, `APAR-EMR1-05`
-- Lokasi `IT DALAM` (kode `ITD`, kuota 1 APAR):
+- Lokasi `EMERALD Lt 1` (kode `EMR1`, kuota 5 APAR: 3 Powder 6kg, 2 CO2 3kg):
+  `APAR-EMR1-01` (Powder 6kg), `APAR-EMR1-02` (Powder 6kg), `APAR-EMR1-03` (Powder 6kg), `APAR-EMR1-04` (CO2 3kg), `APAR-EMR1-05` (CO2 3kg).
+- Lokasi `IT DALAM` (kode `ITD`, kuota 1 APAR: 1 CO2 3kg):
   `APAR-ITD-01`
-- Lokasi `IT LUAR` (kode `ITL`, kuota 1 APAR):
+- Lokasi `IT LUAR` (kode `ITL`, kuota 1 APAR: 1 Powder 6kg):
   `APAR-ITL-01`
-- Lokasi dengan candidate code TBD: Menunggu finalisasi tabel singkatan sebelum kode digenerate.
+
+**Keterbatasan Alokasi Atribut Per Record**:
+Dokumen sumber (Tabel 12) hanya menyajikan jumlah agregat per lokasi dan kategori kapasitas/media, tanpa identitas atau nomor seri fisik individual per tabung. Oleh karena itu, pengaitan kombinasi media dan kapasitas ke nomor urut kode APAR pada database HAFIS merupakan **alokasi administratif deterministik**, bukan hasil verifikasi fisik nomor seri tabung di lapangan. Apabila nantinya K3RS melakukan sensus fisik nomor seri, data administratif ini dapat dimutakhirkan tanpa mengubah jumlah agregat per lokasi.
 
 ---
 

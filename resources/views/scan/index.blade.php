@@ -13,15 +13,39 @@
 
             <!-- Header Action: Kembali -->
             <div class="flex items-center gap-2">
-                <x-button variant="secondary" href="{{ url('/') }}" class="min-h-[44px]">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    <span>Kembali ke Dashboard</span>
-                </x-button>
+                @if($bulan && $tahun)
+                    <x-button variant="secondary" href="{{ route('pemeriksaan.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="min-h-[44px]">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Hasil Inspeksi</span>
+                    </x-button>
+                @else
+                    <x-button variant="secondary" href="{{ url('/') }}" class="min-h-[44px]">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Kembali ke Dashboard</span>
+                    </x-button>
+                @endif
             </div>
         </div>
     </div>
+
+    @if($bulan && $tahun)
+        <!-- Active Monthly Inspection Period Indicator (Tahap 4) -->
+        <div class="max-w-xl mx-auto mb-4 p-3 bg-white border border-slate-200 rounded-xl flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span class="text-xs text-slate-500 font-medium">Periode Inspeksi:</span>
+                <span class="text-xs font-bold text-slate-900 font-mono">{{ \App\Models\Pemeriksaan::NAMA_BULAN[$bulan] ?? $bulan }} {{ $tahun }}</span>
+            </div>
+            <a href="{{ route('pemeriksaan.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition inline-flex items-center gap-1">
+                <span>Rekap Bulanan</span>
+                <span>&rarr;</span>
+            </a>
+        </div>
+    @endif
 
     <!-- Feedback Alerts: Error, Warning, Info -->
     <div class="max-w-xl mx-auto mb-5 space-y-3">
@@ -171,6 +195,12 @@
         <x-card title="Masukkan Kode APAR" subtitle="Fallback pencarian jika kamera tidak tersedia atau kode fisik diinput manual.">
             <form action="{{ route('scan.cari') }}" method="POST" class="space-y-4">
                 @csrf
+                @if($bulan)
+                    <input type="hidden" name="bulan" value="{{ $bulan }}">
+                @endif
+                @if($tahun)
+                    <input type="hidden" name="tahun" value="{{ $tahun }}">
+                @endif
                 @if(request('jadwal_id'))
                     <input type="hidden" name="jadwal_id" value="{{ request('jadwal_id') }}">
                 @endif
@@ -187,7 +217,7 @@
                                 type="text"
                                 id="kode-manual-input"
                                 name="kode"
-                                placeholder="Contoh: APAR-IGD-01"
+                                placeholder="Contoh: APAR-EMR1-01"
                                 value="{{ old('kode') }}"
                                 required
                                 class="w-full pl-8 pr-3 py-2 text-xs font-mono font-medium text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-400 focus:outline-none transition min-h-[44px] uppercase" />
@@ -206,17 +236,17 @@
                 <div class="pt-3 border-t border-slate-100 hidden sm:block">
                     <span class="text-[11px] text-slate-400 block mb-1.5 font-medium">Contoh kode unit yang terdaftar:</span>
                     <div class="flex flex-wrap items-center gap-1.5 text-xs">
-                        <a href="{{ route('scan.cari', ['kode' => 'APAR-IGD-01']) }}" 
+                        <a href="{{ route('scan.cari', array_filter(['kode' => 'APAR-IGD1-01', 'bulan' => $bulan, 'tahun' => $tahun])) }}" 
                            class="font-mono text-slate-700 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded border border-slate-200 transition min-h-[36px] inline-flex items-center">
-                            APAR-IGD-01
+                            APAR-IGD1-01
                         </a>
-                        <a href="{{ route('scan.cari', ['kode' => 'APAR-GIZ-01']) }}" 
+                        <a href="{{ route('scan.cari', array_filter(['kode' => 'APAR-EMR1-01', 'bulan' => $bulan, 'tahun' => $tahun])) }}" 
                            class="font-mono text-slate-700 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded border border-slate-200 transition min-h-[36px] inline-flex items-center">
-                            APAR-GIZ-01
+                            APAR-EMR1-01
                         </a>
-                        <a href="{{ route('scan.cari', ['kode' => 'APAR-OK-01']) }}" 
+                        <a href="{{ route('scan.cari', array_filter(['kode' => 'APAR-ITD-01', 'bulan' => $bulan, 'tahun' => $tahun])) }}" 
                            class="font-mono text-slate-700 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded border border-slate-200 transition min-h-[36px] inline-flex items-center">
-                            APAR-OK-01
+                            APAR-ITD-01
                         </a>
                     </div>
                 </div>
@@ -227,6 +257,12 @@
     <!-- Hidden Form untuk submission hasil deteksi kamera -->
     <form id="auto-scan-form" action="{{ route('scan.cari') }}" method="POST" class="hidden">
         @csrf
+        @if($bulan)
+            <input type="hidden" name="bulan" value="{{ $bulan }}">
+        @endif
+        @if($tahun)
+            <input type="hidden" name="tahun" value="{{ $tahun }}">
+        @endif
         @if(request('jadwal_id'))
             <input type="hidden" name="jadwal_id" value="{{ request('jadwal_id') }}">
         @endif

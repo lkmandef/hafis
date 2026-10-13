@@ -8,6 +8,9 @@
                 <span class="text-slate-300">/</span>
                 <a href="{{ route('jadwal.show', $pemeriksaan->jadwal->id) }}" class="hover:text-slate-800 transition-colors">{{ $pemeriksaan->jadwal->nama }}</a>
                 <span class="text-slate-300">/</span>
+            @elseif($pemeriksaan->periode_bulan && $pemeriksaan->periode_tahun)
+                <a href="{{ route('pemeriksaan.index', ['bulan' => $pemeriksaan->periode_bulan, 'tahun' => $pemeriksaan->periode_tahun]) }}" class="hover:text-slate-800 transition-colors">Hasil Inspeksi ({{ $pemeriksaan->periode_label }})</a>
+                <span class="text-slate-300">/</span>
             @else
                 <a href="{{ route('apar.index') }}" class="hover:text-slate-800 transition-colors">Data APAR</a>
                 <span class="text-slate-300">/</span>
@@ -29,6 +32,11 @@
                     <x-badge :variant="$pemeriksaan->hasil_badge_variant" :dot="true">
                         {{ $pemeriksaan->hasil_label }}
                     </x-badge>
+                    @if($pemeriksaan->periode_label)
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
+                            Periode: {{ $pemeriksaan->periode_label }}
+                        </span>
+                    @endif
                 </div>
                 <p class="text-xs text-slate-500 mt-1">
                     Dokumentasi catatan verifikasi fisik komponen unit APAR di lapangan.
@@ -37,7 +45,16 @@
 
             <!-- Header Action Buttons -->
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('scan.index') }}" 
+                @php
+                    $scanParams = ($pemeriksaan->periode_bulan && $pemeriksaan->periode_tahun)
+                        ? ['bulan' => $pemeriksaan->periode_bulan, 'tahun' => $pemeriksaan->periode_tahun]
+                        : [];
+                    $indexParams = ($pemeriksaan->periode_bulan && $pemeriksaan->periode_tahun)
+                        ? ['bulan' => $pemeriksaan->periode_bulan, 'tahun' => $pemeriksaan->periode_tahun]
+                        : [];
+                @endphp
+
+                <a href="{{ route('scan.index', $scanParams) }}" 
                    class="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[44px]">
                     <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
@@ -45,11 +62,25 @@
                     <span>Pindai APAR Berikutnya</span>
                 </a>
 
+                <x-button variant="secondary" href="{{ route('pemeriksaan.index', $indexParams) }}" class="min-h-[44px]">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                    <span>Hasil Inspeksi</span>
+                </x-button>
+
+                <x-button variant="secondary" href="{{ route('pemeriksaan.edit', $pemeriksaan->id) }}" class="min-h-[44px]">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    </svg>
+                    <span>Koreksi Hasil</span>
+                </x-button>
+
                 <x-button variant="secondary" href="{{ route('apar.show', $pemeriksaan->apar_id) }}" class="min-h-[44px]">
                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
-                    <span>Lihat Detail APAR</span>
+                    <span>Detail APAR</span>
                 </x-button>
 
                 <button type="button" onclick="window.print()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition min-h-[44px]">
@@ -137,10 +168,14 @@
                     <div class="pt-2 border-t border-slate-100">
                         <span class="text-slate-500 font-medium block mb-0.5">Lokasi Penempatan</span>
                         <span class="font-semibold text-slate-900 block">
-                            {{ $pemeriksaan->apar->gedung?->nama ?? '-' }} &bull; {{ $pemeriksaan->apar->lantai?->nama ?? '-' }}
+                            {{ $pemeriksaan->apar->lokasi?->nama ?? $pemeriksaan->apar->ruangan?->nama ?? '-' }}
                         </span>
                         <span class="text-slate-600 block text-[11px] mt-0.5">
-                            Ruangan: {{ $pemeriksaan->apar->ruangan?->nama ?? '-' }}
+                            @if($pemeriksaan->apar->lokasi)
+                                {{ $pemeriksaan->apar->lokasi->keterangan ?? $pemeriksaan->apar->lokasi->nama }}
+                            @else
+                                {{ $pemeriksaan->apar->gedung?->nama ?? '-' }} &bull; {{ $pemeriksaan->apar->lantai?->nama ?? '-' }} ({{ $pemeriksaan->apar->ruangan?->nama ?? '-' }})
+                            @endif
                         </span>
                         @if($pemeriksaan->apar->posisi_detail)
                             <span class="text-slate-400 text-[11px] italic block mt-0.5">

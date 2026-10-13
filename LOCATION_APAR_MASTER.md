@@ -512,20 +512,26 @@ Fitur pergantian APAR:
 
 ---
 
-# 16. Aturan Penting untuk Seeder
+# 16. Aturan Penting untuk Seeder & Data Master
 
-Seeder APAR aktual nantinya harus:
+Seeder APAR aktual dan data master harus:
 
-1. Menggunakan data dari dokumen ini.
+1. Menggunakan data lokasi dari dokumen ini dan rincian media/kapasitas dari Tabel 12 *LAPORAN TRIWULAN KE-3 2026*:
+   - Total 173 APAR terpasang: 115 Dry Chemical Powder, 58 CO2 (Carbon Dioxide).
+   - Rincian kapasitas Powder: 25 kg (3 unit), 6 kg (108 unit), 3 kg (4 unit).
+   - Rincian kapasitas CO2: 7 kg (17 unit), 5 kg (7 unit), 3 kg (34 unit).
 2. Tidak membuat data dummy.
-3. Tidak membuat APAR untuk lokasi dengan jumlah `0`.
-4. Tidak memasukkan 64 stok sebagai APAR terpasang sebelum ada konfirmasi K3RS.
-5. Menghasilkan kode APAR secara deterministik.
+3. Tidak membuat APAR untuk lokasi dengan jumlah `0` (JAMRUD, YAKUT, GIOK, KANTIN).
+4. Tidak memasukkan 64 unit stok di Gudang K3RS sebagai APAR terpasang aktif (stok sediaan adalah metadata logistik, bukan unit terpasang).
+5. Menghasilkan kode APAR secara deterministik (`APAR-{KODE_LOKASI}-{URUT}`).
 6. Menjamin kode APAR unik.
 7. Menjamin QR unik.
 8. Tidak menggunakan `nomor_register` sebagai identitas baru.
 9. Tidak mengarang gedung/lantai/ruangan.
 10. Tidak mengubah nama lokasi tanpa dasar data K3RS.
+11. **Merek APAR**: Dokumen sumber asli tidak mencantumkan merek APAR maupun nomor seri fisik per unit. Merek disimpan sebagai `NULL` di database dan ditampilkan sebagai label `Belum terdata` pada antarmuka pengguna. Dilarang mengasumsikan merek tertentu (seperti Servvo) tanpa bukti fisik.
+12. **Identitas Kode APAR**: Kode seperti `APAR-EMR1-01` adalah identitas administratif yang di-generate oleh sistem HAFIS untuk penelusuran digital dan penempelan QR, bukan nomor seri fisik resmi dari pabrikan.
+13. **Batasan Alokasi Per Record**: Karena dokumen sumber hanya menyajikan data agregat per lokasi dan kategori kapasitas/media, pengaitan kombinasi media/kapasitas ke nomor urut APAR pada lokasi multi-kategori merupakan **alokasi administratif deterministik**, bukan verifikasi nomor seri fisik individual per tabung.
 
 ---
 
