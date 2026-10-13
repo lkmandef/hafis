@@ -10,6 +10,7 @@ use App\Models\Lokasi;
 use App\Models\Pemeriksaan;
 use App\Models\PemeriksaanDetail;
 use App\Models\Ruangan;
+use Carbon\Carbon;
 use Database\Seeders\AparAktualSeeder;
 use Database\Seeders\LokasiAktualSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -191,13 +192,21 @@ class Phase45FinalIdentifiersAndDummyCleanupTest extends TestCase
         $sample = $apars->first();
         $this->assertEquals("HAFIS-QR-{$sample->kode}", $sample->qr_code);
 
-        // Scan by exact QR payload
+        // Scan by exact QR payload: under Phase 4.9 standalone routine inspection defaults to current month form
+        $currentMonth = (int) Carbon::now()->month;
+        $currentYear = (int) Carbon::now()->year;
+        $expectedCreateUrl = route('pemeriksaan.create', [
+            'apar_id' => $sample->id,
+            'periode_bulan' => $currentMonth,
+            'periode_tahun' => $currentYear,
+        ]);
+
         $response = $this->get(route('scan.cari', ['kode' => $sample->qr_code]));
-        $response->assertRedirect(route('apar.show', $sample->id));
+        $response->assertRedirect($expectedCreateUrl);
 
         // Scan by human-readable kode
         $responseKode = $this->get(route('scan.cari', ['kode' => $sample->kode]));
-        $responseKode->assertRedirect(route('apar.show', $sample->id));
+        $responseKode->assertRedirect($expectedCreateUrl);
     }
 
     /**

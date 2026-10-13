@@ -87,12 +87,16 @@
                     </span>
                 @else
                     @php
-                        $periksaParams = array_filter([
+                        $selectedBulan = (int) request('bulan', request('periode_bulan', Carbon\Carbon::now()->month));
+                        $selectedTahun = (int) request('tahun', request('periode_tahun', Carbon\Carbon::now()->year));
+                        $periksaParams = [
                             'apar_id' => $apar->id,
-                            'periode_bulan' => request('bulan', request('periode_bulan')),
-                            'periode_tahun' => request('tahun', request('periode_tahun')),
-                            'jadwal_id' => request('jadwal_id') ?? $apar->active_jadwal?->id,
-                        ]);
+                            'periode_bulan' => $selectedBulan,
+                            'periode_tahun' => $selectedTahun,
+                        ];
+                        if (request('jadwal_id')) {
+                            $periksaParams['jadwal_id'] = request('jadwal_id');
+                        }
                     @endphp
                     <a href="{{ route('pemeriksaan.create', $periksaParams) }}" 
                        class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[40px]">

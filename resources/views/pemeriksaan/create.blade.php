@@ -151,10 +151,10 @@
             @csrf
             <input type="hidden" name="apar_id" value="{{ $apar->id }}">
             <input type="hidden" name="jadwal_id" value="{{ $jadwal?->id }}">
-            @if(isset($periodeTahun))
+            @if($isMonthlyWorkflow && isset($periodeTahun))
                 <input type="hidden" name="periode_tahun" value="{{ $periodeTahun }}">
             @endif
-            @if(isset($periodeBulan))
+            @if($isMonthlyWorkflow && isset($periodeBulan))
                 <input type="hidden" name="periode_bulan" value="{{ $periodeBulan }}">
             @endif
             <input type="hidden" name="pemeriksa_nama" value="{{ $petugas }}">

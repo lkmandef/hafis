@@ -238,7 +238,9 @@ class PemeriksaanController extends Controller
         }
 
         // Checklist items: 5 parameter K3RS jika bulanan, atau default jika legacy schedule ad-hoc
-        $isMonthlyWorkflow = $request->has('periode_bulan') || $request->has('periode_tahun');
+        // Workflow bulanan berlaku jika ada parameter periode eksplisit ATAU untuk inspeksi mandiri APAR terpasang operasional
+        $isExplicitLegacySchedule = ! empty($jadwalId) && ! $request->has('periode_bulan') && ! $request->has('periode_tahun');
+        $isMonthlyWorkflow = ! $isExplicitLegacySchedule && ($request->has('periode_bulan') || $request->has('periode_tahun') || ! empty($apar->lokasi_id));
         $checklistItems = $isMonthlyWorkflow ? Pemeriksaan::K3RS_CHECKLIST_ITEMS : Pemeriksaan::DEFAULT_CHECKLIST_ITEMS;
 
         $petugas = auth()->user()?->name ?? 'Petugas K3RS';

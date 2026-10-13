@@ -146,22 +146,33 @@ class ScanController extends Controller
                 ->with('warning', "Unit APAR {$apar->kode} berada di lokasi stok sediaan ({$apar->lokasi->nama}) dan bukan target inspeksi operasional bulanan.");
         }
 
-        // 4. Jika ada periode terpilih: Alur Integrasi Inspeksi Bulanan (Tahap 4)
-        if (! empty($bulan) && ! empty($tahun)) {
-            $namaBulan = Pemeriksaan::NAMA_BULAN[$bulan] ?? $bulan;
+        // 4. Jika ada jadwal_id eksplisit tanpa periode bulanan: pertahankan alur jadwal legacy
+        if (! empty($jadwalId) && empty($bulan) && empty($tahun)) {
+            return redirect()->route('apar.show', $redirectParams)
+                ->with('success', "Unit APAR {$apar->kode} berhasil teridentifikasi dari pemindaian.");
+        }
+
+        // 5. Alur Inspeksi Bulanan (Eksplisit atau Standalone Default untuk APAR Terpasang Operasional)
+        $isOperationalInstalled = ! empty($apar->lokasi_id) && $apar->isEligibleForInspection();
+        $hasPeriod = ! empty($bulan) && ! empty($tahun);
+
+        if ($hasPeriod || $isOperationalInstalled) {
+            $effectiveBulan = $bulan ?? (int) Carbon::now()->month;
+            $effectiveTahun = $tahun ?? (int) Carbon::now()->year;
+            $namaBulan = Pemeriksaan::NAMA_BULAN[$effectiveBulan] ?? $effectiveBulan;
 
             // Cek apakah sudah ada catatan pemeriksaan untuk periode bulan/tahun ini
-            $existingPemeriksaan = Pemeriksaan::findByAparPeriod($apar->id, $tahun, $bulan);
+            $existingPemeriksaan = Pemeriksaan::findByAparPeriod($apar->id, $effectiveTahun, $effectiveBulan);
             if ($existingPemeriksaan) {
                 return redirect()->route('pemeriksaan.show', $existingPemeriksaan->id)
-                    ->with('info', "Unit APAR {$apar->kode} sudah memiliki catatan hasil pemeriksaan untuk periode {$namaBulan} {$tahun}.");
+                    ->with('info', "Unit APAR {$apar->kode} sudah memiliki catatan hasil pemeriksaan untuk periode {$namaBulan} {$effectiveTahun}.");
             }
 
             // Jika belum diperiksa pada periode ini, buka formulir pemeriksaan baru
             $createParams = [
                 'apar_id' => $apar->id,
-                'periode_bulan' => $bulan,
-                'periode_tahun' => $tahun,
+                'periode_bulan' => $effectiveBulan,
+                'periode_tahun' => $effectiveTahun,
             ];
             if (! empty($jadwalId)) {
                 $createParams['jadwal_id'] = $jadwalId;
@@ -170,10 +181,10 @@ class ScanController extends Controller
             $lokasiNama = $apar->lokasi?->nama ? " ({$apar->lokasi->nama})" : '';
 
             return redirect()->route('pemeriksaan.create', $createParams)
-                ->with('success', "Unit APAR {$apar->kode}{$lokasiNama} teridentifikasi. Silakan isi checklist pemeriksaan untuk periode {$namaBulan} {$tahun}.");
+                ->with('success', "Unit APAR {$apar->kode}{$lokasiNama} teridentifikasi. Silakan isi checklist pemeriksaan untuk periode {$namaBulan} {$effectiveTahun}.");
         }
 
-        // 5. Default/General Scan Lookup (tanpa parameter periode)
+        // 6. Default/General Scan Lookup (tanpa parameter periode dan APAR non-operasional/unplaced)
         return redirect()->route('apar.show', $redirectParams)
             ->with('success', "Unit APAR {$apar->kode} berhasil teridentifikasi dari pemindaian.");
     }
