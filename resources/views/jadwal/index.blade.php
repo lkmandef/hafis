@@ -2,8 +2,7 @@
     <!-- 1. Header Halaman -->
     <x-page-header
         title="Jadwal Inspeksi"
-        description="Manajemen periode dan target penugasan pemeriksaan berkala APAR fasilitas rumah sakit."
-        class="pb-3 sm:pb-4 mb-4" />
+        description="Manajemen periode dan target penugasan pemeriksaan berkala APAR fasilitas rumah sakit." />
 
     <!-- Notifikasi Sukses / Feedback -->
     @if(session('success'))

@@ -1,24 +1,15 @@
 <x-layouts.app title="HAFIS : Pusat Laporan & Rekapitulasi APAR">
     <!-- 1. Header Halaman & Title -->
-    <div class="pb-4 sm:pb-5 mb-5 sm:mb-6 border-b border-slate-200">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                    Laporan & Rekapitulasi APAR
-                </h1>
-                <p class="text-xs text-slate-500 mt-1">
-                    Dokumentasi dan rekapitulasi data keselamatan proteksi kebakaran rumah sakit berbasis data real-time.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-2 shrink-0">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold shadow-2xs">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>5 Modul Laporan Aktif</span>
-                </span>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="Laporan & Rekapitulasi APAR"
+        description="Dokumentasi dan rekapitulasi data keselamatan proteksi kebakaran rumah sakit berbasis data real-time.">
+        <x-slot:actions>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold shadow-2xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>5 Modul Laporan Aktif</span>
+            </span>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- 2. Document Hub: Direktori 5 Modul Laporan Resmi HAFIS -->
     <div class="space-y-4">

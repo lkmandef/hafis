@@ -213,4 +213,35 @@ class DashboardTest extends TestCase
         $response->assertSee('Belum ada catatan tindak lanjut');
         $response->assertSee('Belum ada riwayat penggantian unit');
     }
+
+    public function test_dashboard_kartu_statistik_menggunakan_parameter_status_kanonis_dan_tanpa_kartu_pending_atas(): void
+    {
+        [$gedung, $lantai, $ruangan, $aparBaik, $aparPerhatian, $aparRusak] = $this->createHierarchy();
+
+        $response = $this->get('/');
+        $response->assertStatus(200);
+
+        // 1. Empat kartu statistik teratas menggunakan parameter status kanonis
+        $response->assertSee(route('apar.index', ['status' => 'aktif']));
+        $response->assertSee(route('apar.index', ['status' => 'baik']));
+        $response->assertSee(route('apar.index', ['status' => 'perhatian']));
+        $response->assertSee(route('apar.index', ['status' => 'rusak']));
+
+        // 2. Label kartu rusak tidak ambigu
+        $response->assertSee('Kondisi Rusak');
+        $response->assertDontSee('Rusak / Perlu Tindakan');
+
+        // 3. Tidak ada lagi link yang menggunakan parameter 'kondisi'
+        $response->assertDontSee(route('apar.index', ['kondisi' => 'baik']));
+        $response->assertDontSee(route('apar.index', ['kondisi' => 'perhatian']));
+        $response->assertDontSee(route('apar.index', ['kondisi' => 'rusak']));
+
+        // 4. Kartu ringkasan Tindak Lanjut Pending telah dihapus dari deretan kartu atas
+        $response->assertDontSee('Tindak Lanjut Pending');
+        $response->assertDontSee(route('tindak-lanjut.index', ['status' => 'belum_ditindaklanjuti']));
+
+        // 5. Bagian khusus Tindak Lanjut & Pemeliharaan di bawah Dashboard tetap ada
+        $response->assertSee('Tindak Lanjut & Pemeliharaan', false);
+        $response->assertSee(route('tindak-lanjut.index'));
+    }
 }

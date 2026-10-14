@@ -185,38 +185,38 @@
                             </div>
 
                             <!-- Pilihan Hasil: Baik / Tidak Baik / Tidak Diperiksa (Section 7) -->
-                            <div class="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 pl-7 sm:pl-0 shrink-0">
-                                <label class="cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-emerald-100 has-checked:border-emerald-600 has-checked:text-emerald-950 has-checked:ring-2 has-checked:ring-emerald-500/30 has-checked:font-bold min-h-[44px]">
+                            <div class="w-full sm:w-auto grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
+                                <label class="cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-lg border border-slate-200 text-[11px] sm:text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-emerald-100 has-checked:border-emerald-600 has-checked:text-emerald-950 has-checked:ring-2 has-checked:ring-emerald-500/30 has-checked:font-bold min-h-[44px]">
                                     <input type="radio" 
                                            name="items[{{ $index }}][hasil]" 
                                            value="baik" 
                                            {{ $oldHasil === 'baik' ? 'checked' : '' }} 
-                                           class="accent-emerald-600 radio-item-checklist"
+                                           class="accent-emerald-600 radio-item-checklist shrink-0"
                                            data-index="{{ $index }}"
                                            onchange="evaluateOverallHealth()">
-                                    <span>&check; Baik</span>
+                                    <span>Baik</span>
                                 </label>
 
-                                <label class="cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-rose-100 has-checked:border-rose-600 has-checked:text-rose-950 has-checked:ring-2 has-checked:ring-rose-500/30 has-checked:font-bold min-h-[44px]">
+                                <label class="cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-lg border border-slate-200 text-[11px] sm:text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-rose-100 has-checked:border-rose-600 has-checked:text-rose-950 has-checked:ring-2 has-checked:ring-rose-500/30 has-checked:font-bold min-h-[44px]">
                                     <input type="radio" 
                                            name="items[{{ $index }}][hasil]" 
                                            value="tidak_baik" 
                                            {{ $oldHasil === 'tidak_baik' ? 'checked' : '' }} 
-                                           class="accent-rose-600 radio-item-checklist"
+                                           class="accent-rose-600 radio-item-checklist shrink-0"
                                            data-index="{{ $index }}"
                                            onchange="evaluateOverallHealth()">
-                                    <span>&times; Tidak Baik</span>
+                                    <span>Tidak Baik</span>
                                 </label>
 
-                                <label class="cursor-pointer flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-slate-200/80 has-checked:border-slate-500 has-checked:text-slate-900 has-checked:ring-2 has-checked:ring-slate-400/30 has-checked:font-bold min-h-[44px]">
+                                <label class="cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-lg border border-slate-200 text-[11px] sm:text-xs font-semibold hover:bg-slate-50 transition-colors has-checked:bg-slate-200/80 has-checked:border-slate-500 has-checked:text-slate-900 has-checked:ring-2 has-checked:ring-slate-400/30 has-checked:font-bold min-h-[44px]">
                                     <input type="radio" 
                                            name="items[{{ $index }}][hasil]" 
                                            value="tidak_diperiksa" 
                                            {{ $oldHasil === 'tidak_diperiksa' ? 'checked' : '' }} 
-                                           class="accent-slate-600 radio-item-checklist"
+                                           class="accent-slate-600 radio-item-checklist shrink-0"
                                            data-index="{{ $index }}"
                                            onchange="evaluateOverallHealth()">
-                                    <span class="truncate">Lewati</span>
+                                    <span>Lewati</span>
                                 </label>
                             </div>
                         </div>

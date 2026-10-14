@@ -1,27 +1,18 @@
 <x-layouts.app title="HAFIS : Tindak Lanjut & Pemeliharaan APAR">
     <!-- 1. Header Halaman & Action -->
-    <div class="pb-3 sm:pb-4 mb-4 border-b border-slate-200/80">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                    Tindak Lanjut & Pemeliharaan APAR
-                </h1>
-                <p class="text-xs text-slate-500 mt-1">
-                    Daftar penanganan perbaikan dan riwayat pemeliharaan berkala unit APAR rumah sakit.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-2 shrink-0">
-                <a href="{{ route('apar.index') }}"
-                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20 shadow-2xs">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                    </svg>
-                    <span>Master Data APAR</span>
-                </a>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="Tindak Lanjut & Pemeliharaan APAR"
+        description="Daftar penanganan perbaikan dan riwayat pemeliharaan berkala unit APAR rumah sakit.">
+        <x-slot:actions>
+            <a href="{{ route('apar.index') }}"
+               class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20 shadow-2xs">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <span>Master Data APAR</span>
+            </a>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Alert Notifikasi Flash -->
     @if(session('success'))

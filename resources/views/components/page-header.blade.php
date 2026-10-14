@@ -3,7 +3,7 @@
     'description' => null
 ])
 
-<div {{ $attributes->merge(['class' => 'flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 mb-6 border-b border-slate-200/80']) }}>
+<div {{ $attributes->merge(['class' => 'flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 sm:pb-5 mb-5 sm:mb-6 border-b border-slate-200/80']) }}>
     <div>
         <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             {{ $title }}

@@ -784,39 +784,6 @@
                     </div>
                 </div>
             </x-card>
-
-            <!-- Card C: Jadwal Inspeksi -->
-            <x-card title="Jadwal Inspeksi" subtitle="Penugasan periode inspeksi berkala.">
-                <div class="space-y-2 text-xs">
-                    @php
-                    $terkaitJadwals = $apar->jadwals()->orderBy('tanggal_mulai', 'desc')->take(3)->get();
-                    @endphp
-                    @forelse($terkaitJadwals as $tj)
-                        <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 flex items-center justify-between gap-2">
-                            <div class="min-w-0">
-                                <a href="{{ route('jadwal.show', $tj->id) }}" class="font-bold text-slate-900 hover:underline block truncate">
-                                    {{ $tj->nama }}
-                                </a>
-                                <span class="font-mono text-[10px] text-slate-500 block mt-0.5">
-                                    {{ $tj->tanggal_mulai->format('d/m/Y') }} – {{ $tj->tanggal_selesai->format('d/m/Y') }}
-                                </span>
-                            </div>
-                            <x-badge :variant="$tj->status_badge_variant">
-                                {{ $tj->status_label }}
-                            </x-badge>
-                        </div>
-                    @empty
-                        <div class="text-slate-400 italic text-[11px] py-1 text-center">
-                            Belum ada jadwal inspeksi aktif untuk unit ini.
-                        </div>
-                    @endforelse
-                    <div class="pt-2 border-t border-slate-100 text-center">
-                        <a href="{{ route('jadwal.index') }}" class="text-slate-600 hover:text-slate-900 font-semibold text-[11px] hover:underline">
-                            Lihat Semua Jadwal &rarr;
-                        </a>
-                    </div>
-                </div>
-            </x-card>
         </div>
 
     </div>

@@ -29,8 +29,8 @@
         </x-slot:actions>
     </x-page-header>
 
-    <!-- 2. Ringkasan Utama Dashboard (Step 2: 5 Metrik Inti Terhubung ke Data Riil) -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5 mb-6">
+    <!-- 2. Ringkasan Utama Dashboard (Step 2: 4 Metrik Inti Terhubung ke Data Riil) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 mb-6">
         <!-- 1. Total APAR Aktif -->
         <a href="{{ route('apar.index', ['status' => 'aktif']) }}" 
            class="group p-3 sm:p-4.5 rounded-xl bg-slate-900 text-white border border-slate-800 shadow-2xs hover:bg-slate-800 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
@@ -52,7 +52,7 @@
         </a>
 
         <!-- 2. APAR Kondisi Baik -->
-        <a href="{{ route('apar.index', ['kondisi' => 'baik']) }}" 
+        <a href="{{ route('apar.index', ['status' => 'baik']) }}" 
            class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-emerald-600 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
             <div>
                 <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -72,7 +72,7 @@
         </a>
 
         <!-- 3. APAR Perlu Perhatian -->
-        <a href="{{ route('apar.index', ['kondisi' => 'perhatian']) }}" 
+        <a href="{{ route('apar.index', ['status' => 'perhatian']) }}" 
            class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-amber-500 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
             <div>
                 <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -91,12 +91,12 @@
             </div>
         </a>
 
-        <!-- 4. APAR Rusak / Perlu Tindakan -->
-        <a href="{{ route('apar.index', ['kondisi' => 'rusak']) }}" 
+        <!-- 4. APAR Kondisi Rusak -->
+        <a href="{{ route('apar.index', ['status' => 'rusak']) }}" 
            class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-rose-500 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px]">
             <div>
                 <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                    Rusak / Perlu Tindakan
+                    Kondisi Rusak
                 </span>
                 <div class="mt-1 sm:mt-1.5 flex items-baseline gap-1.5">
                     <span class="font-extrabold text-xl sm:text-2xl lg:text-3xl tabular-nums tracking-tight text-rose-700">
@@ -106,28 +106,8 @@
                 </div>
             </div>
             <div class="mt-2 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 flex items-center justify-between">
-                <span>Perlu tindakan</span>
+                <span>Unit rusak</span>
                 <span class="text-rose-700 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
-            </div>
-        </a>
-
-        <!-- 5. Tindak Lanjut Belum Selesai -->
-        <a href="{{ route('tindak-lanjut.index', ['status' => 'belum_ditindaklanjuti']) }}" 
-           class="group p-3 sm:p-4.5 rounded-xl bg-white text-slate-900 border border-slate-200 border-l-4 border-l-indigo-600 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between min-h-[90px] sm:min-h-[110px] col-span-2 sm:col-span-1">
-            <div>
-                <span class="block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                    Tindak Lanjut Pending
-                </span>
-                <div class="mt-1 sm:mt-1.5 flex items-baseline gap-1.5">
-                    <span class="font-extrabold text-xl sm:text-2xl lg:text-3xl tabular-nums tracking-tight text-indigo-700">
-                        {{ $summaryStats['tl_belum_selesai'] }}
-                    </span>
-                    <span class="text-[10px] sm:text-xs text-slate-400 font-medium">tindakan</span>
-                </div>
-            </div>
-            <div class="mt-2 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 flex items-center justify-between">
-                <span>{{ $tindakLanjutStats['belum'] }} baru, {{ $tindakLanjutStats['proses'] }} proses</span>
-                <span class="text-indigo-700 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
             </div>
         </a>
     </div>
@@ -166,7 +146,7 @@
 
             <!-- Rincian Legend Status -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-                <a href="{{ route('apar.index', ['kondisi' => 'baik']) }}" class="p-2.5 sm:p-3 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:bg-emerald-50 transition-colors">
+                <a href="{{ route('apar.index', ['status' => 'baik']) }}" class="p-2.5 sm:p-3 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:bg-emerald-50 transition-colors">
                     <div class="flex items-center gap-1.5 font-semibold text-emerald-900 mb-1">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
                         <span class="text-xs">Baik</span>
@@ -177,7 +157,7 @@
                     <span class="text-[10px] sm:text-[11px] text-emerald-700">{{ $kondisiPersen['baik'] }}% operasional</span>
                 </a>
 
-                <a href="{{ route('apar.index', ['kondisi' => 'perhatian']) }}" class="p-2.5 sm:p-3 rounded-lg bg-amber-50/60 border border-amber-100 hover:bg-amber-50 transition-colors">
+                <a href="{{ route('apar.index', ['status' => 'perhatian']) }}" class="p-2.5 sm:p-3 rounded-lg bg-amber-50/60 border border-amber-100 hover:bg-amber-50 transition-colors">
                     <div class="flex items-center gap-1.5 font-semibold text-amber-900 mb-1">
                         <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                         <span class="text-xs">Perlu Perhatian</span>
@@ -188,7 +168,7 @@
                     <span class="text-[10px] sm:text-[11px] text-amber-700">{{ $kondisiPersen['perhatian'] }}% dipantau</span>
                 </a>
 
-                <a href="{{ route('apar.index', ['kondisi' => 'rusak']) }}" class="p-2.5 sm:p-3 rounded-lg bg-rose-50/60 border border-rose-100 hover:bg-rose-50 transition-colors">
+                <a href="{{ route('apar.index', ['status' => 'rusak']) }}" class="p-2.5 sm:p-3 rounded-lg bg-rose-50/60 border border-rose-100 hover:bg-rose-50 transition-colors">
                     <div class="flex items-center gap-1.5 font-semibold text-rose-900 mb-1">
                         <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                         <span class="text-xs">Rusak</span>

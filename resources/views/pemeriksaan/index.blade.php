@@ -1,165 +1,219 @@
 <x-layouts.app title="HAFIS : Ikhtisar Pemeriksaan Bulanan APAR">
-    <!-- Header -->
-    <div class="pb-5 mb-6 border-b border-slate-200">
-        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-slate-800 transition-colors">Dashboard</a>
-            <span class="text-slate-300">/</span>
-            <span class="text-slate-800 font-semibold">Pemeriksaan Bulanan</span>
-        </nav>
-
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                    Pemeriksaan Bulanan APAR
-                </h1>
-                <p class="text-xs text-slate-500 mt-1">
-                    Kartu kendali dan pemantauan inspeksi fisik 173 unit APAR operasional K3RS per bulan kalender.
-                </p>
-            </div>
-
-            <!-- Month & Year Selector & Scan Action Form -->
-            <div class="flex flex-wrap items-center gap-2">
-                <form action="{{ route('pemeriksaan.index') }}" method="GET" class="flex flex-wrap items-center gap-2">
-                    @if($search)
-                        <input type="hidden" name="q" value="{{ $search }}">
-                    @endif
-                    @if($lokasiId)
-                        <input type="hidden" name="lokasi_id" value="{{ $lokasiId }}">
-                    @endif
-                    @if($statusPeriksa)
-                        <input type="hidden" name="status_periksa" value="{{ $statusPeriksa }}">
-                    @endif
-
-                    <select name="bulan" onchange="this.form.submit()" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white shadow-2xs focus:border-slate-400 focus:outline-none min-h-[40px]">
-                        @foreach(\App\Models\Pemeriksaan::NAMA_BULAN as $num => $nama)
-                            <option value="{{ $num }}" {{ $bulan === $num ? 'selected' : '' }}>{{ $nama }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="tahun" onchange="this.form.submit()" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white shadow-2xs focus:border-slate-400 focus:outline-none min-h-[40px]">
-                        @for($y = Carbon\Carbon::now()->year - 2; $y <= Carbon\Carbon::now()->year + 2; $y++)
-                            <option value="{{ $y }}" {{ $tahun === $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-
-                    <noscript>
-                        <button type="submit" class="px-3 py-2 text-xs font-bold bg-slate-900 text-white rounded-lg">Pilih</button>
-                    </noscript>
-                </form>
-
-                <!-- Scan QR Quick Action (Tahap 4) -->
-                <a href="{{ route('scan.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" 
-                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[40px]" 
-                   title="Scan QR Code APAR untuk periode ini">
-                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                    </svg>
-                    <span>Scan APAR</span>
-                </a>
-            </div>
-        </div>
-    </div>
+    <!-- Header Halaman -->
+    <x-page-header
+        title="Hasil Inspeksi APAR"
+        description="Pemantauan status checklist dan hasil inspeksi fisik unit APAR operasional K3RS per bulan kalender.">
+        <x-slot:actions>
+            <a href="{{ route('scan.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" 
+               class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20" 
+               title="Scan QR Code APAR untuk periode ini">
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                </svg>
+                <span>Scan APAR</span>
+            </a>
+        </x-slot:actions>
+    </x-page-header>
 
     <!-- Alert Notifikasi Flash -->
     @if(session('success'))
-        <div class="mb-6 p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+        <div class="mb-4 sm:mb-6 p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
             <div class="flex items-center gap-2.5">
                 <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 font-bold text-xs">&check;</span>
                 <span class="font-medium">{{ session('success') }}</span>
             </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-900 font-bold text-sm leading-none" aria-label="Tutup">&times;</button>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-900 font-bold text-sm leading-none focus:outline-none min-h-[36px] min-w-[36px] flex items-center justify-center cursor-pointer" aria-label="Tutup">&times;</button>
         </div>
     @endif
 
     @if(session('info'))
-        <div class="mb-6 p-4 rounded-xl border border-sky-200 bg-sky-50 text-sky-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+        <div class="mb-4 sm:mb-6 p-4 rounded-xl border border-sky-200 bg-sky-50 text-sky-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
             <div class="flex items-center gap-2.5">
                 <span class="w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0 font-bold text-xs">i</span>
                 <span class="font-medium">{{ session('info') }}</span>
             </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-sky-700 hover:text-sky-900 font-bold text-sm leading-none" aria-label="Tutup">&times;</button>
+            <button type="button" onclick="this.parentElement.remove()" class="text-sky-700 hover:text-sky-900 font-bold text-sm leading-none focus:outline-none min-h-[36px] min-w-[36px] flex items-center justify-center cursor-pointer" aria-label="Tutup">&times;</button>
         </div>
     @endif
 
-    <!-- Summary Metrics Card -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-        <x-card class="!p-4">
-            <span class="block text-slate-500 text-xs font-medium">Target Periode</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-xl sm:text-2xl font-black text-slate-900">{{ \App\Models\Pemeriksaan::NAMA_BULAN[$bulan] }} {{ $tahun }}</span>
-            </div>
-            <span class="block text-[11px] text-slate-400 mt-0.5">Bulan kalender operasional</span>
-        </x-card>
+    @php
+        $statusFilter = in_array($statusPeriksa, ['sudah', 'belum', 'perlu_tindakan']) ? $statusPeriksa : 'semua';
 
-        <x-card class="!p-4">
-            <span class="block text-slate-500 text-xs font-medium">Sudah Diperiksa</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-2xl font-black text-emerald-600 tabular-nums">{{ $totalSudah }}</span>
-                <span class="text-xs text-slate-400 font-medium">/ {{ $totalWajib }} tabung</span>
-            </div>
-            <div class="flex items-center gap-2 mt-0.5 text-[11px]">
-                <span class="text-emerald-600 font-semibold">{{ $persentaseKepatuhan }}% Selesai</span>
-                <span class="text-slate-300">•</span>
-                <span class="text-slate-500">Baik: <strong class="text-emerald-700 font-mono">{{ $totalBaik }}</strong> | Tindakan: <strong class="text-rose-700 font-mono">{{ $totalPerluTindakan }}</strong></span>
-            </div>
-        </x-card>
+        $statusItems = [
+            [
+                'key' => 'semua',
+                'label' => 'Semua',
+                'count' => $totalWajib,
+                'dot' => null,
+                'active' => $statusFilter === 'semua',
+            ],
+            [
+                'key' => 'sudah',
+                'label' => 'Sudah Diperiksa',
+                'count' => $totalSudah,
+                'dot' => 'bg-emerald-500',
+                'active' => $statusFilter === 'sudah',
+            ],
+            [
+                'key' => 'belum',
+                'label' => 'Belum Diperiksa',
+                'count' => $totalBelum,
+                'dot' => 'bg-amber-500',
+                'active' => $statusFilter === 'belum',
+            ],
+            [
+                'key' => 'perlu_tindakan',
+                'label' => 'Perlu Tindakan',
+                'count' => $totalPerluTindakan,
+                'dot' => 'bg-rose-500',
+                'active' => $statusFilter === 'perlu_tindakan',
+            ],
+        ];
 
-        <x-card class="!p-4">
-            <span class="block text-slate-500 text-xs font-medium">Belum Diperiksa</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-2xl font-black text-amber-600 tabular-nums">{{ $totalBelum }}</span>
-                <span class="text-xs text-slate-400 font-medium">tabung tersisa</span>
-            </div>
-            <span class="block text-[11px] text-slate-400 mt-0.5">Wajib selesai di bulan berjalan</span>
-        </x-card>
+        $buildStatusUrl = function ($statusKey) use ($bulan, $tahun, $search, $lokasiId) {
+            return route('pemeriksaan.index', array_filter([
+                'bulan' => $bulan,
+                'tahun' => $tahun,
+                'status_periksa' => ($statusKey === 'semua' || empty($statusKey)) ? null : $statusKey,
+                'q' => $search,
+                'lokasi_id' => $lokasiId,
+            ], fn ($v) => ! is_null($v) && $v !== ''));
+        };
+    @endphp
 
-        <x-card class="!p-4">
-            <span class="block text-slate-500 text-xs font-medium">Total Terpasang</span>
-            <div class="mt-1 flex items-baseline gap-2">
-                <span class="text-2xl font-black text-slate-900 tabular-nums">{{ $totalWajib }}</span>
-                <span class="text-xs text-slate-400 font-medium">unit aktif</span>
-            </div>
-            <span class="block text-[11px] text-slate-400 mt-0.5">59 lokasi titik operasional</span>
-        </x-card>
+    <!-- 2. Compact Status & Filter Tabs Row -->
+    <div class="mb-4 sm:mb-5">
+        <div class="flex items-center flex-nowrap gap-1.5 sm:gap-2 overflow-x-auto py-1 -my-1 scroll-smooth" style="scrollbar-width: none; -ms-overflow-style: none;">
+            @foreach($statusItems as $item)
+                @if($item['active'])
+                    <span 
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-900 text-white border border-slate-900 shadow-2xs shrink-0 min-h-[42px] cursor-default"
+                        aria-current="page">
+                        @if($item['dot'])
+                            <span class="w-2 h-2 rounded-full {{ $item['dot'] }} ring-2 ring-white/30 shrink-0"></span>
+                        @endif
+                        <span>{{ $item['label'] }}</span>
+                        <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-white/20 text-white leading-none">
+                            {{ $item['count'] }}
+                        </span>
+                    </span>
+                @else
+                    <a 
+                        href="{{ $buildStatusUrl($item['key']) }}"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-colors shrink-0 min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
+                        @if($item['dot'])
+                            <span class="w-2 h-2 rounded-full {{ $item['dot'] }} shrink-0"></span>
+                        @endif
+                        <span>{{ $item['label'] }}</span>
+                        <span class="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 leading-none">
+                            {{ $item['count'] }}
+                        </span>
+                    </a>
+                @endif
+            @endforeach
+        </div>
     </div>
 
-    <!-- Filters & Table Section -->
-    <x-card class="!p-0 overflow-hidden">
-        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-            <!-- Filter search & status -->
-            <form action="{{ route('pemeriksaan.index') }}" method="GET" class="flex flex-wrap items-center gap-2 flex-1">
-                <input type="hidden" name="bulan" value="{{ $bulan }}">
-                <input type="hidden" name="tahun" value="{{ $tahun }}">
+    <!-- 3. Container Utama: Toolbar, Tabel, dan Status -->
+    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+        <!-- Toolbar Pencarian & Filter -->
+        <div class="p-3.5 sm:p-4 border-b border-slate-200 bg-white">
+            <form method="GET" action="{{ route('pemeriksaan.index') }}" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5 lg:gap-3">
+                @if($statusPeriksa && $statusPeriksa !== 'semua')
+                    <input type="hidden" name="status_periksa" value="{{ $statusPeriksa }}">
+                @endif
 
-                <div class="relative min-w-[200px] flex-1 max-w-xs">
-                    <input type="text" name="q" value="{{ $search }}" placeholder="Cari kode APAR / lokasi..." class="w-full text-xs pl-8 pr-3 py-2 rounded-lg border border-slate-200 bg-white placeholder-slate-400 focus:border-slate-400 focus:outline-none transition min-h-[38px]">
-                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+                <!-- Pencarian Kode APAR atau Lokasi -->
+                <div class="relative flex-1 min-w-0 sm:min-w-[200px] lg:min-w-[220px]">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="{{ $search }}" 
+                        placeholder="Cari kode APAR atau lokasi..." 
+                        class="w-full pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-900/20 focus:outline-none transition min-h-[42px]"
+                    />
                 </div>
 
-                <select name="lokasi_id" onchange="this.form.submit()" class="text-xs px-2.5 py-2 rounded-lg border border-slate-200 bg-white focus:border-slate-400 focus:outline-none min-h-[38px] max-w-[200px] truncate">
-                    <option value="">Semua Lokasi</option>
-                    @foreach($lokasis as $loc)
-                        <option value="{{ $loc->id }}" {{ (string)$lokasiId === (string)$loc->id ? 'selected' : '' }}>{{ $loc->nama }}</option>
-                    @endforeach
-                </select>
+                <!-- Kontrol Filter Periode & Lokasi -->
+                <div class="grid grid-cols-2 sm:flex items-center gap-2 shrink-0">
+                    <!-- Filter Bulan -->
+                    <div class="w-full sm:w-auto sm:min-w-[130px]">
+                        <select 
+                            name="bulan" 
+                            aria-label="Filter Bulan" 
+                            class="w-full px-3 py-2 text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-900/20 focus:outline-none min-h-[42px] cursor-pointer"
+                        >
+                            @foreach(\App\Models\Pemeriksaan::NAMA_BULAN as $num => $nama)
+                                <option value="{{ $num }}" {{ $bulan === $num ? 'selected' : '' }}>{{ $nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <select name="status_periksa" onchange="this.form.submit()" class="text-xs px-2.5 py-2 rounded-lg border border-slate-200 bg-white focus:border-slate-400 focus:outline-none min-h-[38px]">
-                    <option value="">Semua Status</option>
-                    <option value="sudah" {{ $statusPeriksa === 'sudah' ? 'selected' : '' }}>Semua Sudah Diperiksa ({{ $totalSudah }})</option>
-                    <option value="baik" {{ $statusPeriksa === 'baik' ? 'selected' : '' }}>Sudah - Kondisi Baik ({{ $totalBaik }})</option>
-                    <option value="perlu_tindakan" {{ $statusPeriksa === 'perlu_tindakan' ? 'selected' : '' }}>Sudah - Perlu Tindakan ({{ $totalPerluTindakan }})</option>
-                    <option value="belum" {{ $statusPeriksa === 'belum' ? 'selected' : '' }}>Belum Diperiksa ({{ $totalBelum }})</option>
-                </select>
+                    <!-- Filter Tahun -->
+                    <div class="w-full sm:w-auto sm:min-w-[95px]">
+                        <select 
+                            name="tahun" 
+                            aria-label="Filter Tahun" 
+                            class="w-full px-3 py-2 text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-900/20 focus:outline-none min-h-[42px] cursor-pointer"
+                        >
+                            @for($y = Carbon\Carbon::now()->year - 2; $y <= Carbon\Carbon::now()->year + 2; $y++)
+                                <option value="{{ $y }}" {{ $tahun === $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                </div>
 
-                @if($search || $lokasiId || $statusPeriksa)
-                    <a href="{{ route('pemeriksaan.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="text-xs text-rose-600 hover:text-rose-800 font-medium px-2 py-1">Reset</a>
-                @endif
+                <!-- Filter Lokasi -->
+                <div class="w-full sm:w-auto sm:min-w-[170px] lg:max-w-[210px] shrink-0">
+                    <select 
+                        name="lokasi_id" 
+                        aria-label="Filter Lokasi" 
+                        class="w-full px-3 py-2 text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-1 focus:ring-slate-900/20 focus:outline-none min-h-[42px] cursor-pointer truncate"
+                    >
+                        <option value="">Semua Lokasi</option>
+                        @foreach($lokasis as $loc)
+                            <option value="{{ $loc->id }}" {{ (string)$lokasiId === (string)$loc->id ? 'selected' : '' }}>{{ $loc->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Tombol Cari & Reset -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <button 
+                        type="submit" 
+                        class="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition duration-150 ease-in-out min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer shadow-2xs"
+                    >
+                        Cari
+                    </button>
+
+                    @if($search || $lokasiId || ($statusPeriksa && $statusPeriksa !== 'semua'))
+                        <a 
+                            href="{{ route('pemeriksaan.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" 
+                            class="inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition min-h-[42px] border border-slate-200/80 sm:border-transparent"
+                        >
+                            Reset
+                        </a>
+                    @endif
+                </div>
             </form>
+        </div>
 
-            <span class="text-xs text-slate-500 font-medium whitespace-nowrap">
-                Menampilkan {{ $apars->count() }} unit
+        <!-- Info Bar Hasil & Counter -->
+        <div class="px-3.5 py-2.5 sm:px-4 sm:py-2.5 bg-slate-50/70 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 font-medium">
+            <div class="flex items-center gap-2">
+                <span>Periode: <strong class="text-slate-800 font-semibold">{{ \App\Models\Pemeriksaan::NAMA_BULAN[$bulan] }} {{ $tahun }}</strong></span>
+                @if($statusPeriksa && $statusPeriksa !== 'semua')
+                    <span class="text-slate-300">•</span>
+                    <span>Status: <strong class="text-slate-800 font-semibold">{{ $statusPeriksa === 'sudah' ? 'Sudah Diperiksa' : ($statusPeriksa === 'perlu_tindakan' ? 'Perlu Tindakan' : ($statusPeriksa === 'baik' ? 'Kondisi Baik' : 'Belum Diperiksa')) }}</strong></span>
+                @endif
+            </div>
+            <span class="font-mono text-[11px] text-slate-500">
+                Menampilkan <strong class="text-slate-800 font-bold">{{ $apars->count() }}</strong> unit
             </span>
         </div>
 
@@ -262,5 +316,11 @@
                 </tbody>
             </table>
         </div>
-    </x-card>
+
+        @if(method_exists($apars, 'hasPages') && $apars->hasPages())
+            <div class="px-4 py-3 border-t border-slate-200 bg-slate-50/50">
+                {{ $apars->links() }}
+            </div>
+        @endif
+    </div>
 </x-layouts.app>

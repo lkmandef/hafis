@@ -2,8 +2,7 @@
     <!-- 1. Page Header -->
     <x-page-header
         title="Master Data APAR"
-        description="Pusat pencatatan data identitas, spesifikasi teknis, dan lokasi penempatan unit APAR rumah sakit."
-        class="pb-3 sm:pb-4 mb-4" />
+        description="Pusat pencatatan data identitas, spesifikasi teknis, dan lokasi penempatan unit APAR rumah sakit." />
 
     <!-- Notifikasi Sukses / Feedback -->
     @if(session('success'))
