@@ -1,7 +1,8 @@
 @props([
     'title' => 'Laporan HAFIS Rumah Sakit',
     'reportTitle' => 'LAPORAN REKAPITULASI APAR',
-    'filters' => []
+    'filters' => [],
+    'orientation' => 'portrait'
 ])
 
 <!DOCTYPE html>
@@ -14,7 +15,7 @@
 
     <style>
         @page {
-            size: A4 portrait;
+            size: A4 {{ $orientation }};
             margin: 10mm 10mm 15mm 10mm;
         }
 
@@ -35,7 +36,7 @@
         }
 
         .no-print {
-            max-width: 210mm;
+            max-width: {{ $orientation === 'landscape' ? '297mm' : '210mm' }};
             margin: 0 auto 16px auto;
             display: flex;
             align-items: center;
@@ -68,16 +69,22 @@
             color: #f8fafc;
         }
 
-        /* Lembar preview & cetak A4 Portrait (210mm) */
+        /* Lembar preview & cetak A4 (210mm portrait / 297mm landscape) */
         .print-container {
-            width: 210mm;
+            width: {{ $orientation === 'landscape' ? '297mm' : '210mm' }};
             max-width: 100%;
-            min-height: 297mm;
+            min-height: calc(var(--print-pages, 1) * {{ $orientation === 'landscape' ? '210mm' : '297mm' }});
             margin: 0 auto;
             background: #ffffff;
             padding: 10mm 10mm 15mm 10mm;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             border-radius: 2px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .report-content {
+            flex: 1 0 auto;
         }
 
         /* KOP: logo berdampingan tepat di samping blok teks kop */
@@ -208,6 +215,15 @@
             table-layout: auto;
         }
 
+        table.data-table thead {
+            display: table-header-group;
+        }
+
+        table.data-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
         table.data-table th, table.data-table td {
             border: 1px solid #cbd5e1;
             padding: 3px 4px;
@@ -268,9 +284,11 @@
         .badge-neutral { font-weight: 400; }
 
         .footer-signatures {
-            margin-top: 16px;
+            margin-top: auto;
+            break-inside: avoid;
             page-break-inside: avoid;
             font-size: 7.5pt;
+            padding-top: 16px;
         }
 
         .signature-city-date {
@@ -285,7 +303,7 @@
         }
 
         .signature-box {
-            width: 200px;
+            width: 220px;
             text-align: center;
         }
 
@@ -294,8 +312,14 @@
         }
 
         .sig-unit {
-            font-weight: 600;
+            font-weight: 700;
             font-size: 7.5pt;
+        }
+
+        .sig-hospital {
+            font-weight: 400;
+            font-size: 7pt;
+            color: #334155;
         }
 
         .signature-space {
@@ -331,11 +355,22 @@
             .print-container {
                 width: 100% !important;
                 max-width: 100% !important;
-                min-height: auto !important;
+                min-height: calc(var(--print-pages, 1) * {{ $orientation === 'landscape' ? '185mm' : '272mm' }}) !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 box-shadow: none !important;
                 border-radius: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .report-content {
+                flex: 1 0 auto !important;
+            }
+            .footer-signatures {
+                margin-top: auto !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                padding-top: 16px !important;
             }
             .print-footer {
                 display: flex;
@@ -359,7 +394,7 @@
     <div class="no-print">
         <div style="display: flex; align-items: center; gap: 8px;">
             <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
-            <strong>Mode Cetak Laporan Resmi HAFIS (A4 Portrait)</strong>
+            <strong>Mode Cetak Laporan Resmi HAFIS (A4 {{ ucfirst($orientation) }})</strong>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <a href="{{ request()->fullUrlWithoutQuery(['format']) }}"
@@ -372,8 +407,8 @@
         </div>
     </div>
 
-    {{-- Lembar Cetak Dokumen A4 Portrait (210mm) --}}
-    <div class="print-container">
+    {{-- Lembar Cetak Dokumen A4 {{ ucfirst($orientation) }} --}}
+    <div class="print-container" id="printContainer">
         {{-- Kop Resmi RSUD --}}
         <div class="header-kop">
             <div class="kop-inner">
@@ -429,8 +464,8 @@
             {{ $slot }}
         </div>
 
-        {{-- Tanda Tangan --}}
-        <div class="footer-signatures">
+        {{-- Tanda Tangan Formal K3RS --}}
+        <div class="footer-signatures" id="footerSignatures">
             <div class="signature-city-date">
                 Banjarmasin, {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('d F Y') }}
             </div>
@@ -439,13 +474,13 @@
                     <div class="sig-role">Petugas Pelaksana K3RS,</div>
                     <div class="sig-unit">RSUD dr. H. Moch. Ansari Saleh</div>
                     <div class="signature-space"></div>
-                    <div class="signature-name">{{ auth()->user()?->name ?? '( .................................................... )' }}</div>
+                    <div class="signature-name">( .................................................... )</div>
                     <div class="signature-nip">NIP. .....................................</div>
                 </div>
                 <div class="signature-box">
                     <div class="sig-role">Mengetahui,</div>
                     <div class="sig-unit">Kepala Instalasi K3RS</div>
-                    <div class="sig-unit" style="font-weight: 400; font-size: 7pt; color: #475569;">RSUD dr. H. Moch. Ansari Saleh Banjarmasin</div>
+                    <div class="sig-hospital">RSUD dr. H. Moch. Ansari Saleh Banjarmasin</div>
                     <div class="signature-space"></div>
                     <div class="signature-name">( .................................................... )</div>
                     <div class="signature-nip">NIP. .....................................</div>
@@ -456,9 +491,57 @@
 
     {{-- Footer (tampil saat dicetak) --}}
     <div class="print-footer">
-        <span>HAFIS &ndash; Hospital APAR &amp; Fire Inspection System &bull; Dokumen Resmi K3RS (Format Kertas: A4 Portrait)</span>
-        <span></span>
+        <span>HAFIS &ndash; Hospital APAR &amp; Fire Inspection System &bull; Dokumen Resmi K3RS (Format Kertas: A4 {{ ucfirst($orientation) }})</span>
+        <span>RSUD dr. H. Moch. Ansari Saleh Banjarmasin</span>
     </div>
 
+    <script>
+        function autoFitPrintPages() {
+            const container = document.getElementById('printContainer');
+            if (!container) return;
+
+            // Reset dynamic page count and minHeight to measure natural content scrollHeight
+            container.style.setProperty('--print-pages', '1');
+            container.style.minHeight = '0px';
+
+            const isLandscape = '{{ $orientation }}' === 'landscape';
+            const pageHeightMm = isLandscape ? 185 : 272;
+            const mmToPx = 96 / 25.4;
+            const pageHeightPx = pageHeightMm * mmToPx;
+
+            // Ukur computed padding vertikal kontainer pada tampilan layar (10mm atas + 15mm bawah = 25mm).
+            // Pada media cetak (@media print), padding di-reset ke 0 karena margin fisik ditangani @page.
+            // Pengurangan ini memastikan hanya tinggi isi konten riil yang diukur terhadap kapasitas cetak.
+            const style = window.getComputedStyle(container);
+            const padTop = parseFloat(style.paddingTop) || 0;
+            const padBottom = parseFloat(style.paddingBottom) || 0;
+            const borderTop = parseFloat(style.borderTopWidth) || 0;
+            const borderBottom = parseFloat(style.borderBottomWidth) || 0;
+            const verticalInset = padTop + padBottom + borderTop + borderBottom;
+
+            // Tinggi konten murni tanpa padding layar kontainer
+            const contentHeight = Math.max(container.scrollHeight - verticalInset, 0);
+
+            const thead = document.querySelector('table.data-table thead');
+            const theadHeight = thead ? thead.offsetHeight : 0;
+
+            let remHeight = contentHeight;
+            let pages = 1;
+            if (remHeight > pageHeightPx) {
+                remHeight -= pageHeightPx;
+                const subPageCap = Math.max(pageHeightPx - theadHeight, 100);
+                pages += Math.ceil(remHeight / subPageCap);
+            }
+
+            container.style.removeProperty('min-height');
+            container.style.setProperty('--print-pages', pages.toString());
+        }
+
+        window.addEventListener('DOMContentLoaded', autoFitPrintPages);
+        window.addEventListener('load', autoFitPrintPages);
+        window.addEventListener('resize', autoFitPrintPages);
+        window.addEventListener('beforeprint', autoFitPrintPages);
+        autoFitPrintPages();
+    </script>
 </body>
 </html>

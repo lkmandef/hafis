@@ -327,4 +327,44 @@ class LaporanTest extends TestCase
         $responseDetail = $this->get('/riwayat/INS-2026-001');
         $responseDetail->assertRedirect(route('laporan.pemeriksaan'));
     }
+
+    public function test_format_cetak_5_laporan_memiliki_struktur_tanda_tangan_dan_autofit_konsisten(): void
+    {
+        $this->createHierarchy();
+
+        $routes = [
+            'laporan.apar' => 'portrait',
+            'laporan.pemeriksaan' => 'portrait',
+            'laporan.temuan' => 'portrait',
+            'laporan.tindak_lanjut' => 'portrait',
+            'laporan.penggantian' => 'landscape',
+        ];
+
+        foreach ($routes as $route => $expectedOrientation) {
+            $response = $this->get(route($route, ['format' => 'print']));
+            $response->assertStatus(200);
+
+            $content = $response->getContent();
+
+            // Memastikan tanda tangan resmi K3RS hadir
+            $response->assertSee('Banjarmasin,');
+            $response->assertSee('Petugas Pelaksana K3RS,');
+            $response->assertSee('RSUD dr. H. Moch. Ansari Saleh');
+            $response->assertSee('Mengetahui,');
+            $response->assertSee('Kepala Instalasi K3RS');
+            $response->assertSee('RSUD dr. H. Moch. Ansari Saleh Banjarmasin');
+            $response->assertSee('( .................................................... )');
+            $response->assertSee('NIP. .....................................');
+
+            // Memastikan blok tanda tangan hanya muncul tepat SATU kali (tidak ada duplikasi)
+            $this->assertEquals(1, substr_count($content, 'id="footerSignatures"'), "Tanda tangan harus muncul tepat satu kali di {$route}");
+
+            // Memastikan container cetak dan script autoFitPrintPages hadir
+            $response->assertSee('id="printContainer"', false);
+            $response->assertSee('autoFitPrintPages');
+
+            // Memastikan orientasi kertas sesuai spesifikasi
+            $response->assertSee("size: A4 {$expectedOrientation};", false);
+        }
+    }
 }

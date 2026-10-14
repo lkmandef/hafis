@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Apar;
 use App\Models\Gedung;
 use App\Models\Lantai;
+use App\Models\Lokasi;
 use App\Models\Ruangan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -18,6 +19,7 @@ class AparController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('q');
+        $lokasiId = $request->input('lokasi_id');
         $gedungId = $request->input('gedung_id');
         $lantaiId = $request->input('lantai_id');
         $status = $request->input('status');
@@ -58,21 +60,21 @@ class AparController extends Controller
             });
         }
 
-        // 2. Filter Gedung
-        if ($gedungId) {
+        // 2. Filter Lokasi (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        if ($lokasiId) {
+            $query->where('lokasi_id', $lokasiId);
+        } elseif ($gedungId) {
             $query->whereHas('ruangan.lantai', function ($lq) use ($gedungId) {
                 $lq->where('gedung_id', $gedungId);
             });
+            if ($lantaiId) {
+                $query->whereHas('ruangan', function ($rq) use ($lantaiId, $gedungId) {
+                    $rq->where('lantai_id', $lantaiId)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $gedungId));
+                });
+            }
         }
 
-        // 3. Filter Lantai
-        if ($lantaiId) {
-            $query->whereHas('ruangan', function ($rq) use ($lantaiId) {
-                $rq->where('lantai_id', $lantaiId);
-            });
-        }
-
-        // 4. Filter Status (Section 20: Semua, Aktif, Tidak Aktif, Sudah Diganti, atau kondisi)
+        // 3. Filter Status (Section 20: Semua, Aktif, Tidak Aktif, Sudah Diganti, atau kondisi)
         if ($status === 'semua') {
             // Tampilkan seluruh data tanpa memfilter status
         } elseif ($status === 'aktif') {
@@ -85,7 +87,7 @@ class AparController extends Controller
             $query->where('status', $status);
         }
 
-        // 5. Filter Jenis Media
+        // 4. Filter Jenis Media
         if ($jenisMedia) {
             $query->where('jenis_media', $jenisMedia);
         }
@@ -93,6 +95,10 @@ class AparController extends Controller
         $apars = $query->orderBy('kode', 'asc')->paginate(12)->withQueryString();
 
         // Data pendukung filter
+        $lokasis = Lokasi::where('status', '!=', Lokasi::STATUS_STOK)
+            ->orderBy('nama')
+            ->get();
+
         $gedungs = Gedung::with(['lantais' => fn ($q) => $q->orderBy('nomor_lantai')])
             ->orderBy('nama', 'asc')
             ->get();
@@ -115,6 +121,8 @@ class AparController extends Controller
 
         return view('apar.index', compact(
             'apars',
+            'lokasis',
+            'lokasiId',
             'gedungs',
             'lantaisForFilter',
             'search',

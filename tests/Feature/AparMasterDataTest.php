@@ -273,4 +273,105 @@ class AparMasterDataTest extends TestCase
             'kode' => 'APAR-DEL-01',
         ]);
     }
+
+    /**
+     * Standardisasi toolbar filter Master APAR: form submit, placeholder akurat, dan kontrol status
+     */
+    public function test_apar_index_filter_toolbar_is_standardized(): void
+    {
+        $response = $this->get(route('apar.index'));
+        $response->assertStatus(200);
+
+        // 1. Placeholder akurat tanpa menyebut nomor register
+        $response->assertSee('Cari kode APAR, QR, merek, atau lokasi...');
+        $response->assertDontSee('Cari kode, register, merek, lokasi, keterangan...');
+
+        // 2. Kontrol status aset lengkap dalam form
+        $response->assertSee('name="status"', false);
+        $response->assertSee('value="semua"', false);
+        $response->assertSee('value="aktif"', false);
+        $response->assertSee('value="baik"', false);
+        $response->assertSee('value="perhatian"', false);
+        $response->assertSee('value="rusak"', false);
+        $response->assertSee('value="sudah_diganti"', false);
+        $response->assertSee('value="tidak_aktif"', false);
+
+        // 3. Kontrol lokasi dan tombol Cari eksplisit
+        $response->assertSee('name="lokasi_id"', false);
+        $response->assertSee('Semua Lokasi K3RS');
+        $response->assertSee('type="submit"', false);
+        $response->assertSee('Cari');
+
+        // 4. Aksi Tambah APAR berada pada header
+        $response->assertSee('Tambah APAR');
+        $response->assertSee(route('apar.create'));
+    }
+
+    /**
+     * Filter status aset dan persistensi query string
+     */
+    public function test_apar_index_filters_by_asset_status_correctly(): void
+    {
+        $gedung = Gedung::create(['kode' => 'GDG-FLT', 'nama' => 'Gedung Filter']);
+        $lantai = Lantai::create(['gedung_id' => $gedung->id, 'nomor_lantai' => 1, 'nama' => 'Lantai 1']);
+        $ruangan = Ruangan::create(['lantai_id' => $lantai->id, 'nama' => 'Ruang Server']);
+
+        $aparBaik = Apar::create([
+            'kode' => 'APAR-FLT-BAIK',
+            'qr_code' => 'HAFIS-QR-FLT-01',
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'Dry Chemical Powder',
+            'kapasitas' => '6 kg',
+            'status' => Apar::STATUS_BAIK,
+        ]);
+
+        $aparRusak = Apar::create([
+            'kode' => 'APAR-FLT-RUSAK',
+            'qr_code' => 'HAFIS-QR-FLT-02',
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'CO2 (Carbon Dioxide)',
+            'kapasitas' => '5 kg',
+            'status' => Apar::STATUS_RUSAK,
+        ]);
+
+        $aparNonaktif = Apar::create([
+            'kode' => 'APAR-FLT-NONAKTIF',
+            'qr_code' => 'HAFIS-QR-FLT-03',
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'Foam (AFFF)',
+            'kapasitas' => '6 L',
+            'status' => Apar::STATUS_TIDAK_AKTIF,
+        ]);
+
+        // Filter: Kondisi Baik
+        $resBaik = $this->get(route('apar.index', ['status' => 'baik']));
+        $resBaik->assertStatus(200);
+        $resBaik->assertSee($aparBaik->kode);
+        $resBaik->assertDontSee($aparRusak->kode);
+        $resBaik->assertDontSee($aparNonaktif->kode);
+
+        // Filter: Kondisi Rusak
+        $resRusak = $this->get(route('apar.index', ['status' => 'rusak']));
+        $resRusak->assertStatus(200);
+        $resRusak->assertSee($aparRusak->kode);
+        $resRusak->assertDontSee($aparBaik->kode);
+
+        // Filter: Unit Aktif (menampilkan baik & rusak, bukan tidak aktif)
+        $resAktif = $this->get(route('apar.index', ['status' => 'aktif']));
+        $resAktif->assertStatus(200);
+        $resAktif->assertSee($aparBaik->kode);
+        $resAktif->assertSee($aparRusak->kode);
+        $resAktif->assertDontSee($aparNonaktif->kode);
+
+        // Filter: Semua (menampilkan seluruh status)
+        $resSemua = $this->get(route('apar.index', ['status' => 'semua']));
+        $resSemua->assertStatus(200);
+        $resSemua->assertSee($aparBaik->kode);
+        $resSemua->assertSee($aparRusak->kode);
+        $resSemua->assertSee($aparNonaktif->kode);
+
+        // Tombol reset tersedia jika status bukan default 'aktif'
+        $resRusak->assertSee('Reset');
+        $resRusak->assertSee(route('apar.index', ['status' => 'semua']));
+    }
 }

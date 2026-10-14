@@ -6,6 +6,7 @@ use App\Models\Apar;
 use App\Models\Gedung;
 use App\Models\Jadwal;
 use App\Models\Lantai;
+use App\Models\Lokasi;
 use App\Models\Pemeriksaan;
 use App\Models\PemeriksaanDetail;
 use App\Models\PenggantianApar;
@@ -60,12 +61,14 @@ class LaporanController extends Controller
     {
         $query = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
 
-        // 1. Filter Lokasi
-        if ($request->filled('gedung_id')) {
+        // 1. Filter Lokasi (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        if ($request->filled('lokasi_id')) {
+            $query->where('lokasi_id', $request->lokasi_id);
+        } elseif ($request->filled('gedung_id')) {
             $query->whereHas('ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
-        }
-        if ($request->filled('lantai_id')) {
-            $query->whereHas('ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id));
+            if ($request->filled('lantai_id')) {
+                $query->whereHas('ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+            }
         }
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
@@ -158,6 +161,7 @@ class LaporanController extends Controller
                 'rekap' => $rekap,
                 'isPrint' => true,
                 'filtersSummary' => $filtersSummary,
+                'lokasis' => collect(),
                 'gedungs' => collect(),
                 'lantais' => collect(),
             ]);
@@ -165,6 +169,7 @@ class LaporanController extends Controller
 
         // Web View (Paginated)
         $apars = $query->paginate(15)->withQueryString();
+        $lokasis = Lokasi::where('status', '!=', Lokasi::STATUS_STOK)->orderBy('nama')->get();
         $gedungs = Gedung::orderBy('nama', 'asc')->get();
         $lantais = $request->filled('gedung_id')
             ? Lantai::where('gedung_id', $request->gedung_id)->orderBy('nomor_lantai', 'asc')->get()
@@ -175,6 +180,7 @@ class LaporanController extends Controller
             'rekap' => $rekap,
             'isPrint' => false,
             'filtersSummary' => [],
+            'lokasis' => $lokasis,
             'gedungs' => $gedungs,
             'lantais' => $lantais,
         ]);
@@ -185,7 +191,7 @@ class LaporanController extends Controller
      */
     public function pemeriksaan(Request $request)
     {
-        $query = Pemeriksaan::with(['apar.ruangan.lantai.gedung', 'jadwal', 'user']);
+        $query = Pemeriksaan::with(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'jadwal', 'user']);
 
         // 1. Filter Periode Tanggal
         if ($request->filled('dari_tanggal')) {
@@ -195,12 +201,14 @@ class LaporanController extends Controller
             $query->whereDate('tanggal_pemeriksaan', '<=', $request->sampai_tanggal);
         }
 
-        // 2. Filter Lokasi APAR
-        if ($request->filled('gedung_id')) {
+        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        if ($request->filled('lokasi_id')) {
+            $query->whereHas('apar', fn ($q) => $q->where('lokasi_id', $request->lokasi_id));
+        } elseif ($request->filled('gedung_id')) {
             $query->whereHas('apar.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
-        }
-        if ($request->filled('lantai_id')) {
-            $query->whereHas('apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id));
+            if ($request->filled('lantai_id')) {
+                $query->whereHas('apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+            }
         }
         if ($request->filled('ruangan_id')) {
             $query->whereHas('apar', fn ($q) => $q->where('ruangan_id', $request->ruangan_id));
@@ -231,7 +239,7 @@ class LaporanController extends Controller
             $query->where(function ($sub) use ($q) {
                 $sub->where('catatan', 'like', "%{$q}%")
                     ->orWhere('pemeriksa_nama', 'like', "%{$q}%")
-                    ->orWhereHas('apar', fn ($aq) => $aq->where('kode', 'like', "%{$q}%"));
+                    ->orWhereHas('apar', fn ($aq) => $aq->where('kode', 'like', "%{$q}%")->orWhereHas('lokasi', fn ($loc) => $loc->where('nama', 'like', "%{$q}%")));
             });
         }
 
@@ -253,7 +261,7 @@ class LaporanController extends Controller
                     $i + 1,
                     $p->tanggal_pemeriksaan ? $p->tanggal_pemeriksaan->format('d/m/Y H:i') : '-',
                     $p->apar?->kode ?? '-',
-                    $p->apar?->lokasi_lengkap ?? '-',
+                    $p->apar?->lokasi?->nama ?? $p->apar?->lokasi_lengkap ?? '-',
                     $p->jadwal?->nama ?? 'Pemeriksaan Mandiri (Ad-Hoc)',
                     $p->pemeriksa_nama,
                     $p->hasil_label,
@@ -280,6 +288,7 @@ class LaporanController extends Controller
                 'rekap' => $rekap,
                 'isPrint' => true,
                 'filtersSummary' => $filtersSummary,
+                'lokasis' => collect(),
                 'gedungs' => collect(),
                 'lantais' => collect(),
                 'jadwals' => collect(),
@@ -288,6 +297,7 @@ class LaporanController extends Controller
 
         // Web View
         $pemeriksaans = $query->paginate(15)->withQueryString();
+        $lokasis = Lokasi::where('status', '!=', Lokasi::STATUS_STOK)->orderBy('nama')->get();
         $gedungs = Gedung::orderBy('nama', 'asc')->get();
         $lantais = $request->filled('gedung_id')
             ? Lantai::where('gedung_id', $request->gedung_id)->orderBy('nomor_lantai', 'asc')->get()
@@ -299,6 +309,7 @@ class LaporanController extends Controller
             'rekap' => $rekap,
             'isPrint' => false,
             'filtersSummary' => [],
+            'lokasis' => $lokasis,
             'gedungs' => $gedungs,
             'lantais' => $lantais,
             'jadwals' => $jadwals,
@@ -310,7 +321,7 @@ class LaporanController extends Controller
      */
     public function temuan(Request $request)
     {
-        $query = PemeriksaanDetail::with(['pemeriksaan.apar.ruangan.lantai.gedung', 'tindakLanjuts'])
+        $query = PemeriksaanDetail::with(['pemeriksaan.apar.lokasi', 'pemeriksaan.apar.ruangan.lantai.gedung', 'tindakLanjuts'])
             ->where('hasil', PemeriksaanDetail::HASIL_TIDAK_BAIK);
 
         // 1. Filter Periode Tanggal Pemeriksaan
@@ -321,12 +332,14 @@ class LaporanController extends Controller
             $query->whereHas('pemeriksaan', fn ($q) => $q->whereDate('tanggal_pemeriksaan', '<=', $request->sampai_tanggal));
         }
 
-        // 2. Filter Lokasi APAR
-        if ($request->filled('gedung_id')) {
+        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        if ($request->filled('lokasi_id')) {
+            $query->whereHas('pemeriksaan.apar', fn ($q) => $q->where('lokasi_id', $request->lokasi_id));
+        } elseif ($request->filled('gedung_id')) {
             $query->whereHas('pemeriksaan.apar.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
-        }
-        if ($request->filled('lantai_id')) {
-            $query->whereHas('pemeriksaan.apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id));
+            if ($request->filled('lantai_id')) {
+                $query->whereHas('pemeriksaan.apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+            }
         }
         if ($request->filled('ruangan_id')) {
             $query->whereHas('pemeriksaan.apar', fn ($q) => $q->where('ruangan_id', $request->ruangan_id));
@@ -342,7 +355,10 @@ class LaporanController extends Controller
             } elseif ($stl === 'dalam_proses') {
                 $query->whereHas('tindakLanjuts', fn ($tq) => $tq->where('status', TindakLanjut::STATUS_DALAM_PROSES));
             } elseif ($stl === 'belum_ditindaklanjuti') {
-                $query->whereHas('tindakLanjuts', fn ($tq) => $tq->where('status', TindakLanjut::STATUS_BELUM_DITINDAKLANJUTI));
+                $query->where(function ($q) {
+                    $q->doesntHave('tindakLanjuts')
+                        ->orWhereHas('tindakLanjuts', fn ($tq) => $tq->where('status', TindakLanjut::STATUS_BELUM_DITINDAKLANJUTI));
+                });
             }
         }
 
@@ -354,7 +370,7 @@ class LaporanController extends Controller
                     ->orWhere('catatan', 'like', "%{$q}%")
                     ->orWhereHas('pemeriksaan', function ($pq) use ($q) {
                         $pq->where('pemeriksa_nama', 'like', "%{$q}%")
-                            ->orWhereHas('apar', fn ($aq) => $aq->where('kode', 'like', "%{$q}%"));
+                            ->orWhereHas('apar', fn ($aq) => $aq->where('kode', 'like', "%{$q}%")->orWhereHas('lokasi', fn ($loc) => $loc->where('nama', 'like', "%{$q}%")));
                     });
             });
         }
@@ -385,7 +401,7 @@ class LaporanController extends Controller
                     $i + 1,
                     $d->pemeriksaan?->tanggal_pemeriksaan ? $d->pemeriksaan->tanggal_pemeriksaan->format('d/m/Y') : '-',
                     $d->pemeriksaan?->apar?->kode ?? '-',
-                    $d->pemeriksaan?->apar?->lokasi_lengkap ?? '-',
+                    $d->pemeriksaan?->apar?->lokasi?->nama ?? $d->pemeriksaan?->apar?->lokasi_lengkap ?? '-',
                     $d->item_nama,
                     'Tidak Baik',
                     $d->catatan ?: '-',
@@ -412,6 +428,7 @@ class LaporanController extends Controller
                 'rekap' => $rekap,
                 'isPrint' => true,
                 'filtersSummary' => $filtersSummary,
+                'lokasis' => collect(),
                 'gedungs' => collect(),
                 'lantais' => collect(),
             ]);
@@ -419,6 +436,7 @@ class LaporanController extends Controller
 
         // Web View
         $temuans = $query->paginate(15)->withQueryString();
+        $lokasis = Lokasi::where('status', '!=', Lokasi::STATUS_STOK)->orderBy('nama')->get();
         $gedungs = Gedung::orderBy('nama', 'asc')->get();
         $lantais = $request->filled('gedung_id')
             ? Lantai::where('gedung_id', $request->gedung_id)->orderBy('nomor_lantai', 'asc')->get()
@@ -429,6 +447,7 @@ class LaporanController extends Controller
             'rekap' => $rekap,
             'isPrint' => false,
             'filtersSummary' => [],
+            'lokasis' => $lokasis,
             'gedungs' => $gedungs,
             'lantais' => $lantais,
         ]);
@@ -439,7 +458,7 @@ class LaporanController extends Controller
      */
     public function tindakLanjut(Request $request)
     {
-        $query = TindakLanjut::with(['apar.ruangan.lantai.gedung', 'pemeriksaan']);
+        $query = TindakLanjut::with(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'pemeriksaan']);
 
         // 1. Filter Periode Tanggal Tindakan
         if ($request->filled('dari_tanggal')) {
@@ -449,12 +468,14 @@ class LaporanController extends Controller
             $query->whereDate('tanggal_tindakan', '<=', $request->sampai_tanggal);
         }
 
-        // 2. Filter Lokasi APAR
-        if ($request->filled('gedung_id')) {
+        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        if ($request->filled('lokasi_id')) {
+            $query->whereHas('apar', fn ($q) => $q->where('lokasi_id', $request->lokasi_id));
+        } elseif ($request->filled('gedung_id')) {
             $query->whereHas('apar.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
-        }
-        if ($request->filled('lantai_id')) {
-            $query->whereHas('apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id));
+            if ($request->filled('lantai_id')) {
+                $query->whereHas('apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+            }
         }
         if ($request->filled('ruangan_id')) {
             $query->whereHas('apar', fn ($q) => $q->where('ruangan_id', $request->ruangan_id));
@@ -482,7 +503,7 @@ class LaporanController extends Controller
                 $sub->where('deskripsi_temuan', 'like', "%{$q}%")
                     ->orWhere('uraian_tindakan', 'like', "%{$q}%")
                     ->orWhere('petugas_pelaksana', 'like', "%{$q}%")
-                    ->orWhereHas('apar', fn ($aq) => $aq->where('kode', 'like', "%{$q}%"));
+                    ->orWhereHas('apar', fn ($aq) => $aq->where('kode', 'like', "%{$q}%")->orWhereHas('lokasi', fn ($loc) => $loc->where('nama', 'like', "%{$q}%")));
             });
         }
 
@@ -503,7 +524,7 @@ class LaporanController extends Controller
                     $i + 1,
                     $tl->tanggal_tindakan ? $tl->tanggal_tindakan->format('d/m/Y') : '-',
                     $tl->apar?->kode ?? '-',
-                    $tl->apar?->lokasi_lengkap ?? '-',
+                    $tl->apar?->lokasi?->nama ?? $tl->apar?->lokasi_lengkap ?? '-',
                     $tl->pemeriksaan ? 'Inspeksi '.$tl->pemeriksaan->tanggal_pemeriksaan?->format('d/m/Y') : 'Mandiri',
                     $tl->deskripsi_temuan ?: '-',
                     $tl->jenis_label,
@@ -534,6 +555,7 @@ class LaporanController extends Controller
                 'rekap' => $rekap,
                 'isPrint' => true,
                 'filtersSummary' => $filtersSummary,
+                'lokasis' => collect(),
                 'gedungs' => collect(),
                 'lantais' => collect(),
             ]);
@@ -541,6 +563,7 @@ class LaporanController extends Controller
 
         // Web View
         $tindakLanjuts = $query->paginate(15)->withQueryString();
+        $lokasis = Lokasi::where('status', '!=', Lokasi::STATUS_STOK)->orderBy('nama')->get();
         $gedungs = Gedung::orderBy('nama', 'asc')->get();
         $lantais = $request->filled('gedung_id')
             ? Lantai::where('gedung_id', $request->gedung_id)->orderBy('nomor_lantai', 'asc')->get()
@@ -551,6 +574,7 @@ class LaporanController extends Controller
             'rekap' => $rekap,
             'isPrint' => false,
             'filtersSummary' => [],
+            'lokasis' => $lokasis,
             'gedungs' => $gedungs,
             'lantais' => $lantais,
         ]);
@@ -562,7 +586,9 @@ class LaporanController extends Controller
     public function penggantian(Request $request)
     {
         $query = PenggantianApar::with([
+            'aparLama.lokasi',
             'aparLama.ruangan.lantai.gedung',
+            'aparBaru.lokasi',
             'aparBaru.ruangan.lantai.gedung',
             'user',
         ]);
@@ -575,18 +601,24 @@ class LaporanController extends Controller
             $query->whereDate('tanggal_penggantian', '<=', $request->sampai_tanggal);
         }
 
-        // 2. Filter Lokasi APAR Baru / Lama
-        if ($request->filled('gedung_id')) {
+        // 2. Filter Lokasi APAR Baru / Lama (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        if ($request->filled('lokasi_id')) {
+            $locId = $request->lokasi_id;
+            $query->where(function ($sub) use ($locId) {
+                $sub->whereHas('aparBaru', fn ($q) => $q->where('lokasi_id', $locId))
+                    ->orWhereHas('aparLama', fn ($q) => $q->where('lokasi_id', $locId));
+            });
+        } elseif ($request->filled('gedung_id')) {
             $query->where(function ($sub) use ($request) {
                 $sub->whereHas('aparBaru.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id))
                     ->orWhereHas('aparLama.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
             });
-        }
-        if ($request->filled('lantai_id')) {
-            $query->where(function ($sub) use ($request) {
-                $sub->whereHas('aparBaru.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id))
-                    ->orWhereHas('aparLama.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id));
-            });
+            if ($request->filled('lantai_id')) {
+                $query->where(function ($sub) use ($request) {
+                    $sub->whereHas('aparBaru.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)))
+                        ->orWhereHas('aparLama.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+                });
+            }
         }
         if ($request->filled('ruangan_id')) {
             $query->where(function ($sub) use ($request) {
@@ -607,8 +639,8 @@ class LaporanController extends Controller
                 $sub->where('petugas_nama', 'like', "%{$q}%")
                     ->orWhere('catatan', 'like', "%{$q}%")
                     ->orWhere('alasan_keterangan', 'like', "%{$q}%")
-                    ->orWhereHas('aparLama', fn ($aq) => $aq->where('kode', 'like', "%{$q}%"))
-                    ->orWhereHas('aparBaru', fn ($aq) => $aq->where('kode', 'like', "%{$q}%"));
+                    ->orWhereHas('aparLama', fn ($aq) => $aq->where('kode', 'like', "%{$q}%")->orWhereHas('lokasi', fn ($loc) => $loc->where('nama', 'like', "%{$q}%")))
+                    ->orWhereHas('aparBaru', fn ($aq) => $aq->where('kode', 'like', "%{$q}%")->orWhereHas('lokasi', fn ($loc) => $loc->where('nama', 'like', "%{$q}%")));
             });
         }
 
@@ -634,7 +666,7 @@ class LaporanController extends Controller
                     $p->aparBaru?->kode ?? '-',
                     $p->aparBaru?->jenis_media ?? '-',
                     $p->aparBaru?->kapasitas ?? '-',
-                    $p->aparBaru?->lokasi_lengkap ?? $p->aparLama?->lokasi_lengkap ?? '-',
+                    $p->aparBaru?->lokasi?->nama ?? $p->aparBaru?->lokasi_lengkap ?? $p->aparLama?->lokasi?->nama ?? $p->aparLama?->lokasi_lengkap ?? '-',
                     $p->alasan_label.($p->alasan_keterangan ? " ({$p->alasan_keterangan})" : ''),
                     $p->petugas_nama,
                     $p->catatan ?: '-',
@@ -660,6 +692,7 @@ class LaporanController extends Controller
                 'rekap' => $rekap,
                 'isPrint' => true,
                 'filtersSummary' => $filtersSummary,
+                'lokasis' => collect(),
                 'gedungs' => collect(),
                 'lantais' => collect(),
             ]);
@@ -667,6 +700,7 @@ class LaporanController extends Controller
 
         // Web View
         $penggantians = $query->paginate(15)->withQueryString();
+        $lokasis = Lokasi::where('status', '!=', Lokasi::STATUS_STOK)->orderBy('nama')->get();
         $gedungs = Gedung::orderBy('nama', 'asc')->get();
         $lantais = $request->filled('gedung_id')
             ? Lantai::where('gedung_id', $request->gedung_id)->orderBy('nomor_lantai', 'asc')->get()
@@ -677,6 +711,7 @@ class LaporanController extends Controller
             'rekap' => $rekap,
             'isPrint' => false,
             'filtersSummary' => [],
+            'lokasis' => $lokasis,
             'gedungs' => $gedungs,
             'lantais' => $lantais,
         ]);
@@ -717,18 +752,26 @@ class LaporanController extends Controller
             $summary['Periode'] = "{$dari} s/d {$sampai}";
         }
 
-        if ($request->filled('gedung_id')) {
+        if ($request->filled('lokasi_id')) {
+            $lok = Lokasi::find($request->lokasi_id);
+            if ($lok) {
+                $summary['Lokasi K3RS'] = $lok->nama;
+            }
+        } elseif ($request->filled('gedung_id')) {
             $g = Gedung::find($request->gedung_id);
             if ($g) {
                 $summary['Gedung'] = $g->nama;
             }
+            if ($request->filled('lantai_id')) {
+                $l = Lantai::find($request->lantai_id);
+                if ($l) {
+                    $summary['Lantai'] = $l->nama;
+                }
+            }
         }
 
-        if ($request->filled('lantai_id')) {
-            $l = Lantai::find($request->lantai_id);
-            if ($l) {
-                $summary['Lantai'] = $l->nama;
-            }
+        if ($request->filled('q')) {
+            $summary['Kata Kunci'] = $request->q;
         }
 
         if ($request->filled('status')) {
@@ -741,6 +784,28 @@ class LaporanController extends Controller
 
         if ($request->filled('hasil')) {
             $summary['Hasil'] = ucfirst(str_replace('_', ' ', $request->hasil));
+        }
+
+        if ($request->filled('status_tl')) {
+            $stlLabels = [
+                'belum_ada_tl' => 'Belum Dibuat TL',
+                'belum_ditindaklanjuti' => 'Belum Ditindaklanjuti',
+                'dalam_proses' => 'Dalam Proses',
+                'selesai' => 'Selesai',
+            ];
+            $summary['Status TL'] = $stlLabels[$request->status_tl] ?? ucfirst(str_replace('_', ' ', $request->status_tl));
+        }
+
+        if ($request->filled('pemeriksa')) {
+            $summary['Pemeriksa'] = $request->pemeriksa;
+        }
+
+        if ($request->filled('petugas_pelaksana')) {
+            $summary['Petugas Pelaksana'] = $request->petugas_pelaksana;
+        }
+
+        if ($request->filled('jenis_media')) {
+            $summary['Jenis Media'] = $request->jenis_media;
         }
 
         if ($request->filled('jenis_tindakan')) {

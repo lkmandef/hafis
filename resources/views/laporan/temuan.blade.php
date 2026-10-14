@@ -180,27 +180,14 @@
                             class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
                     </div>
 
-                    <!-- Gedung -->
+                    <!-- Lokasi K3RS -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Gedung</label>
-                        <select name="gedung_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
-                            <option value="">Semua Gedung</option>
-                            @foreach($gedungs as $g)
-                                <option value="{{ $g->id }}" {{ request('gedung_id') == $g->id ? 'selected' : '' }}>
-                                    {{ $g->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- Lantai -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lantai</label>
-                        <select name="lantai_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
-                            <option value="">Semua Lantai</option>
-                            @foreach($lantais as $l)
-                                <option value="{{ $l->id }}" {{ request('lantai_id') == $l->id ? 'selected' : '' }}>
-                                    Lt. {{ $l->nomor_lantai }} - {{ $l->nama }}
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lokasi K3RS</label>
+                        <select name="lokasi_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                            <option value="">Semua Lokasi K3RS</option>
+                            @foreach($lokasis as $lok)
+                                <option value="{{ $lok->id }}" {{ (string) request('lokasi_id') === (string) $lok->id ? 'selected' : '' }}>
+                                    {{ $lok->nama }}
                                 </option>
                             @endforeach
                         </select>
@@ -219,7 +206,7 @@
                     </div>
 
                     <!-- Pencarian Teks -->
-                    <div class="lg:col-span-3">
+                    <div class="lg:col-span-4">
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Cari Parameter / Catatan Temuan / Kode APAR</label>
                         <input
                             type="text"
