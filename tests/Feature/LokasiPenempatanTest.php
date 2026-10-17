@@ -13,6 +13,13 @@ class LokasiPenempatanTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     /**
      * Halaman index struktur lokasi dapat diakses
      */

@@ -98,7 +98,7 @@ class JadwalController extends Controller
             'status.required' => 'Status jadwal wajib dipilih.',
         ]);
 
-        $validated['dibuat_oleh'] = $validated['dibuat_oleh'] ?: (auth()->user()?->name ?? 'Admin K3RS');
+        $validated['dibuat_oleh'] = auth()->check() ? auth()->user()->name : ($validated['dibuat_oleh'] ?: 'Admin K3RS');
         $validated['user_id'] = auth()->id();
 
         // Otomatisasi status awal jika status dipilih belum_dimulai/berjalan

@@ -19,6 +19,13 @@ class LaporanTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     private function createHierarchy(): array
     {
         $gedung = Gedung::create([

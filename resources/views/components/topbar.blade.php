@@ -66,14 +66,18 @@
             <span class="w-2 h-2 bg-rose-500 rounded-full absolute top-2 right-2 ring-2 ring-white"></span>
         </button>
 
-        <!-- Petugas Info -->
+        <!-- Petugas / User Info Dinamis -->
         <div class="flex items-center gap-2 pl-1.5 sm:pl-2 border-l border-slate-200 shrink-0">
-            <div class="w-7 h-7 rounded-md bg-slate-800 text-white font-bold text-[11px] flex items-center justify-center">
-                K3
+            <div class="w-7 h-7 rounded-md bg-slate-900 text-white font-bold text-[11px] flex items-center justify-center shrink-0">
+                {{ strtoupper(substr(auth()->user()?->name ?? 'K3', 0, 2)) }}
             </div>
             <div class="hidden sm:block text-left">
-                <span class="block text-xs font-semibold text-slate-800 leading-tight">Petugas K3RS</span>
-                <span class="block text-[10px] text-slate-500 leading-tight">Shift Pagi</span>
+                <span class="block text-xs font-semibold text-slate-800 leading-tight truncate max-w-[150px]">
+                    {{ auth()->user()?->name ?? 'Petugas K3RS' }}
+                </span>
+                <span class="block text-[10px] text-slate-500 leading-tight">
+                    {{ auth()->user()?->role_label ?? 'Petugas K3RS' }}
+                </span>
             </div>
         </div>
     </div>

@@ -17,6 +17,13 @@ class Phase1DomainFoundationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     private function createLegacyRuangan(): Ruangan
     {
         $uid = uniqid();

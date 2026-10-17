@@ -37,6 +37,7 @@ class LaporanLokasiFilterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->actingAsAdmin();
 
         // 1. Fallback legacy hierarchy (mirrors production seeder where all APAR point to fallback ruangan_id = 1)
         $gedung = Gedung::create([

@@ -18,6 +18,13 @@ class DashboardTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsPetugas();
+    }
+
     private function createHierarchy(): array
     {
         $gedung = Gedung::create([

@@ -13,6 +13,13 @@ class ScanQrScannerTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsPetugas();
+    }
+
     /**
      * Buat unit APAR IGD-01 standar dengan token test tervalidasi
      */

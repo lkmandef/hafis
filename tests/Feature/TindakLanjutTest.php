@@ -18,6 +18,13 @@ class TindakLanjutTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     private function createDummyHierarchy(): array
     {
         $gedung = Gedung::create([
@@ -101,6 +108,7 @@ class TindakLanjutTest extends TestCase
         $createResponse->assertSee($detailRusak->item_nama);
 
         // 2. Submit form tindak lanjut
+        $this->actingAsPetugas(['name' => 'Budi Setiawan K3RS']);
         $payload = [
             'apar_id' => $apar->id,
             'pemeriksaan_id' => $pemeriksaan->id,

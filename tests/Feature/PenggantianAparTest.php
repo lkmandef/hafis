@@ -18,6 +18,13 @@ class PenggantianAparTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     private function createHierarchy(): array
     {
         $gedung = Gedung::create([
@@ -98,6 +105,7 @@ class PenggantianAparTest extends TestCase
             'salin_titik_denah' => 1,
         ];
 
+        $this->actingAsAdmin(['name' => 'Ahmad Teknisi K3RS']);
         $responseStore = $this->post(route('apar.ganti.store', $aparLama->id), $payload);
 
         // Cari unit baru di database
@@ -479,6 +487,7 @@ class PenggantianAparTest extends TestCase
             'petugas_nama' => 'Koordinator K3RS',
         ];
 
+        $this->actingAsAdmin(['name' => 'Koordinator K3RS']);
         $this->post(route('apar.ganti.store', $aparLama->id), $payload);
         $penggantian = PenggantianApar::first();
 

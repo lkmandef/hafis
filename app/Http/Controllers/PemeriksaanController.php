@@ -356,14 +356,16 @@ class PemeriksaanController extends Controller
         // Cek keberadaan record pemeriksaan untuk periode yang sama (baik alur mandiri maupun terjadwal)
         $existing = Pemeriksaan::findByAparPeriod($apar->id, $periodeTahun, $periodeBulan);
 
+        $pemeriksaNama = auth()->check() ? auth()->user()->name : $validated['pemeriksa_nama'];
+
         try {
-            $pemeriksaan = DB::transaction(function () use ($apar, $jadwal, $validated, $hasilKeseluruhan, $fotoPath, $tanggalPemeriksaan, $periodeTahun, $periodeBulan, $existing, $canonicalItems) {
+            $pemeriksaan = DB::transaction(function () use ($apar, $jadwal, $validated, $pemeriksaNama, $hasilKeseluruhan, $fotoPath, $tanggalPemeriksaan, $periodeTahun, $periodeBulan, $existing, $canonicalItems) {
                 if ($existing) {
                     // Alur Koreksi: Perbarui record yang ada tanpa mengubah ID atau membuat duplikat
                     $existing->update([
                         'jadwal_id' => $jadwal?->id ?? $existing->jadwal_id,
                         'user_id' => auth()->id() ?? $existing->user_id,
-                        'pemeriksa_nama' => $validated['pemeriksa_nama'],
+                        'pemeriksa_nama' => $pemeriksaNama,
                         'tanggal_pemeriksaan' => $tanggalPemeriksaan,
                         'hasil_keseluruhan' => $hasilKeseluruhan,
                         'status' => 'selesai',
@@ -412,7 +414,7 @@ class PemeriksaanController extends Controller
                         'periode_tahun' => $periodeTahun,
                         'periode_bulan' => $periodeBulan,
                         'user_id' => auth()->id(),
-                        'pemeriksa_nama' => $validated['pemeriksa_nama'],
+                        'pemeriksa_nama' => $pemeriksaNama,
                         'tanggal_pemeriksaan' => $tanggalPemeriksaan,
                         'hasil_keseluruhan' => $hasilKeseluruhan,
                         'status' => 'selesai',

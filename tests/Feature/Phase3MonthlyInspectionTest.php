@@ -18,6 +18,13 @@ class Phase3MonthlyInspectionTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     private function createOperationalApar(array $attributes = []): Apar
     {
         $lokasi = Lokasi::create([
@@ -146,6 +153,7 @@ class Phase3MonthlyInspectionTest extends TestCase
         $apar = $this->createOperationalApar();
 
         // First submission (Hasil: Baik)
+        $this->actingAsPetugas(['name' => 'Petugas Pertama']);
         $this->post(route('pemeriksaan.store'), [
             'apar_id' => $apar->id,
             'periode_tahun' => 2026,
@@ -158,6 +166,7 @@ class Phase3MonthlyInspectionTest extends TestCase
         $firstId = Pemeriksaan::where('apar_id', $apar->id)->first()->id;
 
         // Second submission for the same month/year with updated inspector & finding
+        $this->actingAsPetugas(['name' => 'Petugas Koreksi']);
         $this->post(route('pemeriksaan.store'), [
             'apar_id' => $apar->id,
             'periode_tahun' => 2026,

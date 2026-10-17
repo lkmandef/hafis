@@ -209,7 +209,9 @@ class TindakLanjutController extends Controller
             $tanggalSelesai = Carbon::today()->format('Y-m-d');
         }
 
-        $tindakLanjut = DB::transaction(function () use ($apar, $pemeriksaan, $validated, $deskripsiTemuan, $fotoPath, $tanggalSelesai) {
+        $petugasPelaksana = auth()->check() ? auth()->user()->name : $validated['petugas_pelaksana'];
+
+        $tindakLanjut = DB::transaction(function () use ($apar, $pemeriksaan, $validated, $petugasPelaksana, $deskripsiTemuan, $fotoPath, $tanggalSelesai) {
             $tl = TindakLanjut::create([
                 'apar_id' => $apar->id,
                 'pemeriksaan_id' => $pemeriksaan->id,
@@ -220,7 +222,7 @@ class TindakLanjutController extends Controller
                 'uraian_tindakan' => $validated['uraian_tindakan'],
                 'status' => $validated['status'],
                 'prioritas' => $validated['prioritas'],
-                'petugas_pelaksana' => $validated['petugas_pelaksana'],
+                'petugas_pelaksana' => $petugasPelaksana,
                 'tanggal_tindakan' => $validated['tanggal_tindakan'],
                 'tanggal_selesai' => $tanggalSelesai,
                 'catatan' => $validated['catatan'] ?? null,

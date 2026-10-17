@@ -22,6 +22,7 @@ class Phase472HardenCorrectionSeederTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->actingAsAdmin();
         $this->legacyRuangan = $this->createLegacyRuangan();
     }
 

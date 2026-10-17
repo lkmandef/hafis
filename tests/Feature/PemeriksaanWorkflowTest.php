@@ -16,6 +16,13 @@ class PemeriksaanWorkflowTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     private function createHierarchy(): array
     {
         $gedung = Gedung::create([
@@ -178,6 +185,7 @@ class PemeriksaanWorkflowTest extends TestCase
             'items' => $items,
         ];
 
+        $this->actingAsPetugas(['name' => 'Petugas K3RS Test']);
         $response = $this->post(route('pemeriksaan.store'), $payload);
 
         $this->assertDatabaseHas('pemeriksaans', [

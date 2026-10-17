@@ -20,6 +20,13 @@ class Phase2MasterDataImportTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     private function createLegacyRuangan(): Ruangan
     {
         $gedung = Gedung::create([

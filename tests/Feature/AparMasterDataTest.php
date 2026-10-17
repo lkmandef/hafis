@@ -13,6 +13,13 @@ class AparMasterDataTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     /**
      * Halaman index master data APAR dapat diakses
      */

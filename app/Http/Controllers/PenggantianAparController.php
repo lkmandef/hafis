@@ -174,7 +174,9 @@ class PenggantianAparController extends Controller
         ]);
 
         // 3. Eksekusi Atomic Transaction (Section 12)
-        [$aparBaru, $penggantian] = DB::transaction(function () use ($aparLama, $validated) {
+        $petugasNama = auth()->check() ? auth()->user()->name : $validated['petugas_nama'];
+
+        [$aparBaru, $penggantian] = DB::transaction(function () use ($aparLama, $validated, $petugasNama) {
             // A. Generate QR Code unik baru (Section 13)
             $cleanKode = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $validated['kode']));
             $qrCodeBaru = 'HAFIS-QR-'.$cleanKode.'-'.strtoupper(Str::random(6));
@@ -220,7 +222,7 @@ class PenggantianAparController extends Controller
                 'alasan' => $validated['alasan'],
                 'alasan_keterangan' => $validated['alasan_keterangan'] ?? null,
                 'catatan' => $validated['catatan'] ?? null,
-                'petugas_nama' => $validated['petugas_nama'],
+                'petugas_nama' => $petugasNama,
                 'user_id' => auth()->id(),
             ]);
 

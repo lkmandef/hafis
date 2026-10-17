@@ -15,6 +15,13 @@ class Phase411HasilInspeksiUiConsistencyTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAdmin();
+    }
+
     private function createOperationalApar(array $attributes = []): Apar
     {
         $lokasi = Lokasi::create([
