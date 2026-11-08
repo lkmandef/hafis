@@ -223,7 +223,6 @@ class AuthorizationAndRoleTest extends TestCase
         $this->get(route('penggantian.index'))->assertStatus(200);
         $this->get(route('laporan.index'))->assertStatus(200);
         $this->get(route('lokasi.index'))->assertStatus(200);
-        $this->get(route('penempatan.index'))->assertStatus(200);
 
         // 2. Admin
         $this->actingAsAdmin();
@@ -236,6 +235,5 @@ class AuthorizationAndRoleTest extends TestCase
         $this->get(route('penggantian.index'))->assertStatus(200);
         $this->get(route('laporan.index'))->assertStatus(200);
         $this->get(route('lokasi.index'))->assertStatus(200);
-        $this->get(route('penempatan.index'))->assertStatus(200);
     }
 }

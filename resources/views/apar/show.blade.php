@@ -1,11 +1,11 @@
 <x-layouts.app title="HAFIS : Detail APAR {{ $apar->kode }}">
     <!-- 1. Page Header with Breadcrumb & Kode Identitas -->
-    <div class="pb-4 mb-6 border-b border-slate-200">
+    <div class="pb-4 mb-6 border-b border-gray-200">
         <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2.5 font-medium" aria-label="Breadcrumb">
-            <a href="{{ route('apar.index') }}" class="hover:text-slate-800 transition-colors">Data APAR</a>
-            <span class="text-slate-300">/</span>
-            <span class="text-slate-800 font-semibold">{{ $apar->kode }}</span>
+        <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2.5 font-medium" aria-label="Breadcrumb">
+            <a href="{{ route('apar.index') }}" class="hover:text-gray-900 transition-colors">Data APAR</a>
+            <span class="text-gray-300">/</span>
+            <span class="text-gray-900 font-medium font-mono">{{ $apar->kode }}</span>
         </nav>
 
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -13,21 +13,21 @@
             <div class="space-y-1">
                 <div class="flex items-center gap-2.5">
                     <a href="{{ route('apar.index') }}" 
-                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition shrink-0" 
+                       class="inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 border border-gray-200 transition shrink-0 min-h-[40px] min-w-[40px]" 
                        title="Kembali ke Data APAR"
                        aria-label="Kembali ke Data APAR">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
                     </a>
-                    <h1 class="font-mono text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                    <h1 class="font-mono text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight">
                         {{ $apar->kode }}
                     </h1>
                     <x-badge :variant="$apar->status_badge_variant" :dot="true">
                         {{ $apar->status_label }}
                     </x-badge>
                 </div>
-                <p class="text-xs text-slate-500 flex items-center gap-1.5 pl-10.5">
+                <p class="text-xs text-gray-500 flex items-center gap-1.5 pl-10.5">
                     <span>{{ $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? 'Area Umum' }}</span>
                     <span>&bull;</span>
                     <span>{{ $apar->lokasi ? ($apar->lokasi->keterangan ?? 'Titik Master K3RS') : ('Lantai ' . ($apar->lantai?->nomor_lantai ?? '-') . ' ' . ($apar->gedung?->nama ?? '')) }}</span>
@@ -38,49 +38,32 @@
             <div class="flex flex-wrap items-center gap-2">
                 @if($apar->can_be_replaced)
                     <a href="{{ route('apar.ganti', $apar->id) }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-amber-900 bg-amber-50 border border-amber-300 hover:bg-amber-100 hover:border-amber-400 transition min-h-[40px]">
-                        <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                       class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-amber-800 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition min-h-[40px]">
+                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
                         <span>Ganti APAR</span>
                     </a>
                 @endif
 
-                <a href="{{ route('apar.cetak_qr', $apar->id) }}" target="_blank"
-                   class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[40px]">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                    </svg>
-                    <span>Cetak QR</span>
-                </a>
-
-                <a href="{{ url('/penempatan?lantai=' . ($apar->lantai?->nomor_lantai ?? 1) . '&highlight=' . $apar->kode) }}" 
-                   class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[40px]">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span>Titik Denah</span>
-                </a>
-
                 <a href="{{ route('apar.edit', $apar->id) }}" 
-                   class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[40px]">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                   class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition min-h-[40px]">
+                    <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                     </svg>
                     <span>Edit Data</span>
                 </a>
 
                 @if($apar->status === 'tidak_aktif')
-                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed min-h-[40px]" title="APAR berstatus tidak aktif tidak dapat diperiksa">
-                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed min-h-[40px]" title="APAR berstatus tidak aktif tidak dapat diperiksa">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
                         </svg>
                         <span>Tidak Aktif</span>
                     </span>
                 @elseif($apar->lokasi && $apar->lokasi->status === \App\Models\Lokasi::STATUS_STOK)
-                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed min-h-[40px]" title="APAR berada di gudang stok sediaan">
-                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <span class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed min-h-[40px]" title="APAR berada di gudang stok sediaan">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
                         <span>Stok Sediaan</span>
@@ -99,8 +82,8 @@
                         }
                     @endphp
                     <a href="{{ route('pemeriksaan.create', $periksaParams) }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg text-white bg-slate-900 hover:bg-slate-800 transition shadow-2xs min-h-[40px]">
-                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 transition min-h-[40px]">
+                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <span>Mulai Pemeriksaan</span>
@@ -112,7 +95,7 @@
 
     <!-- Feedback Alerts: Sukses, Warning, Error -->
     @if(session('success'))
-        <div class="mb-6 p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+        <div class="mb-6 p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs flex items-center justify-between gap-3" role="alert">
             <div class="flex items-center gap-2.5">
                 <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -121,14 +104,14 @@
                 </span>
                 <span class="font-medium">{{ session('success') }}</span>
             </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-900 font-bold text-sm leading-none focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Tutup notifikasi">
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-900 font-bold text-sm leading-none focus:outline-none min-h-[36px] min-w-[36px] flex items-center justify-center" aria-label="Tutup notifikasi">
                 &times;
             </button>
         </div>
     @endif
 
     @if(session('warning'))
-        <div class="mb-6 p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+        <div class="mb-6 p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 text-xs flex items-center justify-between gap-3" role="alert">
             <div class="flex items-center gap-2.5">
                 <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -137,23 +120,23 @@
                 </span>
                 <span class="font-medium">{{ session('warning') }}</span>
             </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-amber-700 hover:text-amber-900 font-bold text-sm leading-none focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Tutup notifikasi">
+            <button type="button" onclick="this.parentElement.remove()" class="text-amber-700 hover:text-amber-900 font-bold text-sm leading-none focus:outline-none min-h-[36px] min-w-[36px] flex items-center justify-center" aria-label="Tutup notifikasi">
                 &times;
             </button>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="mb-6 p-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-900 text-xs flex items-center justify-between gap-3 shadow-2xs" role="alert">
+        <div class="mb-6 p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-900 text-xs flex items-center justify-between gap-3" role="alert">
             <div class="flex items-center gap-2.5">
-                <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0">
+                <span class="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center shrink-0">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </span>
                 <span class="font-medium">{{ session('error') }}</span>
             </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-rose-700 hover:text-rose-900 font-bold text-sm leading-none focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Tutup notifikasi">
+            <button type="button" onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900 font-bold text-sm leading-none focus:outline-none min-h-[36px] min-w-[36px] flex items-center justify-center" aria-label="Tutup notifikasi">
                 &times;
             </button>
         </div>
@@ -161,20 +144,20 @@
 
     @if($apar->is_replaced)
         <!-- Banner APAR Lama yang Sudah Diganti -->
-        <div class="mb-6 p-4 rounded-xl border border-rose-200 bg-rose-50/90 text-rose-950 text-xs shadow-2xs" role="alert">
+        <div class="mb-6 p-4 rounded-xl border border-red-200 bg-red-50/80 text-red-950 text-xs" role="alert">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-start gap-3">
-                    <span class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                    <span class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shrink-0 mt-0.5 font-bold">
                         !
                     </span>
                     <div>
-                        <h4 class="font-bold text-rose-900 text-sm">Unit APAR Ini Sudah Tidak Aktif (Sudah Diganti)</h4>
-                        <p class="text-rose-800 mt-1 leading-relaxed">
+                        <h4 class="font-semibold text-red-900 text-sm">Unit APAR Ini Sudah Tidak Aktif (Sudah Diganti)</h4>
+                        <p class="text-red-800 mt-1 leading-relaxed">
                             Unit tabung fisik ini telah dinonaktifkan karena telah digantikan oleh unit baru 
-                            <strong class="font-mono text-rose-950">{{ $apar->aparPengganti?->kode ?? 'Unit Baru' }}</strong> 
+                            <strong class="font-mono text-red-950">{{ $apar->aparPengganti?->kode ?? 'Unit Baru' }}</strong> 
                             pada tanggal {{ $apar->tanggal_nonaktif?->format('d/m/Y') ?? '-' }}.
                         </p>
-                        <p class="text-rose-700 text-[11px] mt-1">
+                        <p class="text-red-700 text-[11px] mt-1">
                             Seluruh riwayat pemeriksaan, checklist, dan pemeliharaan pada halaman ini tetap tersimpan utuh sebagai historical record unit lama.
                         </p>
                     </div>
@@ -182,13 +165,13 @@
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
                     @if($apar->replaced_by_apar_id)
                         <a href="{{ route('apar.show', $apar->replaced_by_apar_id) }}" 
-                           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs transition shadow-2xs min-h-[44px]">
+                           class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-medium text-xs transition min-h-[40px]">
                             <span>Lihat APAR Pengganti ({{ $apar->aparPengganti?->kode }}) &rarr;</span>
                         </a>
                     @endif
                     @if($apar->penggantianKeluar)
                         <a href="{{ route('penggantian.show', $apar->penggantianKeluar->id) }}" 
-                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-rose-300 bg-white hover:bg-rose-50 text-rose-900 font-semibold text-xs transition min-h-[44px]">
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-red-300 bg-white hover:bg-red-50 text-red-900 font-medium text-xs transition min-h-[40px]">
                             <span>Detail Penggantian</span>
                         </a>
                     @endif
@@ -197,21 +180,21 @@
         </div>
     @elseif($apar->is_replacement)
         <!-- Banner APAR Baru Pengganti -->
-        <div class="mb-6 p-4 rounded-xl border border-sky-200 bg-sky-50/90 text-sky-950 text-xs shadow-2xs" role="alert">
+        <div class="mb-6 p-4 rounded-xl border border-blue-200 bg-blue-50/80 text-blue-950 text-xs" role="alert">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-start gap-3">
-                    <span class="w-6 h-6 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </span>
                     <div>
-                        <h4 class="font-bold text-sky-900 text-sm">Unit APAR Pengganti Aktif</h4>
-                        <p class="text-sky-800 mt-1 leading-relaxed">
+                        <h4 class="font-semibold text-blue-900 text-sm">Unit APAR Pengganti Aktif</h4>
+                        <p class="text-blue-800 mt-1 leading-relaxed">
                             Unit tabung ini adalah APAR aktif yang menggantikan unit lama 
-                            <strong class="font-mono text-sky-950">{{ $apar->aparDigantikan?->kode ?? 'Unit Lama' }}</strong>.
+                            <strong class="font-mono text-blue-950">{{ $apar->aparDigantikan?->kode ?? 'Unit Lama' }}</strong>.
                         </p>
-                        <p class="text-sky-700 text-[11px] mt-0.5">
+                        <p class="text-blue-700 text-[11px] mt-0.5">
                             Histori pemeriksaan dan checklist dimulai baru secara mandiri untuk unit ini.
                         </p>
                     </div>
@@ -219,13 +202,13 @@
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
                     @if($apar->replaces_apar_id)
                         <a href="{{ route('apar.show', $apar->replaces_apar_id) }}" 
-                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-sky-300 bg-white hover:bg-sky-50 text-sky-900 font-semibold text-xs transition min-h-[44px]">
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-300 bg-white hover:bg-blue-50 text-blue-900 font-medium text-xs transition min-h-[40px]">
                             <span>Lihat Histori Unit Lama ({{ $apar->aparDigantikan?->kode }}) &rarr;</span>
                         </a>
                     @endif
                     @if($apar->penggantianMasuk)
                         <a href="{{ route('penggantian.show', $apar->penggantianMasuk->id) }}" 
-                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs transition shadow-2xs min-h-[44px]">
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs transition min-h-[40px]">
                             <span>Detail Penggantian</span>
                         </a>
                     @endif
@@ -234,13 +217,13 @@
         </div>
     @elseif($apar->status === 'tidak_aktif')
         <!-- Status Tidak Aktif Banner -->
-        <div class="mb-6 p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-900 text-xs flex items-start gap-3 shadow-2xs" role="alert">
-            <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <div class="mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-900 text-xs flex items-start gap-3" role="alert">
+            <svg class="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
             <div>
-                <h4 class="font-bold text-rose-900">Perhatian: APAR Berstatus Tidak Aktif</h4>
-                <p class="text-rose-700 mt-0.5 leading-relaxed">
+                <h4 class="font-semibold text-red-900">Perhatian: APAR Berstatus Tidak Aktif</h4>
+                <p class="text-red-700 mt-0.5 leading-relaxed">
                     Unit tabung ini dinonaktifkan atau dalam status afkir/gudang, sehingga tidak dapat diperiksa dan tidak dianggap sebagai target pemeriksaan aktif.
                 </p>
             </div>
@@ -251,23 +234,23 @@
             $activeJadwalUnit = $apar->active_jadwal;
         @endphp
         @if($activeJadwalUnit)
-            <div class="flex mb-6 p-3.5 rounded-xl border border-sky-200 bg-sky-50 text-sky-950 text-xs items-center justify-between gap-3 shadow-2xs">
+            <div class="flex mb-6 p-3.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-950 text-xs items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
-                    <span class="w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0">
+                    <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </span>
                     <div>
-                        <span class="font-bold text-sky-950">Jadwal Inspeksi Aktif: {{ $activeJadwalUnit->nama }}</span>
-                        <span class="text-sky-700 block text-[11px] font-mono mt-0.5">
+                        <span class="font-semibold text-blue-950">Jadwal Inspeksi Aktif: {{ $activeJadwalUnit->nama }}</span>
+                        <span class="text-blue-700 block text-[11px] font-mono mt-0.5">
                             Periode {{ $activeJadwalUnit->tanggal_mulai->format('d/m/Y') }} - {{ $activeJadwalUnit->tanggal_selesai->format('d/m/Y') }}
                         </span>
                     </div>
                 </div>
             </div>
         @else
-            <div class="flex mb-6 p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-950 text-xs items-center justify-between gap-3 shadow-2xs">
+            <div class="flex mb-6 p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-950 text-xs items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
                     <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -275,7 +258,7 @@
                         </svg>
                     </span>
                     <div>
-                        <span class="font-bold text-amber-950">APAR ini belum memiliki jadwal inspeksi aktif.</span>
+                        <span class="font-semibold text-amber-950">APAR ini belum memiliki jadwal inspeksi aktif.</span>
                         <span class="text-amber-700 block text-[11px] mt-0.5">
                             Pemeriksaan mandiri (ad-hoc) tetap dapat dimulai jika diperlukan oleh SOP K3RS Rumah Sakit.
                         </span>
@@ -285,53 +268,53 @@
         @endif
     @endif
 
-    <!-- Grid Detail Informasi & Riwayat APAR: Kolom Kiri (8/12) & Kolom Kanan (4/12) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+    <!-- Grid Detail Informasi & Riwayat APAR: Kolom Kiri (8/12) & Kolom Kanan (4/12) - Reordered on Mobile for F-06 -->
+    <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-start">
 
         <!-- ==================================================================
-             KOLOM KIRI ATAS (8/12): Spesifikasi Teknis, Lokasi, Waktu & Catatan
+             KOLOM KIRI (8/12 Desktop, Order 2 Mobile): Spesifikasi Teknis, Riwayat
              ================================================================== -->
-        <div class="lg:col-span-8 space-y-4">
+        <div class="order-2 lg:order-1 lg:col-span-8 space-y-6 w-full">
 
             <!-- Card 1: Identitas & Spesifikasi Teknis -->
             <x-card title="Spesifikasi Teknis APAR" subtitle="Informasi tabung dan media pemadam yang terdaftar di rumah sakit.">
                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-xs">
                     <!-- Kode APAR -->
-                    <div class="pb-3 border-b border-slate-100">
-                        <dt class="font-semibold text-slate-500 mb-1">Kode Tabung APAR</dt>
-                        <dd class="font-mono font-bold text-slate-900 text-sm tabular-nums">{{ $apar->kode }}</dd>
+                    <div class="pb-3 border-b border-gray-100">
+                        <dt class="font-medium text-gray-500 mb-1">Kode Tabung APAR</dt>
+                        <dd class="font-mono font-semibold text-gray-900 text-sm tabular-nums">{{ $apar->kode }}</dd>
                     </div>
 
                     <!-- Nomor Register / Aset -->
-                    <div class="pb-3 border-b border-slate-100">
-                        <dt class="font-semibold text-slate-500 mb-1">Nomor Register RS</dt>
-                        <dd class="font-mono font-medium text-slate-900 text-sm">
+                    <div class="pb-3 border-b border-gray-100">
+                        <dt class="font-medium text-gray-500 mb-1">Nomor Register RS</dt>
+                        <dd class="font-mono font-medium text-gray-900 text-sm">
                             {{ $apar->nomor_register ?: 'Belum dicatat' }}
                         </dd>
                     </div>
 
                     <!-- Jenis Media -->
-                    <div class="pb-3 border-b border-slate-100">
-                        <dt class="font-semibold text-slate-500 mb-1">Jenis Media Pemadam</dt>
-                        <dd class="font-medium text-slate-900 text-sm">{{ $apar->jenis_media }}</dd>
+                    <div class="pb-3 border-b border-gray-100">
+                        <dt class="font-medium text-gray-500 mb-1">Jenis Media Pemadam</dt>
+                        <dd class="font-medium text-gray-900 text-sm">{{ $apar->jenis_media }}</dd>
                     </div>
 
                     <!-- Kapasitas Tabung -->
-                    <div class="pb-3 border-b border-slate-100">
-                        <dt class="font-semibold text-slate-500 mb-1">Kapasitas Tabung</dt>
-                        <dd class="font-medium text-slate-900 text-sm font-mono">{{ $apar->kapasitas }}</dd>
+                    <div class="pb-3 border-b border-gray-100">
+                        <dt class="font-medium text-gray-500 mb-1">Kapasitas Tabung</dt>
+                        <dd class="font-medium text-gray-900 text-sm font-mono">{{ $apar->kapasitas }}</dd>
                     </div>
 
                     <!-- Merek -->
-                    <div class="pb-3 border-b border-slate-100">
-                        <dt class="font-semibold text-slate-500 mb-1">Merek Tabung</dt>
-                        <dd class="font-medium text-slate-900 text-sm {{ ! $apar->merek ? 'text-slate-400 italic' : '' }}">{{ $apar->merek ?: 'Belum terdata' }}</dd>
+                    <div class="pb-3 border-b border-gray-100">
+                        <dt class="font-medium text-gray-500 mb-1">Merek Tabung</dt>
+                        <dd class="font-medium text-gray-900 text-sm {{ ! $apar->merek ? 'text-gray-400 italic' : '' }}">{{ $apar->merek ?: 'Belum terdata' }}</dd>
                     </div>
 
                     <!-- Tipe / Model -->
-                    <div class="pb-3 border-b border-slate-100">
-                        <dt class="font-semibold text-slate-500 mb-1">Tipe / Model Fisik</dt>
-                        <dd class="font-medium text-slate-900 text-sm">{{ $apar->tipe_model ?: '-' }}</dd>
+                    <div class="pb-3 border-b border-gray-100">
+                        <dt class="font-medium text-gray-500 mb-1">Tipe / Model Fisik</dt>
+                        <dd class="font-medium text-gray-900 text-sm">{{ $apar->tipe_model ?: '-' }}</dd>
                     </div>
                 </dl>
             </x-card>
@@ -340,119 +323,77 @@
             <x-card title="Lokasi Penempatan" subtitle="Posisi fisik tabung mengikuti hierarki Gedung, Lantai, dan Ruangan atau Area.">
                 <dl class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-4 text-xs mb-4">
                     <!-- Gedung -->
-                    <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                        <dt class="font-semibold text-slate-500 text-[11px] uppercase tracking-wider mb-1">Gedung</dt>
-                        <dd class="font-bold text-slate-900 text-sm">
+                    <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                        <dt class="font-medium text-gray-500 text-[11px] uppercase tracking-wider mb-1">Gedung</dt>
+                        <dd class="font-semibold text-gray-900 text-sm">
                             {{ $apar->gedung?->nama ?? '-' }}
                         </dd>
-                        <div class="text-[11px] text-slate-400 font-mono mt-0.5">
+                        <div class="text-[11px] text-gray-400 font-mono mt-0.5">
                             Kode: {{ $apar->gedung?->kode ?? '-' }}
                         </div>
                     </div>
 
                     <!-- Lantai -->
-                    <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                        <dt class="font-semibold text-slate-500 text-[11px] uppercase tracking-wider mb-1">Lantai</dt>
-                        <dd class="font-bold text-slate-900 text-sm">
+                    <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                        <dt class="font-medium text-gray-500 text-[11px] uppercase tracking-wider mb-1">Lantai</dt>
+                        <dd class="font-semibold text-gray-900 text-sm">
                             {{ $apar->lantai?->nama ?? '-' }}
                         </dd>
-                        <div class="text-[11px] text-slate-400 mt-0.5">
-                            Nomor Lantai: {{ $apar->lantai?->nomor_lantai ?? '-' }}
+                        <div class="text-[11px] text-gray-400 mt-0.5">
+                            Nomor Lantai: <span class="font-mono">{{ $apar->lantai?->nomor_lantai ?? '-' }}</span>
                         </div>
                     </div>
 
                     <!-- Ruangan / Area -->
-                    <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                        <dt class="font-semibold text-slate-500 text-[11px] uppercase tracking-wider mb-1">Lokasi / Ruangan</dt>
-                        <dd class="font-bold text-slate-900 text-sm">
+                    <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                        <dt class="font-medium text-gray-500 text-[11px] uppercase tracking-wider mb-1">Lokasi / Ruangan</dt>
+                        <dd class="font-semibold text-gray-900 text-sm">
                             {{ $apar->lokasi?->nama ?? $apar->ruangan?->nama ?? '-' }}
                         </dd>
-                        <div class="text-[11px] text-slate-400 mt-0.5">
+                        <div class="text-[11px] text-gray-400 mt-0.5">
                             {{ $apar->lokasi ? ($apar->lokasi->keterangan ?? 'Titik Master K3RS') : ($apar->ruangan?->kategori ?: 'Area umum') }}
                         </div>
                     </div>
                 </dl>
 
                 <!-- Posisi Detail -->
-                <div class="pt-3 border-t border-slate-100 text-xs">
-                    <span class="block font-semibold text-slate-500 mb-1">Detail Posisi Spesifik</span>
-                    <p class="text-slate-800 leading-relaxed bg-slate-50/70 p-3 rounded-lg border border-slate-200">
+                <div class="pt-3 border-t border-gray-100 text-xs">
+                    <span class="block font-medium text-gray-500 mb-1">Detail Posisi Spesifik</span>
+                    <p class="text-gray-800 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-200">
                         {{ $apar->posisi_detail ?: 'Belum ada catatan detail posisi bracket/dinding.' }}
                     </p>
-                </div>
-
-                <!-- Status & Titik Penempatan Denah -->
-                <div class="pt-3 border-t border-slate-100 text-xs">
-                    <div class="flex items-center justify-between pb-1.5">
-                        <span class="font-semibold text-slate-700">Posisi Titik pada Denah Lantai</span>
-                        @if($apar->has_titik)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                                Titik Ditentukan
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-                                Posisi denah belum ditentukan
-                            </span>
-                        @endif
-                    </div>
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                        <div>
-                            @if($apar->has_titik)
-                                <span class="text-slate-700 font-medium">Koordinat Denah:</span>
-                                <span class="font-mono text-slate-900 font-bold ml-1">X: {{ $apar->koordinat_x }}%, Y: {{ $apar->koordinat_y }}%</span>
-                                <span class="text-slate-400 block text-[11px] mt-0.5">Relatif terhadap container denah lantai {{ $apar->lantai?->nama }}.</span>
-                            @else
-                                <span class="text-slate-600 font-medium">Posisi denah belum ditentukan</span>
-                                <span class="text-slate-400 block text-[11px] mt-0.5">APAR ini belum ditempatkan pada denah lantai {{ $apar->lantai?->nama ?? 'terkait' }}.</span>
-                            @endif
-                        </div>
-                        <div>
-                            <a
-                                href="{{ route('penempatan.index', ['gedung_id' => $apar->gedung_id, 'lantai_id' => $apar->lantai_id, 'highlight' => $apar->kode_apar]) }}"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-900/20"
-                            >
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                <span>{{ $apar->has_titik ? 'Lihat di Denah' : 'Atur Titik pada Denah' }}</span>
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </x-card>
 
             <!-- Card 3: Informasi Waktu & Catatan -->
             <x-card title="Informasi Waktu & Catatan" subtitle="Tanggal operasional tabung dan catatan khusus K3RS.">
                 <dl class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 text-xs mb-4">
-                    <div class="pb-2 border-b border-slate-100 sm:border-b-0">
-                        <dt class="font-semibold text-slate-500 mb-1">Tanggal Pemasangan</dt>
-                        <dd class="font-mono font-medium text-slate-900">
+                    <div class="pb-2 border-b border-gray-100 sm:border-b-0">
+                        <dt class="font-medium text-gray-500 mb-1">Tanggal Pemasangan</dt>
+                        <dd class="font-mono font-medium text-gray-900">
                             {{ $apar->tanggal_pemasangan ? $apar->tanggal_pemasangan->format('d/m/Y') : 'Belum dicatat' }}
                         </dd>
                     </div>
 
-                    <div class="pb-2 border-b border-slate-100 sm:border-b-0">
-                        <dt class="font-semibold text-slate-500 mb-1">Kedaluwarsa Media</dt>
-                        <dd class="font-mono font-medium text-slate-900">
+                    <div class="pb-2 border-b border-gray-100 sm:border-b-0">
+                        <dt class="font-medium text-gray-500 mb-1">Kedaluwarsa Media</dt>
+                        <dd class="font-mono font-medium text-gray-900">
                             {{ $apar->tanggal_kadaluarsa ? $apar->tanggal_kadaluarsa->format('d/m/Y') : 'Belum dicatat' }}
                         </dd>
                     </div>
 
                     <div>
-                        <dt class="font-semibold text-slate-500 mb-1">Pemeriksaan Terakhir</dt>
-                        <dd class="font-mono font-medium text-slate-900">
+                        <dt class="font-medium text-gray-500 mb-1">Pemeriksaan Terakhir</dt>
+                        <dd class="font-mono font-medium text-gray-900">
                             {{ $apar->tanggal_pemeriksaan_terakhir ? $apar->tanggal_pemeriksaan_terakhir->format('d/m/Y') : 'Belum ada data' }}
                         </dd>
                     </div>
                 </dl>
 
                 @if($apar->keterangan)
-                    <div class="pt-3 border-t border-slate-100 text-xs">
-                        <span class="block font-semibold text-slate-500 mb-1">Catatan Tambahan</span>
-                        <p class="text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/60 p-3 rounded-lg border border-slate-200">
+                    <div class="pt-3 border-t border-gray-100 text-xs">
+                        <span class="block font-medium text-gray-500 mb-1">Catatan Tambahan</span>
+                        <p class="text-gray-700 leading-relaxed whitespace-pre-line bg-gray-50 p-3 rounded-lg border border-gray-200">
                             {{ $apar->keterangan }}
                         </p>
                     </div>
@@ -461,30 +402,30 @@
 
             <!-- Card D: Tabel Log Pemeriksaan APAR Lengkap -->
             <x-card title="Log Pemeriksaan APAR" subtitle="Riwayat seluruh verifikasi fisik berkala yang pernah dilakukan untuk unit ini.">
-                <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600">
-                                <th class="px-4 py-3 font-bold whitespace-nowrap">Tanggal Pemeriksaan</th>
-                                <th class="px-4 py-3 font-bold">Jadwal Inspeksi</th>
-                                <th class="px-4 py-3 font-bold whitespace-nowrap">Pemeriksa</th>
-                                <th class="px-4 py-3 font-bold text-center whitespace-nowrap">Hasil</th>
-                                <th class="px-4 py-3 font-bold">Catatan Singkat</th>
-                                <th class="px-4 py-3 font-bold text-right whitespace-nowrap">Aksi</th>
+                            <tr class="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-xs font-medium uppercase tracking-wider">
+                                <th class="px-4 py-3 whitespace-nowrap">Tanggal Pemeriksaan</th>
+                                <th class="px-4 py-3">Jadwal Inspeksi</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Pemeriksa</th>
+                                <th class="px-4 py-3 text-center whitespace-nowrap">Hasil</th>
+                                <th class="px-4 py-3">Catatan Singkat</th>
+                                <th class="px-4 py-3 text-right whitespace-nowrap">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white text-slate-700">
+                        <tbody class="divide-y divide-gray-200 bg-white text-gray-700">
                             @php
-                                $logPemeriksaans = $apar->pemeriksaans()->with(['jadwal'])->get();
+                                $logPemeriksaans = $apar->pemeriksaans;
                             @endphp
                             @forelse($logPemeriksaans as $p)
-                                <tr class="hover:bg-slate-50/70 transition-colors">
-                                    <td class="px-4 py-3 font-mono font-medium text-slate-900 whitespace-nowrap tabular-nums">
+                                <tr class="hover:bg-gray-50/60 transition-colors">
+                                    <td class="px-4 py-3 font-mono font-medium text-gray-900 whitespace-nowrap tabular-nums">
                                         {{ $p->tanggal_pemeriksaan->format('d/m/Y H:i') }}
                                     </td>
                                     <td class="px-4 py-3">
                                         @if($p->jadwal)
-                                            <a href="{{ route('jadwal.show', $p->jadwal->id) }}" class="font-semibold text-sky-800 hover:underline">
+                                            <a href="{{ route('jadwal.show', $p->jadwal->id) }}" class="font-medium text-gray-900 hover:underline">
                                                 {{ $p->jadwal->nama }}
                                             </a>
                                         @else
@@ -493,7 +434,7 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">
+                                    <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
                                         {{ $p->pemeriksa_nama }}
                                     </td>
                                     <td class="px-4 py-3 text-center whitespace-nowrap">
@@ -501,23 +442,23 @@
                                             {{ $p->hasil_label }}
                                         </x-badge>
                                     </td>
-                                    <td class="px-4 py-3 text-slate-600 max-w-xs truncate">
+                                    <td class="px-4 py-3 text-gray-500 max-w-xs truncate">
                                         {{ $p->catatan ?: '-' }}
                                     </td>
                                     <td class="px-4 py-3 text-right whitespace-nowrap">
                                         <a href="{{ route('pemeriksaan.show', $p->id) }}" 
-                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-2xs min-h-[36px]">
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-xs transition min-h-[36px]">
                                             <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                             </svg>
-                                            <span>Lihat Hasil Checklist</span>
+                                            <span>Lihat Checklist</span>
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-4 py-8 text-center text-slate-400 italic">
+                                    <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic">
                                         Belum ada log pemeriksaan fisik untuk unit APAR ini.
                                     </td>
                                 </tr>
@@ -529,47 +470,47 @@
 
             <!-- Card E: Tabel Riwayat Tindak Lanjut & Pemeliharaan APAR -->
             <x-card title="Riwayat Tindak Lanjut & Pemeliharaan APAR" subtitle="Catatan historis seluruh perbaikan, pembersihan, dan pemeliharaan komponen unit APAR ini.">
-                <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600">
-                                <th class="px-4 py-3 font-bold whitespace-nowrap">Tanggal Tindakan</th>
-                                <th class="px-4 py-3 font-bold whitespace-nowrap">Jenis Tindakan</th>
-                                <th class="px-4 py-3 font-bold">Sumber Pemeriksaan</th>
-                                <th class="px-4 py-3 font-bold">Temuan Masalah</th>
-                                <th class="px-4 py-3 font-bold text-center whitespace-nowrap">Status</th>
-                                <th class="px-4 py-3 font-bold whitespace-nowrap">Pelaksana</th>
-                                <th class="px-4 py-3 font-bold whitespace-nowrap">Tanggal Selesai</th>
-                                <th class="px-4 py-3 font-bold text-right whitespace-nowrap">Aksi</th>
+                            <tr class="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-xs font-medium uppercase tracking-wider">
+                                <th class="px-4 py-3 whitespace-nowrap">Tanggal Tindakan</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Jenis Tindakan</th>
+                                <th class="px-4 py-3">Sumber Pemeriksaan</th>
+                                <th class="px-4 py-3">Temuan Masalah</th>
+                                <th class="px-4 py-3 text-center whitespace-nowrap">Status</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Pelaksana</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Tanggal Selesai</th>
+                                <th class="px-4 py-3 text-right whitespace-nowrap">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white text-slate-700">
+                        <tbody class="divide-y divide-gray-200 bg-white text-gray-700">
                             @php
-                                $riwayatTindakLanjuts = $apar->tindakLanjuts()->with(['pemeriksaan'])->get();
+                                $riwayatTindakLanjuts = $apar->tindakLanjuts;
                             @endphp
                             @forelse($riwayatTindakLanjuts as $tl)
-                                <tr class="hover:bg-slate-50/70 transition-colors">
-                                    <td class="px-4 py-3 font-mono font-medium text-slate-900 whitespace-nowrap tabular-nums">
+                                <tr class="hover:bg-gray-50/60 transition-colors">
+                                    <td class="px-4 py-3 font-mono font-medium text-gray-900 whitespace-nowrap tabular-nums">
                                         {{ $tl->tanggal_tindakan->format('d/m/Y') }}
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap font-bold text-slate-900">
+                                    <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
                                         {{ $tl->jenis_label }}
                                     </td>
                                     <td class="px-4 py-3">
                                         @if($tl->pemeriksaan)
-                                            <a href="{{ route('pemeriksaan.show', $tl->pemeriksaan_id) }}" class="font-semibold text-sky-800 hover:underline">
+                                            <a href="{{ route('pemeriksaan.show', $tl->pemeriksaan_id) }}" class="font-medium text-gray-900 hover:underline">
                                                 Inspeksi {{ $tl->pemeriksaan->tanggal_pemeriksaan->format('d/m/Y') }}
                                             </a>
-                                            <span class="text-slate-400 block text-[10px]">Oleh: {{ $tl->pemeriksaan->pemeriksa_nama }}</span>
+                                            <span class="text-gray-400 block text-[10px]">Oleh: {{ $tl->pemeriksaan->pemeriksa_nama }}</span>
                                         @else
-                                            <span class="text-slate-400 italic text-[11px]">-</span>
+                                            <span class="text-gray-400 italic text-[11px]">-</span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 max-w-xs">
-                                        <span class="font-medium text-slate-900 block truncate" title="{{ $tl->temuan_teks }}">
+                                        <span class="font-medium text-gray-900 block truncate" title="{{ $tl->temuan_teks }}">
                                             {{ $tl->temuan_teks }}
                                         </span>
-                                        <span class="text-slate-500 block text-[10px] truncate" title="{{ $tl->uraian_tindakan }}">
+                                        <span class="text-gray-500 block text-[10px] truncate" title="{{ $tl->uraian_tindakan }}">
                                             Tindakan: {{ $tl->uraian_tindakan }}
                                         </span>
                                     </td>
@@ -578,25 +519,25 @@
                                             {{ $tl->status_label }}
                                         </x-badge>
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap font-medium text-slate-800">
+                                    <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
                                         {{ $tl->petugas_pelaksana }}
                                     </td>
-                                    <td class="px-4 py-3 font-mono text-slate-700 whitespace-nowrap tabular-nums">
+                                    <td class="px-4 py-3 font-mono text-gray-700 whitespace-nowrap tabular-nums">
                                         @if($tl->tanggal_selesai)
-                                            <span class="text-emerald-700 font-semibold">{{ $tl->tanggal_selesai->format('d/m/Y') }}</span>
+                                            <span class="text-emerald-800 font-medium">{{ $tl->tanggal_selesai->format('d/m/Y') }}</span>
                                         @else
-                                            <span class="text-slate-400 italic text-[11px]">Belum selesai</span>
+                                            <span class="text-gray-400 italic text-[11px]">Belum selesai</span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-right whitespace-nowrap">
                                         <div class="inline-flex items-center gap-1.5">
                                             <a href="{{ route('tindak-lanjut.show', $tl->id) }}"
-                                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-2xs min-h-[36px]">
-                                                <span>Lihat Detail</span>
+                                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-xs transition min-h-[36px]">
+                                                <span>Detail</span>
                                             </a>
                                             @if($tl->status !== 'selesai')
                                                 <a href="{{ route('tindak-lanjut.edit', $tl->id) }}"
-                                                   class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition min-h-[36px]">
+                                                   class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-medium text-xs transition min-h-[36px]">
                                                     <span>Update</span>
                                                 </a>
                                             @endif
@@ -605,7 +546,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-4 py-8 text-center text-slate-400 italic">
+                                    <td colspan="8" class="px-4 py-8 text-center text-gray-400 italic">
                                         Belum ada riwayat tindak lanjut atau pemeliharaan untuk unit APAR ini.
                                     </td>
                                 </tr>
@@ -621,41 +562,41 @@
                     <div class="space-y-4 text-xs">
                         @if($apar->is_replaced && $apar->penggantianKeluar)
                             @php $pk = $apar->penggantianKeluar; @endphp
-                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                            <div class="p-4 rounded-xl bg-gray-50 border border-gray-200">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-slate-500 font-semibold">Digantikan oleh:</span>
-                                        <a href="{{ route('apar.show', $pk->apar_baru_id) }}" class="font-mono font-bold text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded text-sm hover:underline">
+                                        <span class="text-gray-500 font-medium">Digantikan oleh:</span>
+                                        <a href="{{ route('apar.show', $pk->apar_baru_id) }}" class="font-mono font-semibold text-gray-900 bg-white border border-gray-200 px-2 py-0.5 rounded text-sm hover:underline">
                                             {{ $pk->aparBaru?->kode }}
                                         </a>
                                         <x-badge variant="success" :dot="true">APAR Baru Aktif</x-badge>
                                     </div>
-                                    <span class="font-mono text-slate-600 text-xs">
+                                    <span class="font-mono text-gray-600 text-xs">
                                         Tanggal Penggantian: {{ $pk->tanggal_penggantian->format('d/m/Y') }}
                                     </span>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
                                     <div>
-                                        <span class="text-slate-500 block font-semibold">Alasan Penggantian:</span>
-                                        <span class="text-slate-900 font-medium">{{ $pk->alasan_label }}</span>
+                                        <span class="text-gray-500 block font-medium">Alasan Penggantian:</span>
+                                        <span class="text-gray-900 font-medium">{{ $pk->alasan_label }}</span>
                                         @if($pk->alasan_keterangan)
-                                            <span class="text-[11px] text-slate-500 block">({{ $pk->alasan_keterangan }})</span>
+                                            <span class="text-[11px] text-gray-500 block">({{ $pk->alasan_keterangan }})</span>
                                         @endif
                                     </div>
                                     <div>
-                                        <span class="text-slate-500 block font-semibold">Petugas:</span>
-                                        <span class="text-slate-900 font-medium">{{ $pk->petugas_nama }}</span>
+                                        <span class="text-gray-500 block font-medium">Petugas:</span>
+                                        <span class="text-gray-900 font-medium">{{ $pk->petugas_nama }}</span>
                                     </div>
                                     <div class="sm:text-right">
                                         <a href="{{ route('penggantian.show', $pk->id) }}" 
-                                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-2xs min-h-[36px]">
-                                            <span>Lihat Rincian Penggantian &rarr;</span>
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-xs transition min-h-[36px]">
+                                            <span>Rincian Penggantian &rarr;</span>
                                         </a>
                                     </div>
                                 </div>
                                 @if($pk->catatan)
-                                    <div class="mt-3 pt-2.5 border-t border-slate-200/60 text-slate-600">
-                                        <span class="font-semibold text-slate-700">Catatan:</span> {{ $pk->catatan }}
+                                    <div class="mt-3 pt-2.5 border-t border-gray-200 text-gray-600">
+                                        <span class="font-medium text-gray-700">Catatan:</span> {{ $pk->catatan }}
                                     </div>
                                 @endif
                             </div>
@@ -663,41 +604,41 @@
 
                         @if($apar->is_replacement && $apar->penggantianMasuk)
                             @php $pm = $apar->penggantianMasuk; @endphp
-                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                            <div class="p-4 rounded-xl bg-gray-50 border border-gray-200">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-slate-500 font-semibold">Menggantikan Unit:</span>
-                                        <a href="{{ route('apar.show', $pm->apar_lama_id) }}" class="font-mono font-bold text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded text-sm hover:underline">
+                                        <span class="text-gray-500 font-medium">Menggantikan Unit:</span>
+                                        <a href="{{ route('apar.show', $pm->apar_lama_id) }}" class="font-mono font-semibold text-gray-900 bg-white border border-gray-200 px-2 py-0.5 rounded text-sm hover:underline">
                                             {{ $pm->aparLama?->kode }}
                                         </a>
                                         <x-badge variant="neutral" :dot="true">APAR Lama Dinonaktifkan</x-badge>
                                     </div>
-                                    <span class="font-mono text-slate-600 text-xs">
+                                    <span class="font-mono text-gray-600 text-xs">
                                         Tanggal Penggantian: {{ $pm->tanggal_penggantian->format('d/m/Y') }}
                                     </span>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
                                     <div>
-                                        <span class="text-slate-500 block font-semibold">Alasan Penggantian:</span>
-                                        <span class="text-slate-900 font-medium">{{ $pm->alasan_label }}</span>
+                                        <span class="text-gray-500 block font-medium">Alasan Penggantian:</span>
+                                        <span class="text-gray-900 font-medium">{{ $pm->alasan_label }}</span>
                                         @if($pm->alasan_keterangan)
-                                            <span class="text-[11px] text-slate-500 block">({{ $pm->alasan_keterangan }})</span>
+                                            <span class="text-[11px] text-gray-500 block">({{ $pm->alasan_keterangan }})</span>
                                         @endif
                                     </div>
                                     <div>
-                                        <span class="text-slate-500 block font-semibold">Petugas:</span>
-                                        <span class="text-slate-900 font-medium">{{ $pm->petugas_nama }}</span>
+                                        <span class="text-gray-500 block font-medium">Petugas:</span>
+                                        <span class="text-gray-900 font-medium">{{ $pm->petugas_nama }}</span>
                                     </div>
                                     <div class="sm:text-right">
                                         <a href="{{ route('penggantian.show', $pm->id) }}" 
-                                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-2xs min-h-[36px]">
-                                            <span>Lihat Rincian Penggantian &rarr;</span>
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-xs transition min-h-[36px]">
+                                            <span>Rincian Penggantian &rarr;</span>
                                         </a>
                                     </div>
                                 </div>
                                 @if($pm->catatan)
-                                    <div class="mt-3 pt-2.5 border-t border-slate-200/60 text-slate-600">
-                                        <span class="font-semibold text-slate-700">Catatan:</span> {{ $pm->catatan }}
+                                    <div class="mt-3 pt-2.5 border-t border-gray-200 text-gray-600">
+                                        <span class="font-medium text-gray-700">Catatan:</span> {{ $pm->catatan }}
                                     </div>
                                 @endif
                             </div>
@@ -708,41 +649,41 @@
         </div>
 
         <!-- ==================================================================
-             KOLOM KANAN (4/12): QR Code, Status Kesiapan, Jadwal Inspeksi
+             KOLOM KANAN (4/12 Desktop, Order 1 Mobile): QR Code, Status Kesiapan
              ================================================================== -->
-        <div class="lg:col-span-4 space-y-4">
+        <div class="order-1 lg:order-2 lg:col-span-4 space-y-6 w-full">
 
             <!-- Card A: QR Code APAR -->
             <x-card title="QR Code APAR" subtitle="Identitas fisik unik untuk verifikasi scan di lapangan.">
-                <div class="text-center p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
                     <!-- Dynamic Vector QR SVG -->
-                    <div class="mx-auto w-40 h-40 bg-white p-2.5 rounded-lg border border-slate-300 shadow-2xs flex items-center justify-center">
+                    <div class="mx-auto w-40 h-40 bg-white p-2.5 rounded-lg border border-gray-200 flex items-center justify-center">
                         {!! $apar->qr_svg !!}
                     </div>
 
                     <div class="mt-3">
-                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Identifier Unik</span>
-                        <div class="font-mono text-xs font-extrabold text-slate-800 break-all select-all mt-0.5 bg-white py-1.5 px-2 rounded border border-slate-200">
+                        <span class="text-[10px] uppercase font-medium text-gray-400 tracking-wider block">Identifier Unik</span>
+                        <div class="font-mono text-xs font-semibold text-gray-900 break-all select-all mt-0.5 bg-white py-1.5 px-2 rounded border border-gray-200">
                             {{ $apar->qr_code }}
                         </div>
                     </div>
 
-                    <p class="text-[11px] text-slate-500 mt-2.5 leading-relaxed text-left">
+                    <p class="text-xs text-gray-500 mt-2.5 leading-relaxed text-left">
                         QR Code ini dicetak dan ditempelkan pada fisik tabung APAR untuk mempermudah identifikasi saat inspeksi.
                     </p>
 
-                    <div class="mt-4 pt-3 border-t border-slate-200 flex flex-wrap items-center justify-center gap-2">
+                    <div class="mt-4 pt-3 border-t border-gray-200 flex flex-wrap items-center justify-center gap-2">
                         <a href="{{ route('apar.cetak_qr', $apar->id) }}" target="_blank"
-                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[44px]">
-                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition min-h-[40px]">
+                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                             </svg>
                             <span>Cetak Label QR</span>
                         </a>
 
                         <a href="{{ route('apar.download_qr', $apar->id) }}"
-                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[44px]">
-                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition min-h-[40px]">
+                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                             </svg>
                             <span>Download SVG</span>
@@ -755,31 +696,31 @@
             <x-card title="Status Kesiapan" subtitle="Kondisi tabung saat ini.">
                 <div class="space-y-3.5 text-xs">
                     <div>
-                        <span class="block text-slate-500 font-semibold mb-1">Status Operasional</span>
+                        <span class="block text-gray-500 font-medium mb-1">Status Operasional</span>
                         <x-badge :variant="$apar->status_badge_variant" :dot="true">
                             {{ $apar->status_label }}
                         </x-badge>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100">
-                        <span class="block text-slate-500 font-semibold mb-1">Pemeriksaan Fisik Terakhir</span>
+                    <div class="pt-3 border-t border-gray-100">
+                        <span class="block text-gray-500 font-medium mb-1">Pemeriksaan Fisik Terakhir</span>
                         @if($apar->tanggal_pemeriksaan_terakhir)
-                            <span class="font-mono font-medium text-slate-900 block tabular-nums">
+                            <span class="font-mono font-medium text-gray-900 block tabular-nums">
                                 {{ $apar->tanggal_pemeriksaan_terakhir->format('d/m/Y') }}
                             </span>
                         @else
-                            <span class="text-slate-400 italic block">Belum ada catatan pemeriksaan</span>
+                            <span class="text-gray-400 italic block">Belum ada catatan pemeriksaan</span>
                         @endif
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100">
-                        <span class="block text-slate-500 font-semibold mb-1">Masa Berlaku Media</span>
+                    <div class="pt-3 border-t border-gray-100">
+                        <span class="block text-gray-500 font-medium mb-1">Masa Berlaku Media</span>
                         @if($apar->tanggal_kadaluarsa)
-                            <span class="font-mono font-medium text-slate-900 block tabular-nums">
+                            <span class="font-mono font-medium text-gray-900 block tabular-nums">
                                 {{ $apar->tanggal_kadaluarsa->format('d/m/Y') }}
                             </span>
                         @else
-                            <span class="text-slate-400 italic block">Belum dicatat</span>
+                            <span class="text-gray-400 italic block">Belum dicatat</span>
                         @endif
                     </div>
                 </div>

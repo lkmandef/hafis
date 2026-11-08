@@ -414,10 +414,6 @@ class TindakLanjutTest extends TestCase
         $respAparShow = $this->get(route('apar.show', $apar->id));
         $respAparShow->assertStatus(200);
 
-        // Tahap 3: Penempatan Titik Denah
-        $respDenah = $this->get(route('penempatan.index'));
-        $respDenah->assertStatus(200);
-
         // Tahap 4: Jadwal Inspeksi
         $jadwal = Jadwal::create([
             'nama' => 'Inspeksi Triwulan Q4 2026',

@@ -3,12 +3,10 @@
 use App\Http\Controllers\AparController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DenahController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\PemeriksaanController;
-use App\Http\Controllers\PenempatanController;
 use App\Http\Controllers\PenggantianAparController;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\TindakLanjutController;
@@ -134,19 +132,6 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('laporan.pemeriksaan');
     });
 
-    // Modul Titik Penempatan APAR pada Denah (Lihat Denah)
-    Route::prefix('penempatan')->name('penempatan.')->group(function () {
-        Route::get('/', [PenempatanController::class, 'index'])->name('index');
-
-        // Kompatibilitas link atur lama
-        Route::get('/atur', function () {
-            return redirect()->route('penempatan.index');
-        });
-        Route::get('/atur/{id?}', function ($id = null) {
-            return redirect()->route('penempatan.index', array_filter(['highlight' => $id]));
-        });
-    });
-
     // Modul Struktur Lokasi Rumah Sakit (Lihat Struktur)
     Route::prefix('lokasi')->name('lokasi.')->group(function () {
         Route::get('/', [LokasiController::class, 'index'])->name('index');
@@ -176,11 +161,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/jadwal/{jadwal}/batalkan', [JadwalController::class, 'batalkan'])->name('jadwal.batalkan');
         Route::delete('/jadwal/{jadwal}', [JadwalController::class, 'destroy'])->name('jadwal.destroy');
 
-        // Mutasi Penempatan Titik Denah
-        Route::post('/penempatan/apar/{apar}/titik', [PenempatanController::class, 'simpanTitik'])->name('penempatan.titik.simpan');
-        Route::delete('/penempatan/apar/{apar}/titik', [PenempatanController::class, 'hapusTitik'])->name('penempatan.titik.hapus');
-
-        // Mutasi Master Struktur Lokasi (Gedung, Lantai, Denah, Ruangan)
+        // Mutasi Master Struktur Lokasi (Gedung, Lantai, Ruangan)
         Route::prefix('lokasi')->name('lokasi.')->group(function () {
             Route::post('/gedung', [LokasiController::class, 'storeGedung'])->name('gedung.store');
             Route::put('/gedung/{gedung}', [LokasiController::class, 'updateGedung'])->name('gedung.update');
@@ -189,9 +170,6 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/lantai', [LokasiController::class, 'storeLantai'])->name('lantai.store');
             Route::put('/lantai/{lantai}', [LokasiController::class, 'updateLantai'])->name('lantai.update');
             Route::delete('/lantai/{lantai}', [LokasiController::class, 'destroyLantai'])->name('lantai.destroy');
-
-            Route::post('/lantai/{lantai}/denah', [DenahController::class, 'store'])->name('lantai.denah.store');
-            Route::delete('/lantai/{lantai}/denah', [DenahController::class, 'destroy'])->name('lantai.denah.destroy');
 
             Route::post('/ruangan', [LokasiController::class, 'storeRuangan'])->name('ruangan.store');
             Route::put('/ruangan/{ruangan}', [LokasiController::class, 'updateRuangan'])->name('ruangan.update');
