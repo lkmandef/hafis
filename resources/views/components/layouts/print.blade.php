@@ -16,7 +16,7 @@
     <style>
         @page {
             size: A4 {{ $orientation }};
-            margin: 10mm 10mm 15mm 10mm;
+            margin: 10mm 10mm 14mm 10mm;
         }
 
         * {
@@ -28,13 +28,14 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             font-size: 8pt;
-            line-height: 1.3;
+            line-height: 1.35;
             color: #0f172a;
             background: #f1f5f9;
             margin: 0;
-            padding: 20px 10px;
+            padding: 24px 12px;
         }
 
+        /* Toolbar Aksi Pratinjau Layar */
         .no-print {
             max-width: {{ $orientation === 'landscape' ? '297mm' : '210mm' }};
             margin: 0 auto 16px auto;
@@ -44,41 +45,73 @@
             background: #0f172a;
             color: #ffffff;
             padding: 10px 16px;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 8.5pt;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+        }
+
+        .no-print-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .no-print-badge {
+            background: #334155;
+            color: #f8fafc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 7.5pt;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .no-print-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .no-print button, .no-print a {
-            background: #ffffff;
-            color: #0f172a;
             border: none;
             padding: 6px 14px;
-            border-radius: 6px;
-            font-weight: 700;
+            border-radius: 4px;
+            font-weight: 600;
             font-size: 8pt;
             cursor: pointer;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            transition: background 0.15s ease, opacity 0.15s ease;
         }
 
-        .no-print a {
+        .btn-print {
+            background: #ffffff;
+            color: #0f172a;
+        }
+        .btn-print:hover {
+            background: #f8fafc;
+            opacity: 0.95;
+        }
+
+        .btn-back {
             background: #334155;
             color: #f8fafc;
         }
+        .btn-back:hover {
+            background: #475569;
+        }
 
-        /* Lembar preview & cetak A4 (210mm portrait / 297mm landscape) */
+        /* Lembar Cetak A4 Fisik */
         .print-container {
             width: {{ $orientation === 'landscape' ? '297mm' : '210mm' }};
             max-width: 100%;
-            min-height: calc(var(--print-pages, 1) * {{ $orientation === 'landscape' ? '210mm' : '297mm' }});
+            min-height: {{ $orientation === 'landscape' ? '210mm' : '297mm' }};
             margin: 0 auto;
             background: #ffffff;
-            padding: 10mm 10mm 15mm 10mm;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            border-radius: 2px;
+            padding: 10mm 10mm 14mm 10mm;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
             display: flex;
             flex-direction: column;
         }
@@ -87,89 +120,94 @@
             flex: 1 0 auto;
         }
 
-        /* KOP: logo berdampingan tepat di samping blok teks kop */
+        /* KOP SURAT RESMI PEMPROV KALSEL / RSUD ANSARI SALEH */
         .header-kop {
-            text-align: center;
-        }
-
-        .kop-inner {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            padding-bottom: 6px;
-            text-align: left;
-        }
-
-        .kop-logo {
-            flex-shrink: 0;
-        }
-
-        .kop-logo img {
-            display: block;
-            object-fit: contain;
-            object-position: center;
-        }
-
-        .kop-text {
-            text-align: center;
-        }
-
-        .kop-text .kop-prov {
-            font-size: 8.5pt;
-            font-weight: 600;
-            margin: 0;
-            color: #0f172a;
-            letter-spacing: 0.2px;
-        }
-
-        .kop-text .kop-rs {
-            font-size: 14pt;
-            font-weight: 800;
-            margin: 1px 0 2px 0;
-            color: #0f172a;
-            text-transform: uppercase;
-            letter-spacing: 0.2px;
-            line-height: 1.1;
-        }
-
-        .kop-text .kop-detail {
-            font-size: 7pt;
-            color: #334155;
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        .kop-border-outer {
-            border-bottom: 3px solid #0f172a;
-            margin-bottom: 2px;
-        }
-
-        .kop-border-inner {
-            border-bottom: 1px solid #0f172a;
             margin-bottom: 12px;
         }
 
+        .kop-grid {
+            display: grid;
+            grid-template-columns: 75px 1fr 75px;
+            align-items: center;
+            padding-bottom: 8px;
+        }
+
+        .kop-logo-col {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .kop-logo-img {
+            width: 64px;
+            height: auto;
+            max-height: 72px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .kop-text-col {
+            text-align: center;
+        }
+
+        .kop-spacer-col {
+            width: 75px;
+        }
+
+        .kop-prov {
+            font-size: 9pt;
+            font-weight: 700;
+            margin: 0;
+            color: #000000;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .kop-rs {
+            font-size: 13.5pt;
+            font-weight: 800;
+            margin: 2px 0;
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.15;
+        }
+
+        .kop-detail {
+            font-size: 7.2pt;
+            color: #1e293b;
+            margin: 0;
+            line-height: 1.35;
+        }
+
+        /* Garis ganda resmi KOP naskah dinas pemerintah */
+        .kop-separator {
+            border-bottom: 3px double #000000;
+            margin-top: 4px;
+        }
+
+        /* Judul Dokumen Laporan */
         .title-section {
             text-align: center;
-            margin-bottom: 6px;
+            margin: 10px 0 6px 0;
         }
 
         .title-section h3 {
-            font-size: 10.5pt;
+            font-size: 11pt;
             font-weight: 800;
             margin: 0 0 2px 0;
             text-transform: uppercase;
-            color: #0f172a;
-            letter-spacing: 0.2px;
+            color: #000000;
+            letter-spacing: 0.3px;
         }
 
         .title-section .title-sub {
-            font-size: 7pt;
-            color: #475569;
+            font-size: 7.5pt;
+            color: #334155;
             margin: 0;
         }
 
+        /* Baris Metadata Cetak */
         .print-meta-row {
             display: flex;
             justify-content: space-between;
@@ -177,18 +215,39 @@
             font-size: 7.5pt;
             color: #475569;
             margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #cbd5e1;
         }
 
+        .meta-system {
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .meta-timestamp {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Ringkasan Filter/Parameter Laporan */
         .filter-summary {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            padding: 5px 10px;
+            background: #fafafa;
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
             margin-bottom: 10px;
-            font-size: 8pt;
+            font-size: 7.5pt;
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            align-items: center;
+            gap: 6px 14px;
+        }
+
+        .filter-heading {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 7pt;
+            color: #334155;
+            letter-spacing: 0.2px;
         }
 
         .filter-item {
@@ -197,21 +256,22 @@
         }
 
         .filter-item .label {
-            color: #64748b;
-            font-weight: 600;
+            color: #475569;
+            font-weight: 500;
         }
 
         .filter-item .val {
-            color: #0f172a;
+            color: #000000;
             font-weight: 700;
         }
 
+        /* Tabel Data Resmi & Hemat Toner */
         table.data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 7pt;
+            font-size: 7.2pt;
             line-height: 1.25;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             table-layout: auto;
         }
 
@@ -225,26 +285,26 @@
         }
 
         table.data-table th, table.data-table td {
-            border: 1px solid #cbd5e1;
-            padding: 3px 4px;
+            border: 1px solid #94a3b8;
+            padding: 4px 5px;
             text-align: left;
             vertical-align: top;
             word-wrap: break-word;
         }
 
         table.data-table th {
-            background-color: #0F172A;
-            color: #ffffff;
+            background-color: #f1f5f9;
+            color: #000000;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 6.5pt;
+            font-size: 6.8pt;
             letter-spacing: 0.2px;
             text-align: center;
-            padding: 4px 3px;
+            border-bottom: 1.5px solid #000000;
         }
 
         table.data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
+            background-color: #fbfcfd;
         }
 
         .text-center { text-align: center; }
@@ -252,23 +312,23 @@
         .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
         .font-bold { font-weight: 700; }
 
-        /* Tipografi status formal tanpa badge/pill/pastel */
+        /* Status & Badge Respon */
         .status-normal {
-            font-weight: 500;
-            color: #0f172a;
+            font-weight: 600;
+            color: #000000;
         }
 
         .status-perhatian {
-            font-weight: 600;
-            color: #0f172a;
+            font-weight: 700;
+            color: #000000;
         }
 
         .status-kritis {
-            font-weight: 700;
-            color: #0f172a;
+            font-weight: 800;
+            color: #000000;
+            text-decoration: underline;
         }
 
-        /* Reset aman untuk elemen badge agar tidak menghasilkan background pastel atau pill */
         .badge {
             display: inline;
             padding: 0;
@@ -276,39 +336,43 @@
             font-size: inherit;
             border: none;
             background: transparent !important;
-            color: #0f172a !important;
+            color: #000000 !important;
         }
-        .badge-success { font-weight: 500; }
-        .badge-warning { font-weight: 600; }
-        .badge-danger  { font-weight: 700; }
+        .badge-success { font-weight: 600; }
+        .badge-warning { font-weight: 700; }
+        .badge-danger  { font-weight: 800; }
         .badge-neutral { font-weight: 400; }
 
+        /* Blok Pengesahan & Tanda Tangan */
         .footer-signatures {
             margin-top: auto;
             break-inside: avoid;
             page-break-inside: avoid;
             font-size: 7.5pt;
-            padding-top: 16px;
+            padding-top: 18px;
         }
 
         .signature-city-date {
             text-align: right;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-size: 7.5pt;
+            padding-right: 18px;
         }
 
         .signature-cols {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
         }
 
         .signature-box {
-            width: 220px;
+            width: 230px;
             text-align: center;
         }
 
         .sig-role {
             font-weight: 400;
+            font-size: 7.5pt;
         }
 
         .sig-unit {
@@ -323,19 +387,19 @@
         }
 
         .signature-space {
-            height: 48px;
+            height: 52px;
         }
 
         .signature-name {
             font-weight: 700;
-            border-bottom: 1px solid #0f172a;
-            padding-bottom: 2px;
+            font-size: 7.5pt;
+            letter-spacing: 0.3px;
             min-height: 16px;
         }
 
         .signature-nip {
             font-size: 7pt;
-            color: #475569;
+            color: #334155;
             margin-top: 2px;
         }
 
@@ -343,35 +407,74 @@
             display: none;
         }
 
+        /* MEDIA CETAK (@media print) */
         @media print {
-            body {
-                background: #ffffff;
-                padding: 0;
-                margin: 0;
+            * {
+                color: #000000 !important;
+                text-shadow: none !important;
+                box-shadow: none !important;
             }
+
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-family: "Liberation Sans", Arial, "Helvetica Neue", sans-serif;
+            }
+
             .no-print {
                 display: none !important;
             }
+
             .print-container {
                 width: 100% !important;
                 max-width: 100% !important;
-                min-height: calc(var(--print-pages, 1) * {{ $orientation === 'landscape' ? '185mm' : '272mm' }}) !important;
+                min-height: auto !important;
+                height: auto !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                display: flex !important;
-                flex-direction: column !important;
+                display: block !important;
             }
+
             .report-content {
-                flex: 1 0 auto !important;
+                display: block !important;
             }
+
+            .print-meta-row {
+                border-bottom: 1px solid #000000 !important;
+            }
+
+            .filter-summary {
+                background: transparent !important;
+                border: 1px solid #000000 !important;
+            }
+
+            .filter-heading, .filter-item .label, .title-sub, .sig-hospital, .signature-nip {
+                color: #000000 !important;
+            }
+
+            table.data-table th, table.data-table td {
+                border: 1px solid #000000 !important;
+            }
+
+            table.data-table th {
+                background-color: #f1f5f9 !important;
+                border-bottom: 1.5px solid #000000 !important;
+            }
+
+            table.data-table tbody tr:nth-child(even) {
+                background-color: transparent !important;
+            }
+
             .footer-signatures {
-                margin-top: auto !important;
+                margin-top: 20px !important;
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
-                padding-top: 16px !important;
+                padding-top: 12px !important;
             }
+
             .print-footer {
                 display: flex;
                 justify-content: space-between;
@@ -381,73 +484,84 @@
                 left: 0;
                 right: 0;
                 padding: 4px 0 0 0;
-                border-top: 1px solid #e2e8f0;
+                border-top: 1px solid #000000;
                 font-size: 6.5pt;
-                color: #64748b;
+                color: #000000 !important;
             }
         }
     </style>
 </head>
 <body>
 
-    {{-- Bar Aksi Layar (disembunyikan saat dicetak) --}}
+    {{-- Bar Aksi Pratinjau Layar (disembunyikan otomatis saat dicetak) --}}
     <div class="no-print">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
-            <strong>Mode Cetak Laporan Resmi HAFIS (A4 {{ ucfirst($orientation) }})</strong>
+        <div class="no-print-meta">
+            <span class="no-print-badge">A4 {{ strtoupper($orientation) }}</span>
+            <strong>Mode Pratinjau Cetak &bull; Dokumen Resmi HAFIS RSUD</strong>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="no-print-actions">
             <a href="{{ request()->fullUrlWithoutQuery(['format']) }}"
+               class="btn-back"
                onclick="if (window.opener && !window.opener.closed) { try { window.close(); } catch(e) {} } if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.host) !== -1) { window.history.back(); return false; }">
-                &larr; Kembali ke Tampilan Web
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Kembali ke Web
             </a>
-            <button type="button" onclick="window.print()">
+            <button type="button" class="btn-print" onclick="window.print()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
                 Cetak Sekarang (Ctrl + P)
             </button>
         </div>
     </div>
 
-    {{-- Lembar Cetak Dokumen A4 {{ ucfirst($orientation) }} --}}
+    {{-- Lembar Fisik Dokumen Cetak --}}
     <div class="print-container" id="printContainer">
-        {{-- Kop Resmi RSUD --}}
+        {{-- KOP Surat Resmi RSUD (Optical Center Simetris 3 Kolom) --}}
         <div class="header-kop">
-            <div class="kop-inner">
-                <div class="kop-logo">
+            <div class="kop-grid">
+                <div class="kop-logo-col">
                     <img src="{{ asset('images/brand/lambang-provinsi.svg') }}"
                          alt="Lambang Provinsi Kalimantan Selatan"
-                         style="height: 66px; width: auto;" />
+                         class="kop-logo-img" />
                 </div>
-                <div class="kop-text">
+                <div class="kop-text-col">
                     <p class="kop-prov">PEMERINTAH PROVINSI KALIMANTAN SELATAN</p>
                     <p class="kop-rs">RSUD dr. H. MOCH. ANSARI SALEH</p>
                     <p class="kop-detail">
-                        Jl. Brig. Jend. H. Hasan Basri No.1 Banjarmasin, Kalimantan Selatan 70125<br>
-                        Telepon 0511-6710000, Faksimile: 0511-6710001<br>
-                        Laman http://rsas.kalselprov.go.id; Pos-el: rsas@kalselprov.go.id
+                        Jl. Brig. Jend. H. Hasan Basri No. 1 Banjarmasin, Kalimantan Selatan 70125<br>
+                        Telepon: (0511) 6710000 &bull; Faksimile: (0511) 6710001<br>
+                        Laman: http://rsas.kalselprov.go.id &bull; Pos-el: rsas@kalselprov.go.id
                     </p>
                 </div>
+                <div class="kop-spacer-col" aria-hidden="true"></div>
             </div>
-            <div class="kop-border-outer"></div>
-            <div class="kop-border-inner"></div>
+            <div class="kop-separator"></div>
         </div>
 
-        {{-- Judul Laporan --}}
+        {{-- Judul Laporan Resmi --}}
         <div class="title-section">
             <h3>{{ $reportTitle }}</h3>
-            <p class="title-sub">Instalasi K3RS &bull; RSUD dr. H. Moch. Ansari Saleh Banjarmasin &bull; Dokumen Resmi</p>
+            <p class="title-sub">Instalasi Keselamatan dan Kesehatan Kerja Rumah Sakit (K3RS) &bull; Dokumen Resmi</p>
         </div>
 
-        {{-- Meta Cetak --}}
+        {{-- Baris Metadata Cetak --}}
         <div class="print-meta-row">
-            <span>{{ $slot->isEmpty() ? '' : '' }}</span>
-            <span style="color: #1e293b; font-weight: 600;">
-                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }} - {{ now()->timezone('Asia/Makassar')->format('H:i:s') }} WITA
+            <span class="meta-system">HAFIS &ndash; Hospital APAR &amp; Fire Inspection System</span>
+            <span class="meta-timestamp">
+                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }} &bull; Pukul {{ now()->timezone('Asia/Makassar')->format('H:i') }} WITA
             </span>
         </div>
 
-        {{-- Ringkasan Filter Aktif --}}
+        {{-- Ringkasan Parameter Filter Aktif --}}
         @if(!empty($filters))
             <div class="filter-summary">
+                <span class="filter-heading">Parameter:</span>
                 @foreach($filters as $label => $val)
                     @if($val)
                         <div class="filter-item">
@@ -464,7 +578,7 @@
             {{ $slot }}
         </div>
 
-        {{-- Tanda Tangan Formal K3RS --}}
+        {{-- Tanda Tangan Formal Pengesahan K3RS --}}
         <div class="footer-signatures" id="footerSignatures">
             <div class="signature-city-date">
                 Banjarmasin, {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('d F Y') }}
@@ -489,57 +603,22 @@
         </div>
     </div>
 
-    {{-- Footer (tampil saat dicetak) --}}
+    {{-- Footer Cetak (Halaman Bawah Cetak) --}}
     <div class="print-footer">
-        <span>HAFIS &ndash; Hospital APAR &amp; Fire Inspection System &bull; Dokumen Resmi K3RS (Format Kertas: A4 {{ ucfirst($orientation) }})</span>
+        <span>HAFIS &ndash; Hospital APAR &amp; Fire Inspection System &bull; Dokumen Resmi K3RS (Format: A4 {{ ucfirst($orientation) }})</span>
         <span>RSUD dr. H. Moch. Ansari Saleh Banjarmasin</span>
     </div>
 
     <script>
         function autoFitPrintPages() {
+            // Memastikan tata letak siap dicetak melalui CSS Paged Media standar (@page & page-break)
             const container = document.getElementById('printContainer');
-            if (!container) return;
-
-            // Reset dynamic page count and minHeight to measure natural content scrollHeight
-            container.style.setProperty('--print-pages', '1');
-            container.style.minHeight = '0px';
-
-            const isLandscape = '{{ $orientation }}' === 'landscape';
-            const pageHeightMm = isLandscape ? 185 : 272;
-            const mmToPx = 96 / 25.4;
-            const pageHeightPx = pageHeightMm * mmToPx;
-
-            // Ukur computed padding vertikal kontainer pada tampilan layar (10mm atas + 15mm bawah = 25mm).
-            // Pada media cetak (@media print), padding di-reset ke 0 karena margin fisik ditangani @page.
-            // Pengurangan ini memastikan hanya tinggi isi konten riil yang diukur terhadap kapasitas cetak.
-            const style = window.getComputedStyle(container);
-            const padTop = parseFloat(style.paddingTop) || 0;
-            const padBottom = parseFloat(style.paddingBottom) || 0;
-            const borderTop = parseFloat(style.borderTopWidth) || 0;
-            const borderBottom = parseFloat(style.borderBottomWidth) || 0;
-            const verticalInset = padTop + padBottom + borderTop + borderBottom;
-
-            // Tinggi konten murni tanpa padding layar kontainer
-            const contentHeight = Math.max(container.scrollHeight - verticalInset, 0);
-
-            const thead = document.querySelector('table.data-table thead');
-            const theadHeight = thead ? thead.offsetHeight : 0;
-
-            let remHeight = contentHeight;
-            let pages = 1;
-            if (remHeight > pageHeightPx) {
-                remHeight -= pageHeightPx;
-                const subPageCap = Math.max(pageHeightPx - theadHeight, 100);
-                pages += Math.ceil(remHeight / subPageCap);
+            if (container) {
+                container.setAttribute('data-print-ready', 'true');
             }
-
-            container.style.removeProperty('min-height');
-            container.style.setProperty('--print-pages', pages.toString());
         }
 
         window.addEventListener('DOMContentLoaded', autoFitPrintPages);
-        window.addEventListener('load', autoFitPrintPages);
-        window.addEventListener('resize', autoFitPrintPages);
         window.addEventListener('beforeprint', autoFitPrintPages);
         autoFitPrintPages();
     </script>
