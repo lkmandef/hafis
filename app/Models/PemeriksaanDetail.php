@@ -65,6 +65,10 @@ class PemeriksaanDetail extends Model
      */
     public function getTindakLanjutAttribute(): ?TindakLanjut
     {
+        if ($this->relationLoaded('tindakLanjuts')) {
+            return $this->tindakLanjuts->sortByDesc('id')->first();
+        }
+
         return $this->tindakLanjuts()->latest()->first();
     }
 }

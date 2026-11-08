@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Apar;
 use App\Models\Gedung;
 use App\Models\Jadwal;
+use App\Models\Lokasi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -63,9 +64,17 @@ class JadwalController extends Controller
     public function create()
     {
         $gedungs = Gedung::where('status', 'aktif')->orderBy('nama')->get();
-        $totalAparAktif = Apar::where('status', '!=', 'tidak_aktif')->count();
-        $allApars = Apar::with(['ruangan.lantai.gedung'])
+        $totalAparAktif = Apar::where('status', '!=', 'tidak_aktif')
+            ->where(function ($q) {
+                $q->whereDoesntHave('lokasi')
+                    ->orWhereHas('lokasi', fn ($lq) => $lq->where('status', '!=', Lokasi::STATUS_STOK));
+            })->count();
+        $allApars = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung'])
             ->where('status', '!=', 'tidak_aktif')
+            ->where(function ($q) {
+                $q->whereDoesntHave('lokasi')
+                    ->orWhereHas('lokasi', fn ($lq) => $lq->where('status', '!=', Lokasi::STATUS_STOK));
+            })
             ->orderBy('kode')
             ->get();
 
@@ -110,14 +119,23 @@ class JadwalController extends Controller
 
         $jadwal = Jadwal::create($validated);
 
-        // Alokasikan target APAR berdasarkan pilihan target
+        // Alokasikan target APAR berdasarkan pilihan target (Eksklusi stok cadangan K3RS)
         $targetIds = [];
         if ($validated['tipe_target'] === 'semua') {
-            $targetIds = Apar::where('status', '!=', 'tidak_aktif')->pluck('id')->toArray();
+            $targetIds = Apar::where('status', '!=', 'tidak_aktif')
+                ->where(function ($q) {
+                    $q->whereDoesntHave('lokasi')
+                        ->orWhereHas('lokasi', fn ($lq) => $lq->where('status', '!=', Lokasi::STATUS_STOK));
+                })
+                ->pluck('id')->toArray();
         } elseif ($validated['tipe_target'] === 'gedung') {
-            $targetIds = Apar::whereHas('ruangan.lantai', function ($q) use ($validated) {
-                $q->where('gedung_id', $validated['gedung_id']);
-            })->where('status', '!=', 'tidak_aktif')->pluck('id')->toArray();
+            $targetIds = Apar::diGedung($validated['gedung_id'])
+                ->where('status', '!=', 'tidak_aktif')
+                ->where(function ($q) {
+                    $q->whereDoesntHave('lokasi')
+                        ->orWhereHas('lokasi', fn ($lq) => $lq->where('status', '!=', Lokasi::STATUS_STOK));
+                })
+                ->pluck('id')->toArray();
         } elseif ($validated['tipe_target'] === 'custom') {
             $targetIds = $validated['apar_ids'] ?? [];
         }
@@ -148,12 +166,13 @@ class JadwalController extends Controller
         $searchApar = $request->input('q_apar');
         $statusApar = $request->input('status_apar');
 
-        $aparsQuery = $jadwal->apars()->with(['ruangan.lantai.gedung']);
+        $aparsQuery = $jadwal->apars()->with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung']);
 
         if ($searchApar) {
             $aparsQuery->where(function ($q) use ($searchApar) {
                 $q->where('kode', 'like', "%{$searchApar}%")
                     ->orWhere('jenis_media', 'like', "%{$searchApar}%")
+                    ->orWhereHas('lokasi', fn ($lq) => $lq->where('nama', 'like', "%{$searchApar}%"))
                     ->orWhereHas('ruangan', function ($rq) use ($searchApar) {
                         $rq->where('nama', 'like', "%{$searchApar}%")
                             ->orWhereHas('lantai', function ($lq) use ($searchApar) {

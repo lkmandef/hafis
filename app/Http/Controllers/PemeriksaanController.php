@@ -46,7 +46,7 @@ class PemeriksaanController extends Controller
             ->get();
 
         // Query unit APAR terpasang operasional (tidak termasuk unit tidak aktif atau stok sediaan GUDANG K3RS)
-        $query = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'pemeriksaans' => function ($q) use ($tahun, $bulan) {
+        $query = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung', 'pemeriksaans' => function ($q) use ($tahun, $bulan) {
             $q->where('periode_tahun', $tahun)
                 ->where('periode_bulan', $bulan);
         }])
@@ -66,18 +66,32 @@ class PemeriksaanController extends Controller
             $query->where('lokasi_id', $lokasiId);
         }
 
-        $aparsCollection = $query->orderBy('kode')->get();
-
         // Filter berdasarkan status pemeriksaan periode jika diminta
         if ($statusPeriksa === 'sudah') {
-            $aparsCollection = $aparsCollection->filter(fn ($a) => $a->pemeriksaans->isNotEmpty());
+            $query->whereHas('pemeriksaans', function ($q) use ($tahun, $bulan) {
+                $q->where('periode_tahun', $tahun)
+                    ->where('periode_bulan', $bulan);
+            });
         } elseif ($statusPeriksa === 'baik') {
-            $aparsCollection = $aparsCollection->filter(fn ($a) => $a->pemeriksaans->first()?->hasil_keseluruhan === Pemeriksaan::HASIL_BAIK);
+            $query->whereHas('pemeriksaans', function ($q) use ($tahun, $bulan) {
+                $q->where('periode_tahun', $tahun)
+                    ->where('periode_bulan', $bulan)
+                    ->where('hasil_keseluruhan', Pemeriksaan::HASIL_BAIK);
+            });
         } elseif ($statusPeriksa === 'perlu_tindakan') {
-            $aparsCollection = $aparsCollection->filter(fn ($a) => $a->pemeriksaans->first()?->hasil_keseluruhan === Pemeriksaan::HASIL_PERLU_TINDAKAN);
+            $query->whereHas('pemeriksaans', function ($q) use ($tahun, $bulan) {
+                $q->where('periode_tahun', $tahun)
+                    ->where('periode_bulan', $bulan)
+                    ->where('hasil_keseluruhan', Pemeriksaan::HASIL_PERLU_TINDAKAN);
+            });
         } elseif ($statusPeriksa === 'belum') {
-            $aparsCollection = $aparsCollection->filter(fn ($a) => $a->pemeriksaans->isEmpty());
+            $query->whereDoesntHave('pemeriksaans', function ($q) use ($tahun, $bulan) {
+                $q->where('periode_tahun', $tahun)
+                    ->where('periode_bulan', $bulan);
+            });
         }
+
+        $apars = $query->orderBy('kode')->paginate(15)->withQueryString();
 
         // Metrik kepatuhan operasional untuk seluruh unit wajib periksa (hanya APAR aktif terpasang)
         $totalWajib = Apar::where('status', '!=', Apar::STATUS_TIDAK_AKTIF)
@@ -111,7 +125,7 @@ class PemeriksaanController extends Controller
         $persentaseKepatuhan = $totalWajib > 0 ? round(($totalSudah / $totalWajib) * 100, 1) : 0;
 
         return view('pemeriksaan.index', [
-            'apars' => $aparsCollection,
+            'apars' => $apars,
             'tahun' => $tahun,
             'bulan' => $bulan,
             'totalWajib' => $totalWajib,
@@ -141,7 +155,7 @@ class PemeriksaanController extends Controller
                 ->with('info', 'Silakan scan QR code atau masukkan kode APAR terlebih dahulu untuk memulai pemeriksaan.');
         }
 
-        $apar = Apar::with(['lokasi', 'ruangan.lantai.gedung'])->find($aparId);
+        $apar = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung'])->find($aparId);
         if (! $apar) {
             return redirect()->route('scan.index')
                 ->with('error', 'Data APAR yang dipilih tidak ditemukan.');
@@ -194,7 +208,7 @@ class PemeriksaanController extends Controller
                 ->with('info', 'Pilih atau scan unit APAR terlebih dahulu.');
         }
 
-        $apar = Apar::with(['lokasi', 'ruangan.lantai.gedung'])->find($aparId);
+        $apar = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung'])->find($aparId);
         if (! $apar) {
             return redirect()->route('scan.index')
                 ->with('error', 'Data unit APAR tidak ditemukan.');
@@ -487,7 +501,7 @@ class PemeriksaanController extends Controller
      */
     public function edit(Pemeriksaan $pemeriksaan)
     {
-        $pemeriksaan->load(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'details', 'jadwal']);
+        $pemeriksaan->load(['apar.lokasi.gedung', 'apar.lokasi.lantai', 'apar.ruangan.lantai.gedung', 'details', 'jadwal']);
 
         $apar = $pemeriksaan->apar;
         $jadwal = $pemeriksaan->jadwal;
@@ -644,7 +658,8 @@ class PemeriksaanController extends Controller
     public function show(Pemeriksaan $pemeriksaan)
     {
         $pemeriksaan->load([
-            'apar.lokasi',
+            'apar.lokasi.gedung',
+            'apar.lokasi.lantai',
             'apar.ruangan.lantai.gedung',
             'jadwal',
             'user',
