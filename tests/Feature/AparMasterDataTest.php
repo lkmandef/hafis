@@ -293,15 +293,14 @@ class AparMasterDataTest extends TestCase
         $response->assertSee('Cari kode APAR, QR, merek, atau lokasi...');
         $response->assertDontSee('Cari kode, register, merek, lokasi, keterangan...');
 
-        // 2. Kontrol status aset lengkap dalam form
+        // 2. Kontrol status aset via tab filter horizontal dan hidden status pada form toolbar
         $response->assertSee('name="status"', false);
-        $response->assertSee('value="semua"', false);
-        $response->assertSee('value="aktif"', false);
-        $response->assertSee('value="baik"', false);
-        $response->assertSee('value="perhatian"', false);
-        $response->assertSee('value="rusak"', false);
-        $response->assertSee('value="sudah_diganti"', false);
-        $response->assertSee('value="tidak_aktif"', false);
+        $response->assertSee('status=semua');
+        $response->assertSee('status=baik');
+        $response->assertSee('status=perhatian');
+        $response->assertSee('status=rusak');
+        $response->assertSee('status=sudah_diganti');
+        $response->assertSee('status=tidak_aktif');
 
         // 3. Kontrol lokasi dan tombol Cari eksplisit
         $response->assertSee('name="lokasi_id"', false);

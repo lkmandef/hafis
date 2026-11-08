@@ -176,19 +176,19 @@ class Apar extends Model
     }
 
     /**
-     * Accessor: Lantai pemilik ruangan tempat APAR berada
+     * Accessor: Lantai tempat APAR berada (resolusi via master lokasi K3RS atau ruangan)
      */
     public function getLantaiAttribute(): ?Lantai
     {
-        return $this->ruangan?->lantai;
+        return $this->lokasi?->lantai ?? $this->ruangan?->lantai;
     }
 
     /**
-     * Accessor: Gedung pemilik lantai tempat APAR berada
+     * Accessor: Gedung tempat APAR berada (resolusi via master lokasi K3RS atau ruangan)
      */
     public function getGedungAttribute(): ?Gedung
     {
-        return $this->ruangan?->lantai?->gedung;
+        return $this->lokasi?->gedung ?? $this->ruangan?->lantai?->gedung;
     }
 
     /**
@@ -212,6 +212,10 @@ class Apar extends Model
      */
     public function getLokasiLengkapAttribute(): string
     {
+        if ($this->lokasi && filled($this->lokasi->lokasi_lengkap)) {
+            return $this->lokasi->lokasi_lengkap;
+        }
+
         if ($this->lokasi) {
             return $this->lokasi->nama;
         }
@@ -221,6 +225,40 @@ class Apar extends Model
         $ruanganNama = $this->ruangan?->nama ?? '-';
 
         return "{$gedungNama}, {$lantaiNama}, {$ruanganNama}";
+    }
+
+    /**
+     * Scope: Filter APAR berdasarkan gedung lokasi penempatan
+     */
+    public function scopeDiGedung($query, int|string $gedungId)
+    {
+        return $query->where(function ($q) use ($gedungId) {
+            $q->whereHas('lokasi', fn ($lq) => $lq->where('gedung_id', $gedungId))
+                ->orWhereHas('ruangan.lantai', fn ($rq) => $rq->where('gedung_id', $gedungId));
+        });
+    }
+
+    /**
+     * Scope: Filter APAR berdasarkan lantai lokasi penempatan
+     */
+    public function scopeDiLantai($query, int|string $lantaiId)
+    {
+        return $query->where(function ($q) use ($lantaiId) {
+            $q->whereHas('lokasi', fn ($lq) => $lq->where('lantai_id', $lantaiId))
+                ->orWhereHas('ruangan', fn ($rq) => $rq->where('lantai_id', $lantaiId));
+        });
+    }
+
+    /**
+     * Scope: Filter APAR yang memenuhi syarat inspeksi operasional aktif (eksklusi stok cadangan dan tidak aktif)
+     */
+    public function scopeEligibleForInspection($query)
+    {
+        return $query->where('status', '!=', self::STATUS_TIDAK_AKTIF)
+            ->where(function ($q) {
+                $q->whereDoesntHave('lokasi')
+                    ->orWhereHas('lokasi', fn ($lq) => $lq->where('status', '!=', Lokasi::STATUS_STOK));
+            });
     }
 
     /**

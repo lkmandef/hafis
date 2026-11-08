@@ -30,7 +30,7 @@ class AparController extends Controller
             $status = 'aktif';
         }
 
-        $query = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
+        $query = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
 
         // 1. Pencarian teks (Section 21: termasuk kode APAR dan qr_code)
         if ($search) {
@@ -44,7 +44,9 @@ class AparController extends Controller
                     ->orWhere('keterangan', 'like', "%{$search}%")
                     ->orWhereHas('lokasi', function ($lq) use ($search) {
                         $lq->where('nama', 'like', "%{$search}%")
-                            ->orWhere('kode', 'like', "%{$search}%");
+                            ->orWhere('kode', 'like', "%{$search}%")
+                            ->orWhereHas('gedung', fn ($gq) => $gq->where('nama', 'like', "%{$search}%")->orWhere('kode', 'like', "%{$search}%"))
+                            ->orWhereHas('lantai', fn ($flq) => $flq->where('nama', 'like', "%{$search}%"));
                     })
                     ->orWhereHas('ruangan', function ($rq) use ($search) {
                         $rq->where('nama', 'like', "%{$search}%")
@@ -60,17 +62,13 @@ class AparController extends Controller
             });
         }
 
-        // 2. Filter Lokasi (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        // 2. Filter Lokasi (Hierarki terpadu: Lokasi K3RS, Gedung, Lantai)
         if ($lokasiId) {
             $query->where('lokasi_id', $lokasiId);
         } elseif ($gedungId) {
-            $query->whereHas('ruangan.lantai', function ($lq) use ($gedungId) {
-                $lq->where('gedung_id', $gedungId);
-            });
+            $query->diGedung($gedungId);
             if ($lantaiId) {
-                $query->whereHas('ruangan', function ($rq) use ($lantaiId, $gedungId) {
-                    $rq->where('lantai_id', $lantaiId)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $gedungId));
-                });
+                $query->diLantai($lantaiId);
             }
         }
 
@@ -164,24 +162,29 @@ class AparController extends Controller
         $validated = $request->validate([
             'kode' => ['required', 'string', 'max:50', 'unique:apars,kode'],
             'nomor_register' => ['nullable', 'string', 'max:100'],
+            'lokasi_id' => ['nullable', 'exists:lokasis,id'],
             'gedung_id' => ['required', 'exists:gedungs,id'],
             'lantai_id' => [
-                'required',
+                'nullable',
                 'exists:lantais,id',
                 function ($attribute, $value, $fail) use ($request) {
-                    $lantai = Lantai::find($value);
-                    if (! $lantai || $lantai->gedung_id != $request->gedung_id) {
-                        $fail('Lantai yang dipilih tidak sesuai dengan gedung yang dipilih.');
+                    if ($value) {
+                        $lantai = Lantai::find($value);
+                        if (! $lantai || $lantai->gedung_id != $request->gedung_id) {
+                            $fail('Lantai yang dipilih tidak sesuai dengan gedung yang dipilih.');
+                        }
                     }
                 },
             ],
             'ruangan_id' => [
-                'required',
+                'nullable',
                 'exists:ruangans,id',
                 function ($attribute, $value, $fail) use ($request) {
-                    $ruangan = Ruangan::find($value);
-                    if (! $ruangan || $ruangan->lantai_id != $request->lantai_id) {
-                        $fail('Ruangan/Area yang dipilih tidak sesuai dengan lantai yang dipilih.');
+                    if ($value) {
+                        $ruangan = Ruangan::find($value);
+                        if (! $ruangan || ($request->lantai_id && $ruangan->lantai_id != $request->lantai_id)) {
+                            $fail('Ruangan/Area yang dipilih tidak sesuai dengan lantai yang dipilih.');
+                        }
                     }
                 },
             ],
@@ -200,9 +203,7 @@ class AparController extends Controller
             'kode.unique' => 'Kode APAR tersebut sudah terdaftar di sistem.',
             'gedung_id.required' => 'Pilih gedung lokasi penempatan.',
             'gedung_id.exists' => 'Gedung yang dipilih tidak valid.',
-            'lantai_id.required' => 'Pilih lantai lokasi penempatan.',
             'lantai_id.exists' => 'Lantai yang dipilih tidak valid.',
-            'ruangan_id.required' => 'Pilih ruangan / area lokasi penempatan.',
             'ruangan_id.exists' => 'Ruangan / area yang dipilih tidak valid.',
             'jenis_media.required' => 'Pilih jenis media pemadam.',
             'jenis_media.in' => 'Pilihan jenis media tidak sesuai ketentuan.',
@@ -214,6 +215,25 @@ class AparController extends Controller
             'tanggal_kadaluarsa.after_or_equal' => 'Tanggal kedaluwarsa tidak boleh lebih awal dari tanggal pemasangan.',
             'tanggal_pemeriksaan_terakhir.date' => 'Format tanggal pemeriksaan terakhir tidak valid.',
         ]);
+
+        if (empty($validated['lokasi_id'])) {
+            $matchingLokasi = Lokasi::where('gedung_id', $validated['gedung_id'])
+                ->when($validated['lantai_id'] ?? null, fn ($q, $lId) => $q->where('lantai_id', $lId))
+                ->first();
+
+            if (! $matchingLokasi) {
+                $gedung = Gedung::find($validated['gedung_id']);
+                $matchingLokasi = Lokasi::create([
+                    'kode' => 'LOK-'.strtoupper(Str::random(5)),
+                    'nama' => $gedung->nama,
+                    'gedung_id' => $gedung->id,
+                    'lantai_id' => $validated['lantai_id'] ?? null,
+                    'tipe_lokasi' => Lokasi::TIPE_SERVICE_AREA,
+                    'status' => 'aktif',
+                ]);
+            }
+            $validated['lokasi_id'] = $matchingLokasi->id;
+        }
 
         // Buat identifier unik QR Code yang siap digunakan untuk scan
         $cleanKode = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $validated['kode']));
@@ -233,6 +253,7 @@ class AparController extends Controller
             ? Apar::with([
                 'lokasi',
                 'ruangan.lantai.gedung',
+                'pemeriksaans.jadwal',
                 'tindakLanjuts.pemeriksaan',
                 'penggantianKeluar.aparBaru.ruangan.lantai.gedung',
                 'penggantianMasuk.aparLama.ruangan.lantai.gedung',
@@ -242,6 +263,7 @@ class AparController extends Controller
             : Apar::with([
                 'lokasi',
                 'ruangan.lantai.gedung',
+                'pemeriksaans.jadwal',
                 'tindakLanjuts.pemeriksaan',
                 'penggantianKeluar.aparBaru.ruangan.lantai.gedung',
                 'penggantianMasuk.aparLama.ruangan.lantai.gedung',
@@ -284,24 +306,29 @@ class AparController extends Controller
         $validated = $request->validate([
             'kode' => ['required', 'string', 'max:50', Rule::unique('apars', 'kode')->ignore($apar->id)],
             'nomor_register' => ['nullable', 'string', 'max:100'],
+            'lokasi_id' => ['nullable', 'exists:lokasis,id'],
             'gedung_id' => ['required', 'exists:gedungs,id'],
             'lantai_id' => [
-                'required',
+                'nullable',
                 'exists:lantais,id',
                 function ($attribute, $value, $fail) use ($request) {
-                    $lantai = Lantai::find($value);
-                    if (! $lantai || $lantai->gedung_id != $request->gedung_id) {
-                        $fail('Lantai yang dipilih tidak sesuai dengan gedung yang dipilih.');
+                    if ($value) {
+                        $lantai = Lantai::find($value);
+                        if (! $lantai || $lantai->gedung_id != $request->gedung_id) {
+                            $fail('Lantai yang dipilih tidak sesuai dengan gedung yang dipilih.');
+                        }
                     }
                 },
             ],
             'ruangan_id' => [
-                'required',
+                'nullable',
                 'exists:ruangans,id',
                 function ($attribute, $value, $fail) use ($request) {
-                    $ruangan = Ruangan::find($value);
-                    if (! $ruangan || $ruangan->lantai_id != $request->lantai_id) {
-                        $fail('Ruangan/Area yang dipilih tidak sesuai dengan lantai yang dipilih.');
+                    if ($value) {
+                        $ruangan = Ruangan::find($value);
+                        if (! $ruangan || ($request->lantai_id && $ruangan->lantai_id != $request->lantai_id)) {
+                            $fail('Ruangan/Area yang dipilih tidak sesuai dengan lantai yang dipilih.');
+                        }
                     }
                 },
             ],
@@ -320,9 +347,7 @@ class AparController extends Controller
             'kode.unique' => 'Kode APAR tersebut sudah terdaftar di sistem.',
             'gedung_id.required' => 'Pilih gedung lokasi penempatan.',
             'gedung_id.exists' => 'Gedung yang dipilih tidak valid.',
-            'lantai_id.required' => 'Pilih lantai lokasi penempatan.',
             'lantai_id.exists' => 'Lantai yang dipilih tidak valid.',
-            'ruangan_id.required' => 'Pilih ruangan / area lokasi penempatan.',
             'ruangan_id.exists' => 'Ruangan / area yang dipilih tidak valid.',
             'jenis_media.required' => 'Pilih jenis media pemadam.',
             'jenis_media.in' => 'Pilihan jenis media tidak sesuai ketentuan.',
@@ -334,6 +359,25 @@ class AparController extends Controller
             'tanggal_kadaluarsa.after_or_equal' => 'Tanggal kedaluwarsa tidak boleh lebih awal dari tanggal pemasangan.',
             'tanggal_pemeriksaan_terakhir.date' => 'Format tanggal pemeriksaan terakhir tidak valid.',
         ]);
+
+        if (empty($validated['lokasi_id'])) {
+            $matchingLokasi = Lokasi::where('gedung_id', $validated['gedung_id'])
+                ->when($validated['lantai_id'] ?? null, fn ($q, $lId) => $q->where('lantai_id', $lId))
+                ->first();
+
+            if (! $matchingLokasi) {
+                $gedung = Gedung::find($validated['gedung_id']);
+                $matchingLokasi = Lokasi::create([
+                    'kode' => 'LOK-'.strtoupper(Str::random(5)),
+                    'nama' => $gedung->nama,
+                    'gedung_id' => $gedung->id,
+                    'lantai_id' => $validated['lantai_id'] ?? null,
+                    'tipe_lokasi' => Lokasi::TIPE_SERVICE_AREA,
+                    'status' => 'aktif',
+                ]);
+            }
+            $validated['lokasi_id'] = $matchingLokasi->id;
+        }
 
         $apar->update($validated);
 

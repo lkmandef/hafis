@@ -5,7 +5,7 @@
         description="Perbarui informasi identitas, lokasi penempatan, atau spesifikasi teknis unit tabung.">
         <x-slot:actions>
             <x-button variant="secondary" href="{{ route('apar.show', $apar->id) }}">
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
                 <span>Batal / Lihat Detail</span>
@@ -13,16 +13,16 @@
         </x-slot:actions>
     </x-page-header>
 
-    <!-- Notifikasi Error Validasi Global jika ada -->
+    <!-- Notifikasi Error Validasi Global -->
     @if ($errors->any())
-        <div class="max-w-4xl mx-auto mb-6 p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-900 text-xs">
-            <div class="flex items-center gap-2 font-bold mb-1.5 text-rose-800">
-                <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <div class="max-w-4xl mx-auto mb-6 p-4 rounded-xl border border-red-200 bg-red-50 text-red-900 text-xs">
+            <div class="flex items-center gap-2 font-semibold mb-1.5 text-red-800">
+                <svg class="w-4 h-4 shrink-0 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"></path>
                 </svg>
                 <span>Terdapat kesalahan pada isian formulir:</span>
             </div>
-            <ul class="list-disc list-inside space-y-1 text-[11px] text-rose-700">
+            <ul class="list-disc list-inside space-y-1 text-xs text-red-700">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -30,30 +30,30 @@
         </div>
     @endif
 
-    <!-- Form Container Tunggal -->
-    <x-card class="max-w-4xl mx-auto">
+    <!-- Form Container Tunggal Bergaya Cal.com -->
+    <div class="max-w-4xl mx-auto rounded-xl border border-gray-200 bg-white p-5 sm:p-8 mb-8">
         <!-- Banner Info Unit -->
-        <div class="p-3.5 mb-6 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="p-3.5 mb-6 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-                <span class="text-slate-500">Mengedit Unit:</span>
-                <span class="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+                <span class="text-gray-500">Mengedit Unit:</span>
+                <span class="font-mono font-semibold text-gray-900 bg-white px-2 py-0.5 rounded border border-gray-200">
                     {{ $apar->kode }}
                 </span>
-                <span class="text-slate-400 font-mono text-[11px]">QR: {{ $apar->qr_code }}</span>
+                <span class="text-gray-400 font-mono text-[11px]">QR: {{ $apar->qr_code }}</span>
             </div>
-            <span class="text-[11px] text-slate-400">
+            <span class="text-[11px] text-gray-400">
                 Terdaftar sejak: {{ $apar->created_at ? $apar->created_at->format('d/m/Y') : '-' }}
             </span>
         </div>
 
-        <form action="{{ route('apar.update', $apar->id) }}" method="POST" class="space-y-7">
+        <form action="{{ route('apar.update', $apar->id) }}" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
 
             <!-- Kelompok 1: Identitas & Status APAR -->
             <div>
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3.5 pb-2 border-b border-slate-100 flex items-center gap-2">
-                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 inline-flex items-center justify-center text-[10px] font-bold">1</span>
+                <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-700 inline-flex items-center justify-center text-xs font-semibold">1</span>
                     <span>Identitas Unit & Kondisi</span>
                 </h3>
 
@@ -100,27 +100,27 @@
             </div>
 
             <!-- Kelompok 2: Lokasi Penempatan Fisik (Hierarki Berjenjang) -->
-            <div>
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3.5 pb-2 border-b border-slate-100 flex items-center gap-2">
-                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 inline-flex items-center justify-center text-[10px] font-bold">2</span>
+            <div class="pt-6 border-t border-gray-200">
+                <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-700 inline-flex items-center justify-center text-xs font-semibold">2</span>
                     <span>Lokasi Penempatan (Gedung &rarr; Lantai &rarr; Ruangan/Area)</span>
                 </h3>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <!-- Gedung -->
                     <div>
-                        <label for="gedung_id" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                            Gedung <span class="text-rose-500 font-bold">*</span>
+                        <label for="gedung_id" class="block text-xs font-medium text-gray-700 mb-1.5">
+                            Gedung <span class="text-red-500 font-bold">*</span>
                         </label>
                         <div class="relative">
                             <select 
                                 id="gedung_id" 
                                 name="gedung_id" 
                                 required
-                                class="appearance-none w-full rounded-lg border {{ $errors->has('gedung_id') ? 'border-rose-400 bg-rose-50/20 text-rose-900' : 'border-slate-200 bg-slate-50 text-slate-800' }} pl-3 pr-8 py-2 text-xs focus:bg-white focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 min-h-[44px] cursor-pointer">
+                                class="appearance-none w-full rounded-lg border {{ $errors->has('gedung_id') ? 'border-red-300 bg-red-50/20 text-red-900' : 'border-gray-200 bg-white text-gray-900' }} pl-3 pr-8 py-2 text-xs focus:bg-white focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 min-h-[40px] cursor-pointer">
                                 <option value="">-- Pilih Gedung --</option>
                                 @php
-                                    $currentGedungId = old('gedung_id', $apar->ruangan?->lantai?->gedung_id);
+                                    $currentGedungId = old('gedung_id', $apar->gedung?->id);
                                 @endphp
                                 @foreach($gedungs as $g)
                                     <option value="{{ $g->id }}" {{ $currentGedungId == $g->id ? 'selected' : '' }}>
@@ -128,69 +128,68 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                            <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-gray-400">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </span>
                         </div>
                         @if($errors->has('gedung_id'))
-                            <p class="text-[11px] text-rose-600 font-medium mt-1">{{ $errors->first('gedung_id') }}</p>
+                            <p class="text-[11px] text-red-600 font-medium mt-1">{{ $errors->first('gedung_id') }}</p>
                         @endif
                     </div>
 
                     <!-- Lantai (Cascaded) -->
                     <div>
-                        <label for="lantai_id" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                            Lantai <span class="text-rose-500 font-bold">*</span>
+                        <label for="lantai_id" class="block text-xs font-medium text-gray-700 mb-1.5">
+                            Lantai <span class="text-red-500 font-bold">*</span>
                         </label>
                         <div class="relative">
                             <select 
                                 id="lantai_id" 
                                 name="lantai_id" 
                                 required
-                                class="appearance-none w-full rounded-lg border {{ $errors->has('lantai_id') ? 'border-rose-400 bg-rose-50/20 text-rose-900' : 'border-slate-200 bg-slate-50 text-slate-800' }} pl-3 pr-8 py-2 text-xs focus:bg-white focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 min-h-[44px] cursor-pointer">
+                                class="appearance-none w-full rounded-lg border {{ $errors->has('lantai_id') ? 'border-red-300 bg-red-50/20 text-red-900' : 'border-gray-200 bg-white text-gray-900' }} pl-3 pr-8 py-2 text-xs focus:bg-white focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 min-h-[40px] cursor-pointer">
                                 <option value="">-- Pilih Lantai --</option>
                             </select>
-                            <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                            <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-gray-400">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </span>
                         </div>
                         @if($errors->has('lantai_id'))
-                            <p class="text-[11px] text-rose-600 font-medium mt-1">{{ $errors->first('lantai_id') }}</p>
+                            <p class="text-[11px] text-red-600 font-medium mt-1">{{ $errors->first('lantai_id') }}</p>
                         @endif
                     </div>
 
                     <!-- Ruangan / Area (Cascaded) -->
                     <div>
-                        <label for="ruangan_id" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                            Ruangan / Area <span class="text-rose-500 font-bold">*</span>
+                        <label for="ruangan_id" class="block text-xs font-medium text-gray-700 mb-1.5">
+                            Ruangan / Area <span class="text-gray-400 font-normal">(Opsional untuk ruang tertutup)</span>
                         </label>
                         <div class="relative">
                             <select 
                                 id="ruangan_id" 
                                 name="ruangan_id" 
-                                required
-                                class="appearance-none w-full rounded-lg border {{ $errors->has('ruangan_id') ? 'border-rose-400 bg-rose-50/20 text-rose-900' : 'border-slate-200 bg-slate-50 text-slate-800' }} pl-3 pr-8 py-2 text-xs focus:bg-white focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 min-h-[44px] cursor-pointer">
-                                <option value="">-- Pilih Ruangan --</option>
+                                class="appearance-none w-full rounded-lg border {{ $errors->has('ruangan_id') ? 'border-red-300 bg-red-50/20 text-red-900' : 'border-gray-200 bg-white text-gray-900' }} pl-3 pr-8 py-2 text-xs focus:bg-white focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 min-h-[40px] cursor-pointer">
+                                <option value="">-- Pilih Ruangan / Area (Opsional) --</option>
                             </select>
-                            <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+                            <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-gray-400">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </span>
                         </div>
                         @if($errors->has('ruangan_id'))
-                            <p class="text-[11px] text-rose-600 font-medium mt-1">{{ $errors->first('ruangan_id') }}</p>
+                            <p class="text-[11px] text-red-600 font-medium mt-1">{{ $errors->first('ruangan_id') }}</p>
                         @endif
                     </div>
                 </div>
 
                 <!-- Informasi Ruangan Kosong jika lantai belum punya ruangan -->
                 <div id="no-ruangan-alert" class="hidden mt-3 p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-900 text-xs">
-                    Lantai yang dipilih belum memiliki daftar ruangan/area terdaftar. Silakan tambahkan ruangan di menu <a href="{{ route('lokasi.index') }}" target="_blank" class="font-bold underline text-amber-950">Struktur Lokasi</a> terlebih dahulu.
+                    Lantai yang dipilih belum memiliki daftar ruangan/area terdaftar. Silakan tambahkan ruangan di menu <a href="{{ route('lokasi.index') }}" target="_blank" class="font-semibold underline text-amber-950">Struktur Lokasi</a> terlebih dahulu.
                 </div>
 
                 <!-- Detail Posisi Pemasangan -->
@@ -206,9 +205,9 @@
             </div>
 
             <!-- Kelompok 3: Spesifikasi Teknis APAR -->
-            <div>
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3.5 pb-2 border-b border-slate-100 flex items-center gap-2">
-                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 inline-flex items-center justify-center text-[10px] font-bold">3</span>
+            <div class="pt-6 border-t border-gray-200">
+                <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-700 inline-flex items-center justify-center text-xs font-semibold">3</span>
                     <span>Spesifikasi Teknis Tabung</span>
                 </h3>
 
@@ -263,9 +262,9 @@
             </div>
 
             <!-- Kelompok 4: Informasi Waktu & Tanggal -->
-            <div>
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3.5 pb-2 border-b border-slate-100 flex items-center gap-2">
-                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 inline-flex items-center justify-center text-[10px] font-bold">4</span>
+            <div class="pt-6 border-t border-gray-200">
+                <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-700 inline-flex items-center justify-center text-xs font-semibold">4</span>
                     <span>Informasi Tanggal</span>
                 </h3>
 
@@ -306,9 +305,9 @@
             </div>
 
             <!-- Kelompok 5: Keterangan / Catatan Tambahan -->
-            <div>
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3.5 pb-2 border-b border-slate-100 flex items-center gap-2">
-                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 inline-flex items-center justify-center text-[10px] font-bold">5</span>
+            <div class="pt-6 border-t border-gray-200">
+                <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-700 inline-flex items-center justify-center text-xs font-semibold">5</span>
                     <span>Catatan Tambahan (Opsional)</span>
                 </h3>
 
@@ -326,13 +325,20 @@
             </div>
 
             <!-- Tombol Aksi di Bagian Bawah Form -->
-            <div class="pt-5 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="pt-6 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <!-- Tombol Hapus Soft Delete (Danger) -->
                 <div>
                     <button 
                         type="button"
-                        onclick="if(confirm('Apakah Anda yakin ingin menghapus unit APAR {{ $apar->kode }}? Data riwayat unit tetap disimpan di arsip sistem.')) document.getElementById('delete-apar-form').submit();"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-lg text-rose-700 hover:text-rose-900 hover:bg-rose-50 text-xs font-semibold transition border border-rose-200 min-h-[44px]">
+                        onclick="window.hafisConfirm({
+                            title: 'Hapus Unit APAR',
+                            message: 'Apakah Anda yakin ingin menghapus unit APAR {{ $apar->kode }}? Data riwayat unit tetap disimpan di arsip sistem.',
+                            confirmText: 'Hapus Unit',
+                            cancelText: 'Batal',
+                            type: 'danger',
+                            onConfirm: function() { document.getElementById('delete-apar-form').submit(); }
+                        });"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-red-700 hover:text-red-800 hover:bg-red-50 text-xs font-medium transition border border-red-200 min-h-[40px] cursor-pointer">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
@@ -347,7 +353,7 @@
                     </x-button>
 
                     <x-button variant="primary" type="submit" class="w-full sm:w-auto">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                         </svg>
                         <span>Simpan Perubahan</span>
@@ -361,14 +367,14 @@
             @csrf
             @method('DELETE')
         </form>
-    </x-card>
+    </div>
 
     <!-- Script Cascading Location Selection -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const lokasiTree = @json($gedungs);
-            const initialGedungId = "{{ old('gedung_id', $apar->ruangan?->lantai?->gedung_id) }}";
-            const initialLantaiId = "{{ old('lantai_id', $apar->ruangan?->lantai_id) }}";
+            const initialGedungId = "{{ old('gedung_id', $apar->gedung?->id) }}";
+            const initialLantaiId = "{{ old('lantai_id', $apar->lantai?->id) }}";
             const initialRuanganId = "{{ old('ruangan_id', $apar->ruangan_id) }}";
 
             const gedungSelect = document.getElementById('gedung_id');
@@ -411,7 +417,7 @@
             }
 
             function populateRuangans(selectedLantaiId, preselectRuanganId = null) {
-                ruanganSelect.innerHTML = '<option value="">-- Pilih Ruangan / Area --</option>';
+                ruanganSelect.innerHTML = '<option value="">-- Pilih Ruangan / Area (Opsional) --</option>';
                 alertNoRuangan.classList.add('hidden');
 
                 if (!selectedLantaiId) {
@@ -423,15 +429,13 @@
                 const gedung = lokasiTree.find(g => String(g.id) === String(currentGedungId));
                 if (!gedung) return;
 
+                ruanganSelect.disabled = false;
                 const lantai = gedung.lantais.find(l => String(l.id) === String(selectedLantaiId));
                 if (!lantai || !lantai.ruangans || lantai.ruangans.length === 0) {
-                    ruanganSelect.innerHTML = '<option value="">-- Belum ada ruangan di lantai ini --</option>';
-                    ruanganSelect.disabled = true;
-                    alertNoRuangan.classList.remove('hidden');
+                    ruanganSelect.innerHTML = '<option value="">-- Koridor / Area Terbuka (Tanpa Ruangan Tertutup) --</option>';
                     return;
                 }
 
-                ruanganSelect.disabled = false;
                 lantai.ruangans.forEach(r => {
                     const opt = document.createElement('option');
                     opt.value = r.id;

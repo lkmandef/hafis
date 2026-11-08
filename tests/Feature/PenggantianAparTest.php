@@ -431,14 +431,12 @@ class PenggantianAparTest extends TestCase
     }
 
     /**
-     * Test I: Denah & Titik APAR Terkelola Aman
-     * Pastikan penyalinan koordinat denah ke APAR baru berhasil dan koordinat aktif APAR lama dibersihkan.
+     * Test I: Lokasi Otoritatif Terkelola Aman pada Penggantian APAR
+     * Pastikan APAR baru mewarisi hierarki lokasi yang valid dari APAR lama.
      */
     public function test_i_denah_titik_terkelola_aman(): void
     {
         [$gedung, $lantai, $ruangan, $aparLama] = $this->createHierarchy();
-        $this->assertEquals(45.5, $aparLama->koordinat_x);
-        $this->assertEquals(60.0, $aparLama->koordinat_y);
 
         $payload = [
             'kode' => 'APAR-DENAH-NEW-01',
@@ -450,7 +448,6 @@ class PenggantianAparTest extends TestCase
             'tanggal_penggantian' => '2026-10-03',
             'alasan' => PenggantianApar::ALASAN_PENGGANTIAN_UNIT,
             'petugas_nama' => 'Petugas K3RS',
-            'salin_titik_denah' => 1,
         ];
 
         $this->post(route('apar.ganti.store', $aparLama->id), $payload);
@@ -458,13 +455,11 @@ class PenggantianAparTest extends TestCase
         $aparBaru = Apar::where('kode', 'APAR-DENAH-NEW-01')->first();
         $aparLama->refresh();
 
-        // APAR baru mewarisi titik koordinat
-        $this->assertEquals(45.5, $aparBaru->koordinat_x);
-        $this->assertEquals(60.0, $aparBaru->koordinat_y);
-
-        // APAR lama dikosongkan titiknya agar tidak ada dua unit aktif di satu titik fisik
-        $this->assertNull($aparLama->koordinat_x);
-        $this->assertNull($aparLama->koordinat_y);
+        // APAR baru mewarisi hierarki lokasi yang valid
+        $this->assertNotNull($aparBaru);
+        $this->assertEquals($gedung->id, $aparBaru->gedung->id);
+        $this->assertEquals($aparLama->id, $aparBaru->replaces_apar_id);
+        $this->assertEquals($aparBaru->id, $aparLama->replaced_by_apar_id);
     }
 
     /**

@@ -148,7 +148,6 @@ class PenggantianAparController extends Controller
                 },
             ],
             'posisi_detail' => ['nullable', 'string', 'max:255'],
-            'salin_titik_denah' => ['nullable', 'boolean'],
             'jenis_media' => ['required', 'string', Rule::in(Apar::JENIS_MEDIA_OPTIONS)],
             'kapasitas' => ['required', 'string', 'max:30'],
             'merek' => ['nullable', 'string', 'max:100'],
@@ -181,28 +180,14 @@ class PenggantianAparController extends Controller
             $cleanKode = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $validated['kode']));
             $qrCodeBaru = 'HAFIS-QR-'.$cleanKode.'-'.strtoupper(Str::random(6));
 
-            // B. Penanganan titik denah lantai (Section 14 & 15)
-            $koordinatX = null;
-            $koordinatY = null;
-            if (! empty($validated['salin_titik_denah']) && $aparLama->has_titik) {
-                // Warisi koordinat denah lama ke unit baru
-                $koordinatX = $aparLama->koordinat_x;
-                $koordinatY = $aparLama->koordinat_y;
-
-                // Kosongkan koordinat pada APAR lama agar 1 titik tidak dimiliki 2 unit aktif
-                $aparLama->koordinat_x = null;
-                $aparLama->koordinat_y = null;
-            }
-
-            // C. Simpan record APAR baru (Section 4)
+            // B. Simpan record APAR baru (Section 4)
             $aparBaru = Apar::create([
                 'kode' => $validated['kode'],
                 'nomor_register' => $validated['nomor_register'] ?? null,
                 'qr_code' => $qrCodeBaru,
-                'ruangan_id' => $validated['ruangan_id'],
+                'lokasi_id' => $validated['lokasi_id'] ?? $aparLama->lokasi_id,
+                'ruangan_id' => $validated['ruangan_id'] ?? $aparLama->ruangan_id,
                 'posisi_detail' => $validated['posisi_detail'] ?? $aparLama->posisi_detail,
-                'koordinat_x' => $koordinatX,
-                'koordinat_y' => $koordinatY,
                 'jenis_media' => $validated['jenis_media'],
                 'kapasitas' => $validated['kapasitas'],
                 'merek' => $validated['merek'] ?? null,
