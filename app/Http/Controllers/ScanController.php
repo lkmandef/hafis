@@ -86,7 +86,7 @@ class ScanController extends Controller
             } elseif (isset($parsed['path'])) {
                 // Misal /apar/12 -> extract ID
                 if (preg_match('#/apar/(\d+)#', $parsed['path'], $matches)) {
-                    $byId = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti'])->find($matches[1]);
+                    $byId = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung', 'aparPengganti'])->find($matches[1]);
                     if ($byId) {
                         return $this->handleAparFound($byId, $jadwalId, $bulan, $tahun);
                     }
@@ -95,7 +95,7 @@ class ScanController extends Controller
         }
 
         // Pencarian APAR secara fleksibel (qr_code, kode APAR, atau nomor register)
-        $apar = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti'])
+        $apar = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung', 'aparPengganti'])
             ->where('qr_code', $cleanInput)
             ->orWhere('kode', $cleanInput)
             ->orWhere('nomor_register', $cleanInput)
