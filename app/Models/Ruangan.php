@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Ruangan extends Model
 {
@@ -30,11 +31,48 @@ class Ruangan extends Model
     }
 
     /**
+     * Relasi: Master Ruangan memiliki titik penempatan Lokasi K3RS
+     */
+    public function lokasi(): HasOne
+    {
+        return $this->hasOne(Lokasi::class, 'ruangan_id');
+    }
+
+    /**
      * Relasi: Ruangan memiliki banyak APAR
      */
     public function apars(): HasMany
     {
         return $this->hasMany(Apar::class, 'ruangan_id');
+    }
+
+    /**
+     * Accessor: Rincian jenis media dan kapasitas APAR di ruangan ini
+     */
+    public function getRincianMediaAttribute(): string
+    {
+        if ($this->apars->isEmpty()) {
+            return '-';
+        }
+
+        $summary = [];
+        foreach ($this->apars as $a) {
+            $media = match ($a->jenis_media) {
+                'Dry Chemical Powder' => 'Powder',
+                'CO2 (Carbon Dioxide)' => 'CO2',
+                default => $a->jenis_media ?? 'Powder',
+            };
+            $kapasitas = str_replace(' ', '', (string) $a->kapasitas);
+            $key = $media.($kapasitas !== '' ? " {$kapasitas}" : '');
+            $summary[$key] = ($summary[$key] ?? 0) + 1;
+        }
+
+        $parts = [];
+        foreach ($summary as $key => $count) {
+            $parts[] = "{$count} {$key}";
+        }
+
+        return implode(', ', $parts);
     }
 
     /**

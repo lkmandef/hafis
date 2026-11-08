@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Gedung;
 use App\Models\Lantai;
+use App\Models\Lokasi;
 use App\Models\Ruangan;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,14 +12,20 @@ use Illuminate\Validation\Rule;
 class LokasiController extends Controller
 {
     /**
-     * Tampilkan halaman utama struktur lokasi (Gedung -> Lantai -> Ruangan)
+     * Tampilkan halaman utama struktur lokasi (Gedung -> Lantai -> Lokasi / Ruangan)
      */
     public function index(Request $request)
     {
         $search = $request->input('q');
         $tab = $request->input('tab', 'hirarki'); // hirarki, gedung, lantai, ruangan
 
-        $gedungsQuery = Gedung::with(['lantais.ruangans', 'lantais.denah'])->withCount(['lantais', 'ruangans']);
+        $gedungsQuery = Gedung::with([
+            'lantais.lokasis.apars',
+            'lantais.lokasis.ruangan',
+            'lantais.ruangans.apars',
+            'lantais.ruangans.lokasi',
+            'lantais.denah',
+        ])->withCount(['lantais', 'ruangans', 'lokasis']);
 
         if ($search) {
             $gedungsQuery->where(function ($q) use ($search) {
@@ -30,27 +37,37 @@ class LokasiController extends Controller
                             ->orWhereHas('ruangans', function ($rq) use ($search) {
                                 $rq->where('nama', 'like', "%{$search}%")
                                     ->orWhere('kode', 'like', "%{$search}%");
+                            })
+                            ->orWhereHas('lokasis', function ($lkq) use ($search) {
+                                $lkq->where('nama', 'like', "%{$search}%")
+                                    ->orWhere('kode', 'like', "%{$search}%");
                             });
                     });
             });
         }
 
         $gedungs = $gedungsQuery->orderBy('nama', 'asc')->get();
-        $allGedungs = Gedung::orderBy('nama', 'asc')->get();
-        $allLantais = Lantai::with(['gedung', 'denah'])->orderBy('gedung_id')->orderBy('nomor_lantai')->get();
+        $allGedungs = $search ? Gedung::withCount(['lantais', 'ruangans', 'lokasis'])->orderBy('nama', 'asc')->get() : $gedungs;
+        $allLantais = Lantai::with(['gedung', 'denah'])->withCount(['ruangans', 'lokasis'])->orderBy('gedung_id')->orderBy('nomor_lantai')->get();
+        $allRuangans = Ruangan::with(['lantai.gedung', 'lokasi', 'apars'])->orderBy('nama', 'asc')->get();
+        $allLokasis = Lokasi::with(['gedung', 'lantai', 'ruangan', 'apars'])->orderBy('nama', 'asc')->get();
 
         // Ringkasan metrik
-        $totalGedung = Gedung::count();
-        $totalLantai = Lantai::count();
-        $totalRuangan = Ruangan::count();
+        $totalGedung = $allGedungs->count();
+        $totalLantai = $allLantais->count();
+        $totalRuangan = $allRuangans->count();
+        $totalLokasi = $allLokasis->count();
 
         return view('lokasi.index', compact(
             'gedungs',
             'allGedungs',
             'allLantais',
+            'allRuangans',
+            'allLokasis',
             'totalGedung',
             'totalLantai',
             'totalRuangan',
+            'totalLokasi',
             'search',
             'tab'
         ));
@@ -61,7 +78,13 @@ class LokasiController extends Controller
      */
     public function showGedung(Gedung $gedung)
     {
-        $gedung->load(['lantais.denah', 'lantais.ruangans.apars']);
+        $gedung->load([
+            'lantais.denah',
+            'lantais.lokasis.apars',
+            'lantais.lokasis.ruangan',
+            'lantais.ruangans.apars',
+            'lantais.ruangans.lokasi',
+        ]);
         $allGedungs = Gedung::orderBy('nama', 'asc')->get();
 
         return view('lokasi.show', compact('gedung', 'allGedungs'));

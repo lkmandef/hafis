@@ -37,10 +37,18 @@ class Gedung extends Model
     }
 
     /**
-     * Jumlah unit APAR di gedung ini melalui ruangan
+     * Relasi: Gedung memiliki banyak Lokasi Penempatan K3RS
+     */
+    public function lokasis(): HasMany
+    {
+        return $this->hasMany(Lokasi::class, 'gedung_id');
+    }
+
+    /**
+     * Jumlah unit APAR di gedung ini (otoritatif via master lokasi K3RS / ruangan)
      */
     public function getAparsCountAttribute(): int
     {
-        return Apar::whereHas('ruangan.lantai', fn ($q) => $q->where('gedung_id', $this->id))->count();
+        return Apar::diGedung($this->id)->count();
     }
 }

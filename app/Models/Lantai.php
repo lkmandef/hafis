@@ -55,10 +55,30 @@ class Lantai extends Model
     }
 
     /**
+     * Relasi: Lantai memiliki banyak Lokasi Penempatan K3RS
+     */
+    public function lokasis(): HasMany
+    {
+        return $this->hasMany(Lokasi::class, 'lantai_id')->orderBy('nama', 'asc');
+    }
+
+    /**
      * Relasi: Lantai memiliki banyak APAR melalui Ruangan
      */
     public function apars(): HasManyThrough
     {
         return $this->hasManyThrough(Apar::class, Ruangan::class, 'lantai_id', 'ruangan_id');
+    }
+
+    /**
+     * Helper: Total unit APAR pada lantai ini
+     */
+    public function getAparsCountAttribute(): int
+    {
+        if ($this->relationLoaded('lokasis')) {
+            return (int) $this->lokasis->sum(fn ($lok) => $lok->relationLoaded('apars') ? $lok->apars->count() : $lok->apars()->count());
+        }
+
+        return (int) Apar::whereIn('lokasi_id', $this->lokasis()->select('id'))->count();
     }
 }
