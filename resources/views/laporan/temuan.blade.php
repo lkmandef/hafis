@@ -5,7 +5,7 @@
         :filters="$filtersSummary">
 
         {{-- Baris ringkasan tunggal --}}
-        <div style="margin-bottom: 10px; font-size: 8pt; color: #0f172a;">
+        <div style="margin-bottom: 10px; font-size: 8.5pt; color: #0f172a;">
             Total Temuan: <strong>{{ $rekap['total'] }}</strong> item &nbsp;&bull;&nbsp;
             Belum Ditindaklanjuti: <strong>{{ $rekap['belum_ditindaklanjuti'] }}</strong> &nbsp;&bull;&nbsp;
             Dalam Penanganan: <strong>{{ $rekap['dalam_proses'] }}</strong> &nbsp;&bull;&nbsp;
@@ -94,26 +94,22 @@
                     </p>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2">
-                    <a href="{{ request()->fullUrlWithQuery(['format' => 'print']) }}" target="_blank"
-                       class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[38px]">
-                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="flex items-center gap-2 sm:shrink-0">
+                    <a href="{{ request()->fullUrlWithQuery(['format' => 'print']) }}" target="_blank" rel="noopener"
+                       aria-label="Cetak Laporan Temuan Pemeriksaan (buka di tab baru)"
+                       class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition min-h-[38px] shadow-2xs">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                         </svg>
                         <span>Cetak Laporan</span>
                     </a>
 
                     <a href="{{ request()->fullUrlWithQuery(['format' => 'csv']) }}"
-                       class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-emerald-800 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 transition min-h-[38px]">
-                        <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                       class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-emerald-800 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 transition min-h-[38px] shadow-2xs">
+                        <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
                         <span>Export CSV (Excel)</span>
-                    </a>
-
-                    <a href="{{ route('laporan.index') }}" 
-                       class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition min-h-[38px]">
-                        <span>Pusat Laporan</span>
                     </a>
                 </div>
             </div>
@@ -132,7 +128,7 @@
 
                 <div class="flex-1 px-3 sm:px-4">
                     <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Belum Ditindaklanjuti</span>
-                    <span class="text-base sm:text-lg font-bold text-rose-800 tabular-nums">
+                    <span class="text-base sm:text-lg font-bold {{ $rekap['belum_ditindaklanjuti'] > 0 ? 'text-rose-800' : 'text-slate-800' }} tabular-nums">
                         {{ $rekap['belum_ditindaklanjuti'] }}
                         <span class="text-xs font-normal text-slate-500">perlu atensi</span>
                     </span>
@@ -140,7 +136,7 @@
 
                 <div class="flex-1 px-3 sm:px-4">
                     <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Dalam Penanganan</span>
-                    <span class="text-base sm:text-lg font-bold text-amber-800 tabular-nums">
+                    <span class="text-base sm:text-lg font-bold {{ $rekap['dalam_proses'] > 0 ? 'text-amber-800' : 'text-slate-800' }} tabular-nums">
                         {{ $rekap['dalam_proses'] }}
                         <span class="text-xs font-normal text-slate-500">proses teknisi</span>
                     </span>
@@ -157,33 +153,35 @@
         </div>
 
         <!-- Compact Filter Form (Section 5) -->
-        <div class="mb-4 p-3 sm:p-3.5 rounded-lg border border-slate-200 bg-white">
+        <div class="mb-4 p-3 sm:p-3.5 rounded-lg border border-slate-200 bg-white shadow-2xs">
             <form method="GET" action="{{ route('laporan.temuan') }}" class="space-y-2.5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                     <!-- Dari Tanggal -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dari Tanggal</label>
+                        <label for="filter_tem_dari_tanggal" class="block text-[11px] font-semibold text-slate-600 mb-1">Dari Tanggal</label>
                         <input
                             type="date"
+                            id="filter_tem_dari_tanggal"
                             name="dari_tanggal"
                             value="{{ request('dari_tanggal') }}"
-                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 min-h-[38px]" />
                     </div>
 
                     <!-- Sampai Tanggal -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Sampai Tanggal</label>
+                        <label for="filter_tem_sampai_tanggal" class="block text-[11px] font-semibold text-slate-600 mb-1">Sampai Tanggal</label>
                         <input
                             type="date"
+                            id="filter_tem_sampai_tanggal"
                             name="sampai_tanggal"
                             value="{{ request('sampai_tanggal') }}"
-                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 min-h-[38px]" />
                     </div>
 
                     <!-- Lokasi K3RS -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lokasi K3RS</label>
-                        <select name="lokasi_id" onchange="this.form.submit()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <label for="filter_tem_lokasi" class="block text-[11px] font-semibold text-slate-600 mb-1">Lokasi K3RS</label>
+                        <select id="filter_tem_lokasi" name="lokasi_id" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 min-h-[38px]">
                             <option value="">Semua Lokasi K3RS</option>
                             @foreach($lokasis as $lok)
                                 <option value="{{ $lok->id }}" {{ (string) request('lokasi_id') === (string) $lok->id ? 'selected' : '' }}>
@@ -195,8 +193,8 @@
 
                     <!-- Status Tindak Lanjut -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Tindak Lanjut</label>
-                        <select name="status_tl" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none min-h-[40px]">
+                        <label for="filter_tem_status_tl" class="block text-[11px] font-semibold text-slate-600 mb-1">Status Tindak Lanjut</label>
+                        <select id="filter_tem_status_tl" name="status_tl" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 min-h-[38px]">
                             <option value="">Semua Status Tindak Lanjut</option>
                             <option value="belum_ada_tl" {{ request('status_tl') == 'belum_ada_tl' ? 'selected' : '' }}>Belum Dibuat TL</option>
                             <option value="belum_ditindaklanjuti" {{ request('status_tl') == 'belum_ditindaklanjuti' ? 'selected' : '' }}>Belum Ditindaklanjuti</option>
@@ -207,36 +205,33 @@
 
                     <!-- Pencarian Teks -->
                     <div class="lg:col-span-4">
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Cari Parameter / Catatan Temuan / Kode APAR</label>
+                        <label for="filter_tem_q" class="block text-[11px] font-semibold text-slate-600 mb-1">Cari Parameter / Catatan Temuan / Kode APAR</label>
                         <input
                             type="text"
+                            id="filter_tem_q"
                             name="q"
                             value="{{ request('q') }}"
                             placeholder="Ketik nama item temuan (contoh: selang, nozzle, tekanan) atau kode APAR..."
-                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-400 min-h-[40px]" />
+                            class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 min-h-[38px]" />
                     </div>
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs">
                     <div class="flex flex-wrap items-center gap-2">
                         <button type="submit" 
-                                class="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-bold rounded-md text-white bg-slate-900 hover:bg-slate-800 transition min-h-[38px] cursor-pointer">
+                                class="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-bold rounded-md text-white bg-slate-900 hover:bg-slate-800 transition min-h-[36px] cursor-pointer shadow-2xs">
                             <span>Terapkan Filter</span>
                         </button>
 
                         <a href="{{ route('laporan.temuan') }}" 
-                           class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-md text-slate-600 bg-slate-100 hover:bg-slate-200 transition min-h-[38px]">
+                           class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-md text-slate-600 bg-slate-100 hover:bg-slate-200 transition min-h-[36px]">
                             <span>Reset Filter</span>
                         </a>
 
-                        <span class="text-slate-500 text-xs hidden sm:inline-block ml-2">
-                            Menampilkan <strong class="text-slate-800 font-semibold">{{ $rekap['terfilter'] }}</strong> temuan dari filter yang diterapkan
+                        <span class="text-slate-500 text-xs ml-2">
+                            Menampilkan <strong class="text-slate-800 font-semibold tabular-nums">{{ $rekap['terfilter'] }}</strong> temuan (terfilter)
                         </span>
                     </div>
-
-                    <span class="text-slate-500 text-xs sm:hidden">
-                        Menampilkan <strong class="text-slate-800 font-semibold">{{ $rekap['terfilter'] }}</strong> temuan dari filter yang diterapkan
-                    </span>
                 </div>
             </form>
         </div>
@@ -244,10 +239,10 @@
         <!-- Table Container (Horizontal Scroll for Responsive) -->
         <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-700">
+                <table class="w-full text-left text-xs text-slate-700 min-w-[960px]">
                     <thead class="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-600 font-bold">
                         <tr>
-                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 pl-5 sm:pl-6 pr-3.5 text-center w-12">No</th>
                             <th class="py-3 px-3.5">Tanggal</th>
                             <th class="py-3 px-3.5">Kode APAR</th>
                             <th class="py-3 px-3.5">Lokasi</th>
@@ -255,7 +250,7 @@
                             <th class="py-3 px-3.5">Hasil</th>
                             <th class="py-3 px-3.5">Catatan Temuan Masalah</th>
                             <th class="py-3 px-3.5">Pemeriksa</th>
-                            <th class="py-3 px-3.5">Status Tindak Lanjut</th>
+                            <th class="py-3 pl-3.5 pr-5 sm:pr-6">Status Tindak Lanjut</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -264,11 +259,11 @@
                                 $tl = $t->tindakLanjut;
                             @endphp
                             <tr class="hover:bg-slate-50/70 transition-colors">
-                                <td class="py-3 px-3.5 text-center font-mono text-slate-400">
+                                <td class="py-3 pl-5 sm:pl-6 pr-3.5 text-center font-mono text-slate-500 tabular-nums">
                                     {{ $temuans->firstItem() + $idx }}
                                 </td>
                                 <td class="py-3 px-3.5 font-mono whitespace-nowrap">
-                                    <span class="font-bold text-slate-900">
+                                    <span class="font-bold text-slate-900 tabular-nums">
                                         {{ $t->pemeriksaan?->tanggal_pemeriksaan ? $t->pemeriksaan->tanggal_pemeriksaan->format('d/m/Y') : '-' }}
                                     </span>
                                 </td>
@@ -278,9 +273,7 @@
                                     </a>
                                 </td>
                                 <td class="py-3 px-3.5">
-                                    <div class="font-semibold text-slate-900">
-                                        {{ $t->pemeriksaan?->apar?->lokasi?->nama ?? $t->pemeriksaan?->apar?->ruangan?->nama ?? '-' }}
-                                    </div>
+                                    <div class="font-semibold text-slate-900">{{ $t->pemeriksaan?->apar?->lokasi?->nama ?? $t->pemeriksaan?->apar?->ruangan?->nama ?? '-' }}</div>
                                     <div class="text-[11px] text-slate-500">
                                         @if($t->pemeriksaan?->apar?->lokasi)
                                             {{ $t->pemeriksaan->apar->lokasi->keterangan ?? $t->pemeriksaan->apar->lokasi->nama }}
@@ -293,44 +286,44 @@
                                     {{ $t->item_nama }}
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-200">
+                                    <x-badge variant="danger" size="sm">
                                         Tidak Baik
-                                    </span>
+                                    </x-badge>
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-700">
-                                    <div class="p-2 rounded bg-rose-50/50 border border-rose-100 text-rose-900">
+                                <td class="py-3 px-3.5 text-slate-700 max-w-xs">
+                                    <div class="p-2 rounded bg-rose-50/50 border border-rose-100 text-rose-900 text-xs break-words">
                                         {{ $t->catatan ?: 'Tidak ada catatan rinci dari petugas.' }}
                                     </div>
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
                                     <span class="font-medium text-slate-800">{{ $t->pemeriksaan?->pemeriksa_nama ?? '-' }}</span>
                                 </td>
-                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                <td class="py-3 pl-3.5 pr-5 sm:pr-6 whitespace-nowrap">
                                     @if(!$tl)
                                         <a href="{{ route('tindak-lanjut.create', ['pemeriksaan_id' => $t->pemeriksaan_id, 'pemeriksaan_detail_id' => $t->id]) }}" 
-                                           class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 transition">
+                                           class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 transition min-h-[30px]">
                                             <span>Buat Tindak Lanjut</span>
                                         </a>
                                     @elseif($tl->status === 'selesai')
-                                        <a href="{{ route('tindak-lanjut.show', $tl->id) }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100">
-                                            Selesai
+                                        <a href="{{ route('tindak-lanjut.show', $tl->id) }}" class="inline-flex items-center">
+                                            <x-badge variant="success" size="sm">Selesai</x-badge>
                                         </a>
                                     @elseif($tl->status === 'dalam_proses')
-                                        <a href="{{ route('tindak-lanjut.show', $tl->id) }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100">
-                                            Dalam Proses
+                                        <a href="{{ route('tindak-lanjut.show', $tl->id) }}" class="inline-flex items-center">
+                                            <x-badge variant="warning" size="sm">Dalam Proses</x-badge>
                                         </a>
                                     @else
-                                        <a href="{{ route('tindak-lanjut.show', $tl->id) }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100">
-                                            Belum Ditindaklanjuti
+                                        <a href="{{ route('tindak-lanjut.show', $tl->id) }}" class="inline-flex items-center">
+                                            <x-badge variant="danger" size="sm">Belum Ditindaklanjuti</x-badge>
                                         </a>
                                     @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="py-12 text-center text-slate-400">
-                                    <p class="text-sm font-medium">Belum ada temuan masalah pada filter yang dipilih.</p>
-                                    <p class="text-xs text-slate-400 mt-1">Seluruh item checklist berada dalam kondisi baik atau sesuaikan filter pencarian.</p>
+                                <td colspan="9" class="py-12 text-center text-slate-500">
+                                    <p class="text-sm font-semibold text-slate-700">Belum ada temuan masalah pada filter yang dipilih.</p>
+                                    <p class="text-xs text-slate-500 mt-1">Seluruh item checklist berada dalam kondisi baik atau sesuaikan filter pencarian.</p>
                                 </td>
                             </tr>
                         @endforelse

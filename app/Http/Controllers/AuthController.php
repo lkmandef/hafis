@@ -65,7 +65,7 @@ class AuthController extends Controller
                 ]);
         }
 
-        if (Auth::attempt([$field => $loginInput, 'password' => $validated['password'], 'is_active' => true])) {
+        if (Auth::attempt([$field => $loginInput, 'password' => $validated['password'], 'is_active' => true], $request->boolean('remember'))) {
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 

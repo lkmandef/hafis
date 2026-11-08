@@ -61,13 +61,13 @@ class LaporanController extends Controller
     {
         $query = Apar::with(['lokasi', 'ruangan.lantai.gedung', 'aparPengganti', 'aparDigantikan']);
 
-        // 1. Filter Lokasi (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        // 1. Filter Lokasi (Prioritas: Lokasi K3RS, dengan fallback hierarki gedung & lantai)
         if ($request->filled('lokasi_id')) {
             $query->where('lokasi_id', $request->lokasi_id);
         } elseif ($request->filled('gedung_id')) {
-            $query->whereHas('ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
+            $query->diGedung($request->gedung_id);
             if ($request->filled('lantai_id')) {
-                $query->whereHas('ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+                $query->diLantai($request->lantai_id);
             }
         }
         if ($request->filled('ruangan_id')) {
@@ -201,13 +201,13 @@ class LaporanController extends Controller
             $query->whereDate('tanggal_pemeriksaan', '<=', $request->sampai_tanggal);
         }
 
-        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan hierarki gedung/lantai terpadu)
         if ($request->filled('lokasi_id')) {
             $query->whereHas('apar', fn ($q) => $q->where('lokasi_id', $request->lokasi_id));
         } elseif ($request->filled('gedung_id')) {
-            $query->whereHas('apar.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
+            $query->whereHas('apar', fn ($q) => $q->diGedung($request->gedung_id));
             if ($request->filled('lantai_id')) {
-                $query->whereHas('apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+                $query->whereHas('apar', fn ($q) => $q->diLantai($request->lantai_id));
             }
         }
         if ($request->filled('ruangan_id')) {
@@ -332,13 +332,13 @@ class LaporanController extends Controller
             $query->whereHas('pemeriksaan', fn ($q) => $q->whereDate('tanggal_pemeriksaan', '<=', $request->sampai_tanggal));
         }
 
-        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan hierarki gedung/lantai terpadu)
         if ($request->filled('lokasi_id')) {
             $query->whereHas('pemeriksaan.apar', fn ($q) => $q->where('lokasi_id', $request->lokasi_id));
         } elseif ($request->filled('gedung_id')) {
-            $query->whereHas('pemeriksaan.apar.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
+            $query->whereHas('pemeriksaan.apar', fn ($q) => $q->diGedung($request->gedung_id));
             if ($request->filled('lantai_id')) {
-                $query->whereHas('pemeriksaan.apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+                $query->whereHas('pemeriksaan.apar', fn ($q) => $q->diLantai($request->lantai_id));
             }
         }
         if ($request->filled('ruangan_id')) {
@@ -468,13 +468,13 @@ class LaporanController extends Controller
             $query->whereDate('tanggal_tindakan', '<=', $request->sampai_tanggal);
         }
 
-        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        // 2. Filter Lokasi APAR (Prioritas: Lokasi K3RS, dengan hierarki gedung/lantai terpadu)
         if ($request->filled('lokasi_id')) {
             $query->whereHas('apar', fn ($q) => $q->where('lokasi_id', $request->lokasi_id));
         } elseif ($request->filled('gedung_id')) {
-            $query->whereHas('apar.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
+            $query->whereHas('apar', fn ($q) => $q->diGedung($request->gedung_id));
             if ($request->filled('lantai_id')) {
-                $query->whereHas('apar.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+                $query->whereHas('apar', fn ($q) => $q->diLantai($request->lantai_id));
             }
         }
         if ($request->filled('ruangan_id')) {
@@ -601,7 +601,7 @@ class LaporanController extends Controller
             $query->whereDate('tanggal_penggantian', '<=', $request->sampai_tanggal);
         }
 
-        // 2. Filter Lokasi APAR Baru / Lama (Prioritas: Lokasi K3RS, dengan fallback toleran untuk hierarki gedung)
+        // 2. Filter Lokasi APAR Baru / Lama (Prioritas: Lokasi K3RS, dengan hierarki gedung/lantai terpadu)
         if ($request->filled('lokasi_id')) {
             $locId = $request->lokasi_id;
             $query->where(function ($sub) use ($locId) {
@@ -610,13 +610,13 @@ class LaporanController extends Controller
             });
         } elseif ($request->filled('gedung_id')) {
             $query->where(function ($sub) use ($request) {
-                $sub->whereHas('aparBaru.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id))
-                    ->orWhereHas('aparLama.ruangan.lantai', fn ($q) => $q->where('gedung_id', $request->gedung_id));
+                $sub->whereHas('aparBaru', fn ($q) => $q->diGedung($request->gedung_id))
+                    ->orWhereHas('aparLama', fn ($q) => $q->diGedung($request->gedung_id));
             });
             if ($request->filled('lantai_id')) {
                 $query->where(function ($sub) use ($request) {
-                    $sub->whereHas('aparBaru.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)))
-                        ->orWhereHas('aparLama.ruangan', fn ($q) => $q->where('lantai_id', $request->lantai_id)->whereHas('lantai', fn ($lq) => $lq->where('gedung_id', $request->gedung_id)));
+                    $sub->whereHas('aparBaru', fn ($q) => $q->diLantai($request->lantai_id))
+                        ->orWhereHas('aparLama', fn ($q) => $q->diLantai($request->lantai_id));
                 });
             }
         }

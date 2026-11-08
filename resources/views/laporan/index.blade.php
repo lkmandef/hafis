@@ -4,10 +4,9 @@
         title="Laporan & Rekapitulasi APAR"
         description="Dokumentasi dan rekapitulasi data keselamatan proteksi kebakaran rumah sakit berbasis data real-time.">
         <x-slot:actions>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold shadow-2xs">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>5 Modul Laporan Aktif</span>
-            </span>
+            <x-badge variant="neutral" size="md">
+                5 Modul Laporan Aktif
+            </x-badge>
         </x-slot:actions>
     </x-page-header>
 
@@ -25,7 +24,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
 
             <!-- DOKUMEN 1: Laporan Data APAR -->
-            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-all flex flex-col justify-between shadow-2xs group">
+            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors flex flex-col justify-between shadow-2xs group">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
@@ -60,7 +59,7 @@
             </div>
 
             <!-- DOKUMEN 2: Laporan Pemeriksaan APAR -->
-            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-all flex flex-col justify-between shadow-2xs group">
+            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors flex flex-col justify-between shadow-2xs group">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
@@ -95,7 +94,7 @@
             </div>
 
             <!-- DOKUMEN 3: Laporan Temuan Pemeriksaan -->
-            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-all flex flex-col justify-between shadow-2xs group">
+            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors flex flex-col justify-between shadow-2xs group">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
@@ -130,7 +129,7 @@
             </div>
 
             <!-- DOKUMEN 4: Laporan Tindak Lanjut & Pemeliharaan -->
-            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-all flex flex-col justify-between shadow-2xs group">
+            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors flex flex-col justify-between shadow-2xs group">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
@@ -165,7 +164,7 @@
             </div>
 
             <!-- DOKUMEN 5: Laporan Penggantian APAR -->
-            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-all flex flex-col justify-between shadow-2xs group md:col-span-2 lg:col-span-1">
+            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors flex flex-col justify-between shadow-2xs group md:col-span-2 lg:col-span-1">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">

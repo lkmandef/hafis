@@ -245,8 +245,51 @@
                 </form>
             </div>
 
-            <!-- Tabel Riwayat Pemeriksaan (Web View) -->
-            <div class="w-full overflow-x-auto">
+            <!-- Kartu Riwayat Pemeriksaan Mobile (sm:hidden) -->
+            <div class="sm:hidden divide-y divide-slate-100">
+                @foreach ($riwayatList as $item)
+                    <div class="p-4 space-y-2.5 bg-white">
+                        <div class="flex items-center justify-between gap-2">
+                            <a href="{{ url('/riwayat/' . $item['id']) }}" class="font-mono font-bold text-slate-900 text-sm hover:underline">
+                                {{ $item['kode'] }}
+                            </a>
+                            <x-badge :variant="$item['status_variant']" :dot="true" size="sm">
+                                {{ $item['kondisi'] }}
+                            </x-badge>
+                        </div>
+
+                        <div class="space-y-1 text-xs text-slate-600">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400">Lokasi:</span>
+                                <span class="text-slate-800 font-medium text-right">{{ $item['lokasi'] }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400">Pemeriksa:</span>
+                                <span class="text-slate-800 font-medium text-right">{{ $item['pemeriksa'] }}</span>
+                            </div>
+                            <div class="flex items-center justify-between font-mono">
+                                <span class="text-slate-400">Tanggal:</span>
+                                <span class="text-slate-700 text-right">{{ $item['tanggal'] }}</span>
+                            </div>
+                        </div>
+
+                        @if($item['catatan'])
+                            <p class="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                {{ $item['catatan'] }}
+                            </p>
+                        @endif
+
+                        <div class="pt-1">
+                            <a href="{{ url('/riwayat/' . $item['id']) }}" class="w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-slate-800 bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs min-h-[40px] transition-colors">
+                                Lihat Rincian
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Tabel Riwayat Pemeriksaan (Desktop View: hidden sm:block) -->
+            <div class="hidden sm:block w-full overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-800 border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
                         <tr>
