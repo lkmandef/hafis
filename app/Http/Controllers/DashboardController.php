@@ -10,6 +10,7 @@ use App\Models\Pemeriksaan;
 use App\Models\PenggantianApar;
 use App\Models\TindakLanjut;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -20,18 +21,62 @@ class DashboardController extends Controller
     {
         $now = Carbon::now();
 
-        // 1. Ringkasan Utama Dashboard (Step 2)
-        $totalAparAktif = Apar::where('status', '!=', Apar::STATUS_TIDAK_AKTIF)->count();
-        $totalAparPerhatian = Apar::where('status', Apar::STATUS_PERHATIAN)->count();
-        $totalAparRusak = Apar::where('status', Apar::STATUS_RUSAK)->count();
-        $totalAparAll = Apar::count();
+        // 1. Ringkasan Utama Dashboard & Status APAR Terkonsolidasi (1 Kueri)
+        $aparStatusCounts = Apar::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->all();
+
+        $totalAparBaik = (int) ($aparStatusCounts[Apar::STATUS_BAIK] ?? 0);
+        $totalAparPerhatian = (int) ($aparStatusCounts[Apar::STATUS_PERHATIAN] ?? 0);
+        $totalAparRusak = (int) ($aparStatusCounts[Apar::STATUS_RUSAK] ?? 0);
+        $totalAparTidakAktif = (int) ($aparStatusCounts[Apar::STATUS_TIDAK_AKTIF] ?? 0);
+        $totalAparAll = array_sum($aparStatusCounts);
+        $totalAparAktif = $totalAparAll - $totalAparTidakAktif;
+
+        // Tindak Lanjut Stats Terkonsolidasi (1 Kueri)
+        $tindakLanjutCounts = TindakLanjut::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->all();
+
+        $tlBelum = (int) ($tindakLanjutCounts[TindakLanjut::STATUS_BELUM_DITINDAKLANJUTI] ?? 0);
+        $tlProses = (int) ($tindakLanjutCounts[TindakLanjut::STATUS_DALAM_PROSES] ?? 0);
+        $tlSelesai = (int) ($tindakLanjutCounts[TindakLanjut::STATUS_SELESAI] ?? 0);
+        $tlTotal = array_sum($tindakLanjutCounts);
+        $tindakLanjutBelumSelesai = $tlBelum + $tlProses;
+
+        $tindakLanjutStats = [
+            'total' => $tlTotal,
+            'belum' => $tlBelum,
+            'proses' => $tlProses,
+            'selesai' => $tlSelesai,
+        ];
+
+        // Pemeriksaan Stats Terkonsolidasi (1 Kueri Hasil + 1 Kueri Bulan Ini)
+        $pemeriksaanHasilCounts = Pemeriksaan::selectRaw('hasil_keseluruhan, count(*) as count')
+            ->groupBy('hasil_keseluruhan')
+            ->pluck('count', 'hasil_keseluruhan')
+            ->all();
+
+        $pemeriksaanTotal = array_sum($pemeriksaanHasilCounts);
+        $pemeriksaanBaik = (int) ($pemeriksaanHasilCounts[Pemeriksaan::HASIL_BAIK] ?? 0);
+        $pemeriksaanPerluTindakan = (int) ($pemeriksaanHasilCounts[Pemeriksaan::HASIL_PERLU_TINDAKAN] ?? 0);
 
         $pemeriksaanBulanIni = Pemeriksaan::whereMonth('tanggal_pemeriksaan', $now->month)
             ->whereYear('tanggal_pemeriksaan', $now->year)
             ->count();
-        $pemeriksaanTotal = Pemeriksaan::count();
 
-        $tindakLanjutBelumSelesai = TindakLanjut::where('status', '!=', TindakLanjut::STATUS_SELESAI)->count();
+        $pemeriksaanStats = [
+            'total' => $pemeriksaanTotal,
+            'bulan_ini' => $pemeriksaanBulanIni,
+            'baik' => $pemeriksaanBaik,
+            'perlu_tindakan' => $pemeriksaanPerluTindakan,
+        ];
+
+        $namaBulanIndo = Pemeriksaan::NAMA_BULAN[(int) $now->month] ?? 'Oktober';
+        $totalGedungAktif = Gedung::where('status', 'aktif')->count();
+        $totalLokasiTerdaftar = Lokasi::count();
 
         $summaryStats = [
             'apar_aktif' => $totalAparAktif,
@@ -41,15 +86,17 @@ class DashboardController extends Controller
             'pemeriksaan_total' => $pemeriksaanTotal,
             'tl_belum_selesai' => $tindakLanjutBelumSelesai,
             'apar_total' => $totalAparAll,
-            'periode_bulan' => $now->translatedFormat('F Y'),
+            'total_gedung' => $totalGedungAktif,
+            'total_lokasi' => $totalLokasiTerdaftar,
+            'periode_bulan' => "{$namaBulanIndo} {$now->year}",
         ];
 
-        // 2. Status APAR Keseluruhan (Step 3)
+        // 2. Status APAR Keseluruhan
         $kondisiCounts = [
-            'baik' => Apar::where('status', Apar::STATUS_BAIK)->count(),
+            'baik' => $totalAparBaik,
             'perhatian' => $totalAparPerhatian,
             'rusak' => $totalAparRusak,
-            'tidak_aktif' => Apar::where('status', Apar::STATUS_TIDAK_AKTIF)->count(),
+            'tidak_aktif' => $totalAparTidakAktif,
         ];
 
         $totalUntukPersen = max($totalAparAll, 1);
@@ -60,26 +107,10 @@ class DashboardController extends Controller
             'tidak_aktif' => round(($kondisiCounts['tidak_aktif'] / $totalUntukPersen) * 100),
         ];
 
-        // 3. Ringkasan Pemeriksaan & Riwayat Terkini (Step 4)
-        $pemeriksaanStats = [
-            'total' => $pemeriksaanTotal,
-            'bulan_ini' => $pemeriksaanBulanIni,
-            'baik' => Pemeriksaan::where('hasil_keseluruhan', Pemeriksaan::HASIL_BAIK)->count(),
-            'perlu_tindakan' => Pemeriksaan::where('hasil_keseluruhan', Pemeriksaan::HASIL_PERLU_TINDAKAN)->count(),
-        ];
-
         $pemeriksaanTerbaru = Pemeriksaan::with(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'jadwal'])
             ->orderBy('tanggal_pemeriksaan', 'desc')
             ->take(5)
             ->get();
-
-        // 4. Ringkasan Tindak Lanjut & Pemeliharaan (Step 5)
-        $tindakLanjutStats = [
-            'total' => TindakLanjut::count(),
-            'belum' => TindakLanjut::where('status', TindakLanjut::STATUS_BELUM_DITINDAKLANJUTI)->count(),
-            'proses' => TindakLanjut::where('status', TindakLanjut::STATUS_DALAM_PROSES)->count(),
-            'selesai' => TindakLanjut::where('status', TindakLanjut::STATUS_SELESAI)->count(),
-        ];
 
         $tindakLanjutTerbaru = TindakLanjut::with(['apar.lokasi', 'apar.ruangan.lantai.gedung'])
             ->orderBy('tanggal_tindakan', 'desc')
@@ -106,26 +137,33 @@ class DashboardController extends Controller
             ->distinct('apar_id')
             ->count('apar_id');
 
-        $baikBulanan = Pemeriksaan::where('periode_tahun', $tahunSekarang)
+        $inspeksiHasilBulanan = Pemeriksaan::where('periode_tahun', $tahunSekarang)
             ->where('periode_bulan', $bulanSekarang)
-            ->where('hasil_keseluruhan', Pemeriksaan::HASIL_BAIK)
             ->whereHas('apar', $eligibleAparFilter)
-            ->count();
+            ->selectRaw('hasil_keseluruhan, count(*) as count')
+            ->groupBy('hasil_keseluruhan')
+            ->pluck('count', 'hasil_keseluruhan')
+            ->all();
 
-        $perluTindakanBulanan = Pemeriksaan::where('periode_tahun', $tahunSekarang)
-            ->where('periode_bulan', $bulanSekarang)
-            ->where('hasil_keseluruhan', Pemeriksaan::HASIL_PERLU_TINDAKAN)
-            ->whereHas('apar', $eligibleAparFilter)
-            ->count();
+        $baikBulanan = (int) ($inspeksiHasilBulanan[Pemeriksaan::HASIL_BAIK] ?? 0);
+        $perluTindakanBulanan = (int) ($inspeksiHasilBulanan[Pemeriksaan::HASIL_PERLU_TINDAKAN] ?? 0);
 
         $belumDiperiksaBulanan = max(0, $totalTargetBulanan - $sudahDiperiksaBulanan);
         $progressPctBulanan = $totalTargetBulanan > 0 ? round(($sudahDiperiksaBulanan / $totalTargetBulanan) * 100) : 0;
+
+        $hariDalamBulan = (int) $now->daysInMonth;
+        $hariSekarang = (int) $now->day;
+        $sisaHariBulanIni = max(0, $hariDalamBulan - $hariSekarang);
 
         $inspeksiBulanan = [
             'tahun' => $tahunSekarang,
             'bulan' => $bulanSekarang,
             'nama_bulan' => $namaBulanSekarang,
             'periode_label' => "{$namaBulanSekarang} {$tahunSekarang}",
+            'tanggal_mulai' => 1,
+            'tanggal_akhir' => $hariDalamBulan,
+            'sisa_hari' => $sisaHariBulanIni,
+            'rentang_label' => "1 – {$hariDalamBulan} {$namaBulanSekarang} {$tahunSekarang}",
             'total_target' => $totalTargetBulanan,
             'sudah_diperiksa' => $sudahDiperiksaBulanan,
             'belum_diperiksa' => $belumDiperiksaBulanan,
@@ -155,11 +193,16 @@ class DashboardController extends Controller
             ];
         }
 
-        // 6. Section Khusus: APAR Memerlukan Perhatian (Step 7)
-        $aparPerluPerhatian = Apar::with(['ruangan.lantai.gedung', 'tindakLanjuts' => fn ($q) => $q->latest('tanggal_tindakan')])
+        // 6. Section Khusus: Seluruh APAR Memerlukan Perhatian & Rusak (Berdasarkan Prioritas)
+        $aparPerluPerhatian = Apar::with([
+            'lokasi.gedung',
+            'lokasi.lantai',
+            'ruangan.lantai.gedung',
+            'tindakLanjuts' => fn ($q) => $q->latest('tanggal_tindakan'),
+        ])
             ->whereIn('status', [Apar::STATUS_PERHATIAN, Apar::STATUS_RUSAK])
             ->orderByRaw("CASE WHEN status = 'rusak' THEN 1 ELSE 2 END")
-            ->take(5)
+            ->orderBy('updated_at', 'desc')
             ->get();
 
         // 7. Penggantian APAR Terbaru (Step 8)
@@ -168,24 +211,47 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
 
-        // 8. Ringkasan Lokasi Gedung (Step 9)
-        $gedungRingkasan = Gedung::where('status', 'aktif')
+        // 8. Ringkasan Lokasi Gedung (Step 9) - 1 Kueri Agregasi Terkonsolidasi
+        $topGedungs = Gedung::where('status', 'aktif')
             ->orderBy('nama', 'asc')
             ->take(5)
-            ->get()
-            ->map(function ($g) {
-                $baseQuery = Apar::whereHas('ruangan.lantai', fn ($q) => $q->where('gedung_id', $g->id));
+            ->get(['id', 'nama', 'kode']);
 
-                return [
-                    'id' => $g->id,
-                    'nama' => $g->nama,
-                    'kode' => $g->kode,
-                    'total' => (clone $baseQuery)->count(),
-                    'baik' => (clone $baseQuery)->where('status', Apar::STATUS_BAIK)->count(),
-                    'perhatian' => (clone $baseQuery)->where('status', Apar::STATUS_PERHATIAN)->count(),
-                    'rusak' => (clone $baseQuery)->where('status', Apar::STATUS_RUSAK)->count(),
-                ];
-            });
+        $topGedungIds = $topGedungs->pluck('id')->all();
+
+        $gedungCounts = DB::table('apars')
+            ->leftJoin('lokasis', 'apars.lokasi_id', '=', 'lokasis.id')
+            ->leftJoin('ruangans', 'apars.ruangan_id', '=', 'ruangans.id')
+            ->leftJoin('lantais', 'ruangans.lantai_id', '=', 'lantais.id')
+            ->selectRaw('COALESCE(lokasis.gedung_id, lantais.gedung_id) as gedung_id, apars.status, count(*) as count')
+            ->whereIn(DB::raw('COALESCE(lokasis.gedung_id, lantais.gedung_id)'), $topGedungIds)
+            ->whereNull('apars.deleted_at')
+            ->groupBy(DB::raw('COALESCE(lokasis.gedung_id, lantais.gedung_id)'), 'apars.status')
+            ->get();
+
+        $gedungStatsMap = [];
+        foreach ($gedungCounts as $row) {
+            $gId = (int) $row->gedung_id;
+            $gedungStatsMap[$gId][$row->status] = (int) $row->count;
+        }
+
+        $gedungRingkasan = $topGedungs->map(function ($g) use ($gedungStatsMap) {
+            $stats = $gedungStatsMap[$g->id] ?? [];
+            $baik = $stats[Apar::STATUS_BAIK] ?? 0;
+            $perhatian = $stats[Apar::STATUS_PERHATIAN] ?? 0;
+            $rusak = $stats[Apar::STATUS_RUSAK] ?? 0;
+            $total = array_sum($stats);
+
+            return [
+                'id' => $g->id,
+                'nama' => $g->nama,
+                'kode' => $g->kode,
+                'total' => $total,
+                'baik' => $baik,
+                'perhatian' => $perhatian,
+                'rusak' => $rusak,
+            ];
+        });
 
         return view('dashboard', compact(
             'summaryStats',
