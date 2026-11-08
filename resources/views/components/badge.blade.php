@@ -5,25 +5,20 @@
 
 @php
     $variants = [
-        'success' => 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
-        'warning' => 'bg-amber-50 text-amber-800 border-amber-200/80',
-        'danger'  => 'bg-rose-50 text-rose-800 border-rose-200/80',
-        'neutral' => 'bg-slate-100 text-slate-700 border-slate-200/80',
+        'success' => 'bg-emerald-50/50 text-emerald-700 border-emerald-200/80',
+        'warning' => 'bg-amber-50/50 text-amber-700 border-amber-200/80',
+        'danger'  => 'bg-rose-50/50 text-rose-700 border-rose-200/80',
+        'neutral' => 'bg-gray-50 text-gray-700 border-gray-200',
+        'gray'    => 'bg-gray-50 text-gray-700 border-gray-200',
+        'default' => 'bg-gray-50 text-gray-700 border-gray-200',
+        'info'    => 'bg-sky-50/50 text-sky-700 border-sky-200/80',
+        'purple'  => 'bg-purple-50/50 text-purple-700 border-purple-200/80',
     ];
 
-    $dotColors = [
-        'success' => 'bg-emerald-600',
-        'warning' => 'bg-amber-500',
-        'danger'  => 'bg-rose-600',
-        'neutral' => 'bg-slate-500',
-    ];
-
-    $classes = 'rounded-md px-2 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 border ' . ($variants[$variant] ?? $variants['neutral']);
+    $classes = 'rounded-md px-2 py-0.5 text-xs font-medium inline-flex items-center border ' . ($variants[$variant] ?? $variants['neutral']);
 @endphp
 
-<span {{ $attributes->merge(['class' => $classes]) }}>
-    @if ($dot)
-        <span class="w-1.5 h-1.5 rounded-full {{ $dotColors[$variant] ?? $dotColors['neutral'] }}"></span>
-    @endif
+<span {{ $attributes->merge(['class' => $classes, 'role' => 'status']) }}>
     {{ $slot }}
 </span>
+

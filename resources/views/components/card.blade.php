@@ -3,15 +3,15 @@
     'subtitle' => null
 ])
 
-<div {{ $attributes->merge(['class' => 'bg-white rounded-xl border border-slate-200 shadow-xs p-4 sm:p-6']) }}>
+<div {{ $attributes->merge(['class' => 'bg-white rounded-xl border border-gray-200/80 shadow-xs p-5 sm:p-6']) }}>
     @if ($title)
-        <div class="flex items-start sm:items-center justify-between gap-4 pb-3.5 mb-4 border-b border-slate-100">
+        <div class="flex items-start sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-gray-200">
             <div>
-                <h3 class="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                <h2 class="text-sm sm:text-base font-semibold text-gray-900 tracking-tight">
                     {{ $title }}
-                </h3>
+                </h2>
                 @if ($subtitle)
-                    <p class="text-xs text-slate-500 mt-0.5">
+                    <p class="text-xs text-gray-500 mt-0.5">
                         {{ $subtitle }}
                     </p>
                 @endif
