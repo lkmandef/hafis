@@ -113,11 +113,11 @@
                                 <x-input
                                     name="kode"
                                     label="Kode APAR Baru"
-                                    placeholder="Contoh: APAR-IGD-01B atau APAR-IGD-02"
-                                    value="{{ old('kode') }}"
+                                    placeholder="Contoh: {{ $aparLama->kode }}"
+                                    value="{{ old('kode', $aparLama->kode) }}"
                                     :required="true"
                                     :error="$errors->first('kode')"
-                                    hint="Kode unik baru untuk tabung pengganti (tidak boleh sama dengan unit lama)" />
+                                    hint="Tetap gunakan kode yang sama (kode titik proteksi RS) atau sesuaikan jika ada penomoran baru" />
                             </div>
 
                             <div>
@@ -125,9 +125,9 @@
                                     name="nomor_register"
                                     label="Nomor Register Aset Baru"
                                     placeholder="Contoh: REG-RS-2026-088"
-                                    value="{{ old('nomor_register') }}"
+                                    value="{{ old('nomor_register', $aparLama->nomor_register) }}"
                                     :error="$errors->first('nomor_register')"
-                                    hint="Nomor inventaris atau register logistik RS jika tersedia" />
+                                    hint="Mewarisi nomor register unit lama jika tidak ada perubahan aset" />
                             </div>
                         </div>
                     </div>
@@ -203,9 +203,9 @@
                                     type="date"
                                     name="tanggal_kadaluarsa"
                                     label="Tanggal Kadaluarsa Media Baru"
-                                    value="{{ old('tanggal_kadaluarsa') }}"
+                                    value="{{ old('tanggal_kadaluarsa', $aparLama->tanggal_kadaluarsa ? $aparLama->tanggal_kadaluarsa->format('Y-m-d') : '') }}"
                                     :error="$errors->first('tanggal_kadaluarsa')"
-                                    hint="Batas masa berlaku isi media pemadam baru" />
+                                    hint="Batas masa berlaku isi media pemadam baru (mewarisi data lama jika belum diubah)" />
                             </div>
                         </div>
                     </div>

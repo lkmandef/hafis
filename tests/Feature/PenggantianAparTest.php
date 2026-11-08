@@ -370,15 +370,54 @@ class PenggantianAparTest extends TestCase
     }
 
     /**
-     * Test G: Kode Duplikat Ditolak
+     * Test G: Kode Duplikat Unit Lain Ditolak, Namun Kode Sama (Titik Tetap) Diizinkan
      */
     public function test_g_kode_duplikat_ditolak(): void
     {
         [$gedung, $lantai, $ruangan, $aparLama] = $this->createHierarchy();
 
-        // Coba gunakan kode yang sama dengan APAR lama
+        // 1. Buat unit lain yang sudah ada di rumah sakit
+        $aparLain = Apar::create([
+            'kode' => 'APAR-UNIT-LAIN-99',
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'Dry Chemical Powder',
+            'kapasitas' => '6 kg',
+            'status' => Apar::STATUS_BAIK,
+            'qr_code' => 'HAFIS-QR-APARUNITLAIN99-TEST',
+        ]);
+
+        // Coba gunakan kode yang sudah dipakai oleh unit lain
+        $payloadDuplicate = [
+            'kode' => 'APAR-UNIT-LAIN-99',
+            'gedung_id' => $gedung->id,
+            'lantai_id' => $lantai->id,
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'Dry Chemical Powder',
+            'kapasitas' => '6 kg',
+            'tanggal_penggantian' => '2026-10-03',
+            'alasan' => PenggantianApar::ALASAN_RUSAK,
+            'petugas_nama' => 'Petugas K3RS',
+        ];
+
+        $response = $this->post(route('apar.ganti.store', $aparLama->id), $payloadDuplicate);
+        $response->assertSessionHasErrors('kode');
+
+        // APAR lama tetap berstatus Baik
+        $aparLama->refresh();
+        $this->assertEquals(Apar::STATUS_BAIK, $aparLama->status);
+        $this->assertNull($aparLama->replaced_by_apar_id);
+    }
+
+    /**
+     * Test G2: Penggantian Unit dengan Kode Sama (Titik Proteksi Tetap) Berhasil
+     */
+    public function test_g2_replacement_dengan_kode_sama_berhasil(): void
+    {
+        [$gedung, $lantai, $ruangan, $aparLama] = $this->createHierarchy();
+        $originalKode = $aparLama->kode;
+
         $payloadSameCode = [
-            'kode' => $aparLama->kode,
+            'kode' => $originalKode,
             'gedung_id' => $gedung->id,
             'lantai_id' => $lantai->id,
             'ruangan_id' => $ruangan->id,
@@ -390,12 +429,19 @@ class PenggantianAparTest extends TestCase
         ];
 
         $response = $this->post(route('apar.ganti.store', $aparLama->id), $payloadSameCode);
-        $response->assertSessionHasErrors('kode');
+        $response->assertSessionHasNoErrors();
 
-        // APAR lama tetap berstatus Baik
+        // APAR baru aktif dengan kode resmi yang sama persis
+        $aparBaru = Apar::where('kode', $originalKode)->where('id', '!=', $aparLama->id)->first();
+        $this->assertNotNull($aparBaru);
+        $this->assertEquals(Apar::STATUS_BAIK, $aparBaru->status);
+        $this->assertEquals($aparLama->id, $aparBaru->replaces_apar_id);
+
+        // APAR lama kodenya diarsipkan dan statusnya menjadi tidak aktif
         $aparLama->refresh();
-        $this->assertEquals(Apar::STATUS_BAIK, $aparLama->status);
-        $this->assertNull($aparLama->replaced_by_apar_id);
+        $this->assertEquals(Apar::STATUS_TIDAK_AKTIF, $aparLama->status);
+        $this->assertEquals("{$originalKode} (Lama)", $aparLama->kode);
+        $this->assertEquals($aparBaru->id, $aparLama->replaced_by_apar_id);
     }
 
     /**

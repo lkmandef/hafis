@@ -122,8 +122,7 @@ class PenggantianAparController extends Controller
                 'required',
                 'string',
                 'max:50',
-                'unique:apars,kode',
-                Rule::notIn([$aparLama->kode]),
+                Rule::unique('apars', 'kode')->ignore($aparLama->id),
             ],
             'nomor_register' => ['nullable', 'string', 'max:100'],
             'gedung_id' => ['required', 'exists:gedungs,id'],
@@ -161,8 +160,7 @@ class PenggantianAparController extends Controller
             'petugas_nama' => ['required', 'string', 'max:100'],
         ], [
             'kode.required' => 'Kode APAR baru wajib diisi.',
-            'kode.unique' => 'Kode APAR baru tersebut sudah terdaftar di sistem rumah sakit.',
-            'kode.not_in' => 'Kode APAR baru tidak boleh sama dengan kode APAR lama.',
+            'kode.unique' => 'Kode APAR baru tersebut sudah terdaftar pada unit lain di rumah sakit.',
             'ruangan_id.required' => 'Lokasi penempatan ruangan/area wajib ditentukan.',
             'jenis_media.required' => 'Pilih jenis media pemadam untuk APAR baru.',
             'kapasitas.required' => 'Kapasitas tabung APAR baru wajib diisi.',
@@ -174,8 +172,23 @@ class PenggantianAparController extends Controller
 
         // 3. Eksekusi Atomic Transaction (Section 12)
         $petugasNama = auth()->check() ? auth()->user()->name : $validated['petugas_nama'];
+        $isSameKode = ($validated['kode'] === $aparLama->kode);
+        $kodeLamaAsli = $aparLama->kode;
 
-        [$aparBaru, $penggantian] = DB::transaction(function () use ($aparLama, $validated, $petugasNama) {
+        [$aparBaru, $penggantian] = DB::transaction(function () use ($aparLama, $validated, $petugasNama, $isSameKode, $kodeLamaAsli) {
+            // Jika kode APAR baru sama dengan unit lama, ubah kode unit lama terlebih dahulu
+            // agar unit baru dapat menggunakan kode resmi tanpa melanggar unique constraint
+            if ($isSameKode) {
+                $candidateKode = $kodeLamaAsli.' (Lama)';
+                $counter = 1;
+                while (Apar::where('kode', $candidateKode)->where('id', '!=', $aparLama->id)->exists()) {
+                    $counter++;
+                    $candidateKode = $kodeLamaAsli." (Lama {$counter})";
+                }
+                $aparLama->kode = $candidateKode;
+                $aparLama->save();
+            }
+
             // A. Generate QR Code unik baru (Section 13)
             $cleanKode = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $validated['kode']));
             $qrCodeBaru = 'HAFIS-QR-'.$cleanKode.'-'.strtoupper(Str::random(6));
@@ -195,7 +208,7 @@ class PenggantianAparController extends Controller
                 'status' => Apar::STATUS_BAIK, // Unit baru selalu berstatus aktif dan kondisi Baik
                 'tanggal_pemasangan' => $validated['tanggal_pemasangan'] ?? $validated['tanggal_penggantian'],
                 'tanggal_kadaluarsa' => $validated['tanggal_kadaluarsa'] ?? null,
-                'keterangan' => 'Unit baru pengganti dari '.$aparLama->kode,
+                'keterangan' => 'Unit baru pengganti dari '.$kodeLamaAsli,
                 'replaces_apar_id' => $aparLama->id,
             ]);
 
@@ -234,7 +247,7 @@ class PenggantianAparController extends Controller
                 $jadwal->apars()->syncWithoutDetaching([
                     $aparBaru->id => [
                         'status_pemeriksaan' => 'belum_diperiksa',
-                        'catatan' => "Unit pengganti dari {$aparLama->kode}",
+                        'catatan' => "Unit pengganti dari {$kodeLamaAsli}",
                     ],
                 ]);
             }
@@ -242,8 +255,12 @@ class PenggantianAparController extends Controller
             return [$aparBaru, $penggantian];
         });
 
+        $successMsg = $isSameKode
+            ? "Unit fisik APAR {$aparBaru->kode} berhasil diproses penggantiannya. Unit lama diarsipkan dan unit baru aktif menggunakan kode {$aparBaru->kode}."
+            : "Unit APAR {$kodeLamaAsli} berhasil digantikan oleh unit baru {$aparBaru->kode}. APAR lama dinonaktifkan dan tersimpan sebagai rekaman riwayat.";
+
         return redirect()->route('apar.show', $aparBaru->id)
-            ->with('success', "Unit APAR {$aparLama->kode} berhasil digantikan oleh unit baru {$aparBaru->kode}. APAR lama dinonaktifkan dan tersimpan sebagai rekaman riwayat.");
+            ->with('success', $successMsg);
     }
 
     /**
