@@ -95,11 +95,11 @@
             opacity: 0.95;
         }
 
-        .btn-back {
+        .btn-close-preview, .btn-back {
             background: #334155;
             color: #f8fafc;
         }
-        .btn-back:hover {
+        .btn-close-preview:hover, .btn-back:hover {
             background: #475569;
         }
 
@@ -500,16 +500,17 @@
             <strong>Mode Pratinjau Cetak &bull; Dokumen Resmi HAFIS RSUD</strong>
         </div>
         <div class="no-print-actions">
-            <a href="{{ request()->fullUrlWithoutQuery(['format']) }}"
-               class="btn-back"
-               onclick="if (window.opener && !window.opener.closed) { try { window.close(); } catch(e) {} } if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.host) !== -1) { window.history.back(); return false; }">
+            <button type="button"
+                    class="btn-close-preview"
+                    onclick="closePrintPreview()"
+                    title="Tutup pratinjau cetak dan kembali ke aplikasi (Shortcut: Esc)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
-                Kembali ke Web
-            </a>
-            <button type="button" class="btn-print" onclick="window.print()">
+                Tutup Pratinjau (Esc)
+            </button>
+            <button type="button" class="btn-print" onclick="window.print()" title="Cetak dokumen ke printer atau simpan sebagai PDF (Ctrl + P)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="6 9 6 2 18 2 18 9"></polyline>
                     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -610,6 +611,31 @@
     </div>
 
     <script>
+        function closePrintPreview() {
+            // 1. Coba tutup tab peramban saat dibuka di tab baru
+            window.close();
+
+            // 2. Fallback: jika browser membatasi window.close (misal tab dibuka langsung via URL manual),
+            // kembalikan navigasi ke halaman web laporan
+            setTimeout(function() {
+                if (!window.closed) {
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        window.location.href = "{{ request()->fullUrlWithoutQuery(['format']) }}";
+                    }
+                }
+            }, 120);
+        }
+
+        // Shortcut keyboard: tombol 'Esc' langsung menutup pratinjau
+        window.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' || event.key === 'Esc') {
+                event.preventDefault();
+                closePrintPreview();
+            }
+        });
+
         function autoFitPrintPages() {
             // Memastikan tata letak siap dicetak melalui CSS Paged Media standar (@page & page-break)
             const container = document.getElementById('printContainer');
