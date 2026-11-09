@@ -45,6 +45,16 @@
 
             <!-- Header Action -->
             <div class="flex items-center gap-2">
+                @if($apar->can_be_replaced)
+                    <a href="{{ route('apar.ganti', $apar->id) }}" 
+                       class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-amber-800 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition min-h-[40px]">
+                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>Ganti APAR</span>
+                    </a>
+                @endif
+
                 @if(isset($periodeBulan) && isset($periodeTahun) && !$jadwal)
                     <x-button variant="secondary" href="{{ route('pemeriksaan.index', ['bulan' => $periodeBulan, 'tahun' => $periodeTahun]) }}" class="min-h-[40px]">
                         <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

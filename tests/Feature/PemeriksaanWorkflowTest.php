@@ -149,7 +149,7 @@ class PemeriksaanWorkflowTest extends TestCase
     }
 
     /**
-     * Halaman formulir checklist dapat diakses
+     * Halaman formulir checklist dapat diakses dan memuat tombol aksi cepat Ganti APAR
      */
     public function test_pemeriksaan_create_checklist_page_can_be_rendered(): void
     {
@@ -160,6 +160,8 @@ class PemeriksaanWorkflowTest extends TestCase
         $response->assertSee($apar->kode);
         $response->assertSee('Checklist Pemeriksaan Fisik APAR');
         $response->assertSee('Indikator tekanan / manometer');
+        $response->assertSee(route('apar.ganti', $apar->id));
+        $response->assertSee('Ganti APAR');
     }
 
     /**
