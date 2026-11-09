@@ -25,38 +25,50 @@
                 background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                min-height: auto !important;
-                height: auto !important;
+                height: 100% !important;
+                max-height: 297mm !important;
                 display: block !important;
                 width: 100% !important;
+                overflow: hidden !important;
             }
 
             .label-card {
                 box-shadow: none !important;
                 border: 2px solid #000 !important;
-                page-break-inside: avoid;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
                 margin: 0 !important;
                 background: white !important;
+                width: 100% !important;
+                max-width: 100% !important;
             }
 
             /* 1. Format Kertas A4: 1 Stiker (Kiri Atas) */
             body.print-format-a4-single {
                 padding: 8mm 0 0 8mm !important;
             }
+            body.print-format-a4-single #print-container {
+                display: inline-block !important;
+                width: 88mm !important;
+                position: relative !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
             body.print-format-a4-single #print-grid {
                 display: block !important;
+                width: 88mm !important;
             }
             body.print-format-a4-single #slot-stiker-1 {
-                display: inline-block !important;
-                float: left !important;
+                display: block !important;
                 margin: 0 !important;
                 width: 88mm !important;
+                position: relative !important;
             }
             body.print-format-a4-single #slot-stiker-2 {
                 display: none !important;
             }
             body.print-format-a4-single .cut-guide-single {
-                display: block !important;
+                display: flex !important;
             }
             body.print-format-a4-single .cut-guide-dual {
                 display: none !important;
@@ -65,6 +77,13 @@
             /* 2. Format Kertas A4: 2 Stiker (Kiri & Kanan Atas Berdampingan) */
             body.print-format-a4-dual {
                 padding: 8mm 0 0 10mm !important;
+            }
+            body.print-format-a4-dual #print-container {
+                display: block !important;
+                width: 184mm !important;
+                position: relative !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
             }
             body.print-format-a4-dual #print-grid {
                 display: grid !important;
@@ -78,12 +97,14 @@
                 display: block !important;
                 margin: 0 !important;
                 width: 88mm !important;
+                position: relative !important;
             }
             body.print-format-a4-dual .cut-guide-single {
                 display: none !important;
             }
             body.print-format-a4-dual .cut-guide-dual {
-                display: block !important;
+                display: flex !important;
+                width: 184mm !important;
             }
 
             /* 3. Format Pas Stiker (Thermal / PDF Pas tanpa margin A4) */
@@ -91,11 +112,14 @@
                 padding: 0 !important;
                 margin: 0 !important;
             }
+            body.print-format-pas #print-container,
             body.print-format-pas #print-grid {
                 display: block !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 100% !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
             }
             body.print-format-pas #slot-stiker-1 {
                 display: block !important;
@@ -111,16 +135,16 @@
             }
         }
 
-        /* Garis Panduan Potong (Cutting Guide Lines) */
+        /* Garis Panduan Potong (Cutting Guide Lines) - Hanya aktif saat diprint */
         .cut-guide-single, .cut-guide-dual {
-            display: none;
+            display: none !important;
         }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen p-4 sm:p-8 flex flex-col items-center justify-center font-sans antialiased text-slate-900 print-format-a4-single">
 
     <!-- Action Bar (Hidden during printing) -->
-    <div class="no-print max-w-xl w-full mb-6 flex flex-col gap-3">
+    <div id="action-bar-container" class="no-print max-w-xl w-full mb-6 flex flex-col gap-3 transition-all duration-200">
         <!-- Baris 1: Tombol Navigasi & Aksi Utama -->
         <div class="flex flex-wrap items-center justify-between gap-2.5">
             <a href="{{ route('apar.show', $apar->id) }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition min-h-[42px] shadow-2xs">
@@ -189,133 +213,136 @@
         </div>
     </div>
 
-    <!-- Container Grid Cetak (Mendukung 1 atau 2 Stiker Berdampingan) -->
-    <div id="print-grid" class="flex flex-col md:flex-row items-center justify-center gap-6">
+    <!-- Container Utama Cetak & Preview -->
+    <div id="print-container" class="relative transition-all duration-200">
+        <!-- Grid Stiker (Mendukung 1 atau 2 Stiker Berdampingan) -->
+        <div id="print-grid" class="flex flex-col md:flex-row items-center justify-center gap-6 relative">
 
-        <!-- SLOT STIKER 1 (KIRI ATAS / UTAMA) -->
-        <div id="slot-stiker-1" class="relative">
-            <!-- Fisik Stiker Label APAR (Official Hospital Safety Asset Tag - Padat, Kuat, Bebas Kotak Bertumpuk) -->
-            <div id="label-card" class="label-card max-w-sm w-[350px] bg-white border-2 border-slate-900 shadow-md text-xs rounded-none overflow-hidden font-sans">
-                
-                <!-- 1. Header Institusional Sederhana -->
-                <div class="px-4 pt-3.5 pb-2.5 border-b-2 border-slate-900 text-center bg-white">
-                    <span class="text-[8.5px] font-bold tracking-[0.18em] text-slate-500 uppercase block">
-                        RSUD DR. H. MOCH. ANSARI SALEH
-                    </span>
-                    <h1 class="text-xs font-black tracking-wider text-slate-900 uppercase mt-0.5 leading-snug">
-                        INSTALASI K3RS &bull; KESELAMATAN &amp; KESEHATAN KERJA
-                    </h1>
-                    <span class="text-[8px] font-semibold tracking-widest text-slate-400 uppercase block mt-0.5">
-                        LABEL INVENTARIS PROTEKSI KEBAKARAN
-                    </span>
-                </div>
+            <!-- SLOT STIKER 1 (KIRI ATAS / UTAMA) -->
+            <div id="slot-stiker-1" class="relative">
+                <!-- Fisik Stiker Label APAR (Official Hospital Safety Asset Tag - Padat, Kuat, Bebas Kotak Bertumpuk) -->
+                <div id="label-card" class="label-card max-w-sm w-[350px] bg-white border-2 border-slate-900 shadow-md text-xs rounded-none overflow-hidden font-sans">
+                    
+                    <!-- 1. Header Institusional Sederhana -->
+                    <div class="px-4 pt-3.5 pb-2.5 border-b-2 border-slate-900 text-center bg-white">
+                        <span class="text-[8.5px] font-bold tracking-[0.18em] text-slate-500 uppercase block">
+                            RSUD DR. H. MOCH. ANSARI SALEH
+                        </span>
+                        <h1 class="text-xs font-black tracking-wider text-slate-900 uppercase mt-0.5 leading-snug">
+                            INSTALASI K3RS &bull; KESELAMATAN &amp; KESEHATAN KERJA
+                        </h1>
+                        <span class="text-[8px] font-semibold tracking-widest text-slate-400 uppercase block mt-0.5">
+                            LABEL INVENTARIS PROTEKSI KEBAKARAN
+                        </span>
+                    </div>
 
-                <!-- 2. Identitas Utama: Kode Unit APAR Dominan -->
-                <div class="px-4 pt-3 pb-1 text-center bg-white">
-                    <span class="text-[8.5px] font-bold font-mono tracking-[0.2em] text-slate-400 uppercase block">
-                        KODE UNIT APAR
-                    </span>
-                    <div class="text-2xl font-black font-mono tracking-wider text-slate-950 mt-0.5">
-                        {{ $apar->kode }}
+                    <!-- 2. Identitas Utama: Kode Unit APAR Dominan -->
+                    <div class="px-4 pt-3 pb-1 text-center bg-white">
+                        <span class="text-[8.5px] font-bold font-mono tracking-[0.2em] text-slate-400 uppercase block">
+                            KODE UNIT APAR
+                        </span>
+                        <div class="text-2xl font-black font-mono tracking-wider text-slate-950 mt-0.5">
+                            {{ $apar->kode }}
+                        </div>
+                    </div>
+
+                    <!-- 3. Visual QR Code Utama dengan Quiet Zone Bersih -->
+                    <div class="px-4 py-2 flex flex-col items-center justify-center bg-white">
+                        <!-- Quiet Zone: Bantalan putih bersih dengan ukuran QR optimal -->
+                        <div class="w-40 h-40 bg-white p-1 flex items-center justify-center">
+                            {!! $apar->qr_svg !!}
+                        </div>
+                        <span class="text-[8px] font-mono tracking-widest text-slate-400 uppercase mt-1.5">
+                            PINDAI UNTUK RIWAYAT &amp; LOG INSPEKSI
+                        </span>
+                    </div>
+
+                    <!-- 4. Informasi Spesifikasi: Layout 2 Kolom Bersih (Tanpa Kotak Bertumpuk) -->
+                    <div class="border-t-2 border-slate-900 px-4 py-2.5 bg-white space-y-2">
+                        <div class="grid grid-cols-2 gap-3 text-left">
+                            <div>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">MEDIA PEMADAM</span>
+                                <span class="text-[11px] font-bold text-slate-900 block truncate leading-tight">{{ $apar->jenis_media }}</span>
+                            </div>
+                            <div>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">BERAT / KAPASITAS</span>
+                                <span class="text-[11px] font-bold font-mono text-slate-900 block leading-tight">{{ $apar->kapasitas }}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-left pt-1.5 border-t border-slate-200">
+                            <div>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">LOKASI GEDUNG</span>
+                                <span class="text-[11px] font-semibold text-slate-900 block truncate leading-tight">
+                                    {{ $apar->gedung?->nama ?? '-' }} (Lt. {{ $apar->lantai?->nomor_lantai ?? '-' }})
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">RUANGAN / AREA</span>
+                                <span class="text-[11px] font-semibold text-slate-900 block truncate leading-tight">
+                                    {{ $apar->ruangan?->nama ?? $apar->posisi_detail ?? '-' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        @if($apar->posisi_detail && $apar->ruangan?->nama)
+                            <div class="pt-1.5 border-t border-slate-100 text-[9.5px] text-slate-500 italic">
+                                <span class="font-bold text-slate-600 not-italic">Posisi:</span> {{ $apar->posisi_detail }}
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- 5. Metadata Tanggal Pemasangan & Kedaluwarsa Sederhana (Merah hanya untuk peringatan) -->
+                    @php
+                        $isExpired = $apar->tanggal_kadaluarsa && $apar->tanggal_kadaluarsa->isPast();
+                        $isNearExp = $apar->tanggal_kadaluarsa && !$isExpired && $apar->tanggal_kadaluarsa->diffInDays(now()) <= 30;
+                    @endphp
+                    <div class="border-t-2 border-slate-900 px-4 py-2 bg-white">
+                        <div class="grid grid-cols-2 gap-3 text-left">
+                            <div>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">TGL PEMASANGAN</span>
+                                <span class="text-[11px] font-mono font-bold text-slate-800 block mt-0.5">
+                                    {{ $apar->tanggal_pemasangan ? $apar->tanggal_pemasangan->format('d/m/Y') : '-' }}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-[8px] font-bold uppercase tracking-wider block {{ $isExpired ? 'text-red-600' : ($isNearExp ? 'text-amber-600' : 'text-slate-400') }}">
+                                    KEDALUWARSA (EXP)
+                                </span>
+                                <span class="text-[11px] font-mono font-bold block mt-0.5 {{ $isExpired ? 'text-red-700 font-black' : ($isNearExp ? 'text-amber-700 font-black' : 'text-slate-800') }}">
+                                    {{ $apar->tanggal_kadaluarsa ? $apar->tanggal_kadaluarsa->format('d/m/Y') : '-' }}
+                                    @if($isExpired)
+                                        <span class="text-[8px] font-sans font-bold text-red-700 ml-0.5">(EXPIRED)</span>
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 3. Visual QR Code Utama dengan Quiet Zone Bersih -->
-                <div class="px-4 py-2 flex flex-col items-center justify-center bg-white">
-                    <!-- Quiet Zone: Bantalan putih bersih dengan ukuran QR optimal -->
-                    <div class="w-40 h-40 bg-white p-1 flex items-center justify-center">
-                        {!! $apar->qr_svg !!}
-                    </div>
-                    <span class="text-[8px] font-mono tracking-widest text-slate-400 uppercase mt-1.5">
-                        PINDAI UNTUK RIWAYAT &amp; LOG INSPEKSI
-                    </span>
+                <!-- Panduan Potong Mode 1 Stiker: Sisi Kanan (Hanya Muncul Saat Print) -->
+                <div class="cut-guide-single absolute top-0 -right-4 bottom-0 flex-col items-center justify-center pointer-events-none">
+                    <div class="h-full border-r-2 border-dashed border-slate-400"></div>
+                    <span class="absolute top-1/2 -translate-y-1/2 bg-white px-0.5 text-[9px] font-mono text-slate-500 rotate-90 whitespace-nowrap">✂ Potong Kanan</span>
                 </div>
 
-                <!-- 4. Informasi Spesifikasi: Layout 2 Kolom Bersih (Tanpa Kotak Bertumpuk) -->
-                <div class="border-t-2 border-slate-900 px-4 py-2.5 bg-white space-y-2">
-                    <div class="grid grid-cols-2 gap-3 text-left">
-                        <div>
-                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">MEDIA PEMADAM</span>
-                            <span class="text-[11px] font-bold text-slate-900 block truncate leading-tight">{{ $apar->jenis_media }}</span>
-                        </div>
-                        <div>
-                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">BERAT / KAPASITAS</span>
-                            <span class="text-[11px] font-bold font-mono text-slate-900 block leading-tight">{{ $apar->kapasitas }}</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 text-left pt-1.5 border-t border-slate-200">
-                        <div>
-                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">LOKASI GEDUNG</span>
-                            <span class="text-[11px] font-semibold text-slate-900 block truncate leading-tight">
-                                {{ $apar->gedung?->nama ?? '-' }} (Lt. {{ $apar->lantai?->nomor_lantai ?? '-' }})
-                            </span>
-                        </div>
-                        <div>
-                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">RUANGAN / AREA</span>
-                            <span class="text-[11px] font-semibold text-slate-900 block truncate leading-tight">
-                                {{ $apar->ruangan?->nama ?? $apar->posisi_detail ?? '-' }}
-                            </span>
-                        </div>
-                    </div>
-
-                    @if($apar->posisi_detail && $apar->ruangan?->nama)
-                        <div class="pt-1.5 border-t border-slate-100 text-[9.5px] text-slate-500 italic">
-                            <span class="font-bold text-slate-600 not-italic">Posisi:</span> {{ $apar->posisi_detail }}
-                        </div>
-                    @endif
-                </div>
-
-                <!-- 5. Metadata Tanggal Pemasangan & Kedaluwarsa Sederhana (Merah hanya untuk peringatan) -->
-                @php
-                    $isExpired = $apar->tanggal_kadaluarsa && $apar->tanggal_kadaluarsa->isPast();
-                    $isNearExp = $apar->tanggal_kadaluarsa && !$isExpired && $apar->tanggal_kadaluarsa->diffInDays(now()) <= 30;
-                @endphp
-                <div class="border-t-2 border-slate-900 px-4 py-2 bg-white">
-                    <div class="grid grid-cols-2 gap-3 text-left">
-                        <div>
-                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">TGL PEMASANGAN</span>
-                            <span class="text-[11px] font-mono font-bold text-slate-800 block mt-0.5">
-                                {{ $apar->tanggal_pemasangan ? $apar->tanggal_pemasangan->format('d/m/Y') : '-' }}
-                            </span>
-                        </div>
-                        <div>
-                            <span class="text-[8px] font-bold uppercase tracking-wider block {{ $isExpired ? 'text-red-600' : ($isNearExp ? 'text-amber-600' : 'text-slate-400') }}">
-                                KEDALUWARSA (EXP)
-                            </span>
-                            <span class="text-[11px] font-mono font-bold block mt-0.5 {{ $isExpired ? 'text-red-700 font-black' : ($isNearExp ? 'text-amber-700 font-black' : 'text-slate-800') }}">
-                                {{ $apar->tanggal_kadaluarsa ? $apar->tanggal_kadaluarsa->format('d/m/Y') : '-' }}
-                                @if($isExpired)
-                                    <span class="text-[8px] font-sans font-bold text-red-700 ml-0.5">(EXPIRED)</span>
-                                @endif
-                            </span>
-                        </div>
-                    </div>
+                <!-- Panduan Potong Mode 1 Stiker: Sisi Bawah (Hanya Muncul Saat Print) -->
+                <div class="cut-guide-single absolute -bottom-4 left-0 right-0 items-center justify-center pointer-events-none">
+                    <div class="w-full border-b-2 border-dashed border-slate-400"></div>
+                    <span class="absolute left-1/2 -translate-x-1/2 bg-white px-1.5 text-[9px] font-mono text-slate-500 whitespace-nowrap">✂ Potong Bawah</span>
                 </div>
             </div>
 
-            <!-- Panduan Potong Mode 1 Stiker: Sisi Kanan -->
-            <div class="cut-guide-single absolute top-0 -right-4 bottom-0 flex flex-col items-center justify-center pointer-events-none">
-                <div class="h-full border-r-2 border-dashed border-slate-400"></div>
-                <span class="absolute top-1/2 -translate-y-1/2 bg-white px-0.5 text-[9px] font-mono text-slate-500 rotate-90 whitespace-nowrap">✂ Potong Kanan</span>
-            </div>
-
-            <!-- Panduan Potong Mode 1 Stiker: Sisi Bawah -->
-            <div class="cut-guide-single absolute -bottom-4 left-0 right-0 flex items-center justify-center pointer-events-none">
-                <div class="w-full border-b-2 border-dashed border-slate-400"></div>
-                <span class="absolute left-1/2 -translate-x-1/2 bg-white px-1.5 text-[9px] font-mono text-slate-500 whitespace-nowrap">✂ Potong Bawah (Sisa Kertas Bersih)</span>
+            <!-- SLOT STIKER 2 (KANAN ATAS / DUPLIKASI PASANGAN) -->
+            <div id="slot-stiker-2" class="relative hidden">
+                <!-- Isi kartu akan diduplikasi secara otomatis via JS -->
             </div>
         </div>
 
-        <!-- SLOT STIKER 2 (KANAN ATAS / DUPLIKASI PASANGAN) -->
-        <div id="slot-stiker-2" class="relative hidden">
-            <!-- Isi kartu akan diduplikasi secara otomatis via JS -->
-        </div>
-
-        <!-- Panduan Potong Mode 2 Stiker (Melintang Garis Tengah & Bawah Keseluruhan) -->
-        <div class="cut-guide-dual absolute -bottom-4 left-0 right-0 flex items-center justify-center pointer-events-none">
+        <!-- Panduan Potong Mode 2 Stiker: Melintang Garis Bawah (Hanya Muncul Saat Print) -->
+        <div class="cut-guide-dual absolute -bottom-5 left-0 right-0 items-center justify-center pointer-events-none">
             <div class="w-full border-b-2 border-dashed border-slate-400"></div>
-            <span class="absolute left-1/2 -translate-x-1/2 bg-white px-2 text-[9px] font-mono text-slate-600 whitespace-nowrap">✂ Potong Melintang Bawah (Paruh Atas Selesai • Paruh Bawah Utuh Bersih)</span>
+            <span class="absolute left-1/2 -translate-x-1/2 bg-white px-2 text-[9px] font-mono text-slate-600 whitespace-nowrap">✂ Potong Melintang Bawah (Paruh Atas Selesai)</span>
         </div>
     </div>
 
@@ -359,6 +386,8 @@
             optDual.className = inactiveClass;
             optPas.className = inactiveClass;
 
+            const actionBar = document.getElementById('action-bar-container');
+
             document.body.classList.remove('print-format-a4-single', 'print-format-a4-dual', 'print-format-pas');
 
             if (format === 'a4-single') {
@@ -366,17 +395,29 @@
                 pageStyle.innerHTML = '@media print { @page { size: A4 portrait; margin: 0; } }';
                 optSingle.className = activeClass;
                 slot2.classList.add('hidden');
+                if (actionBar) {
+                    actionBar.classList.remove('max-w-3xl');
+                    actionBar.classList.add('max-w-xl');
+                }
             } else if (format === 'a4-dual') {
                 document.body.classList.add('print-format-a4-dual');
                 pageStyle.innerHTML = '@media print { @page { size: A4 portrait; margin: 0; } }';
                 optDual.className = activeClass;
                 syncDualStickers();
                 slot2.classList.remove('hidden');
+                if (actionBar) {
+                    actionBar.classList.remove('max-w-xl');
+                    actionBar.classList.add('max-w-3xl');
+                }
             } else {
                 document.body.classList.add('print-format-pas');
                 pageStyle.innerHTML = '@media print { @page { size: 90mm 138mm; margin: 0; } }';
                 optPas.className = activeClass;
                 slot2.classList.add('hidden');
+                if (actionBar) {
+                    actionBar.classList.remove('max-w-3xl');
+                    actionBar.classList.add('max-w-xl');
+                }
             }
         }
 
