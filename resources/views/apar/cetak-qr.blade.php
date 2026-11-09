@@ -131,13 +131,12 @@
             </a>
 
             <div class="flex items-center gap-2">
-                <!-- Tombol Unduh PNG Resolusi Tinggi -->
-                <button type="button" id="btn-unduh-png" onclick="unduhLabelPng()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80 text-xs font-semibold transition min-h-[42px] shadow-2xs cursor-pointer" title="Unduh gambar stiker label lengkap format PNG resolusi tinggi siap cetak/kirim">
-                    <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <!-- Tombol Unduh PNG Resolusi Tinggi (Format UI Bersih seperti Unduh SVG) -->
+                <button type="button" id="btn-unduh-png" onclick="unduhLabelPng()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-xs font-semibold transition min-h-[42px] shadow-2xs cursor-pointer" title="Unduh gambar stiker label lengkap format PNG resolusi tinggi siap cetak/kirim">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
                     <span>Unduh PNG</span>
-                    <span class="text-[9px] px-1 py-0.2 rounded bg-emerald-200 text-emerald-900 font-bold uppercase">HD</span>
                 </button>
 
                 <!-- Tombol Cetak Label -->
@@ -195,8 +194,8 @@
 
         <!-- SLOT STIKER 1 (KIRI ATAS / UTAMA) -->
         <div id="slot-stiker-1" class="relative">
-            <!-- Fisik Stiker Label APAR (Standar K3RS Rumah Sakit Resmi) -->
-            <div id="label-card" class="label-card max-w-sm w-[350px] bg-white rounded-xl border-2 border-slate-900 overflow-hidden shadow-lg text-xs">
+            <!-- Fisik Stiker Label APAR (Kotak Padat Standar K3RS Mudah Digunting) -->
+            <div id="label-card" class="label-card max-w-sm w-[350px] bg-white border-2 border-slate-900 shadow-lg text-xs rounded-none">
                 
                 <!-- Aksen Garis Merah Proteksi K3RS -->
                 <div class="h-1.5 bg-red-700 w-full"></div>
@@ -215,7 +214,7 @@
                     </div>
 
                     <!-- Banner Subheader -->
-                    <div class="py-1 px-2 rounded bg-slate-100 border border-slate-300 text-center">
+                    <div class="py-1 px-2 bg-slate-100 border border-slate-300 text-center rounded-none">
                         <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-800">
                             LABEL IDENTITAS &amp; INSPEKSI APAR
                         </span>
@@ -252,7 +251,7 @@
                             <span class="font-semibold text-slate-900 text-right truncate max-w-[210px]">{{ $apar->lokasi_lengkap }}</span>
                         </div>
                         @if($apar->posisi_detail)
-                            <div class="text-[10px] text-slate-600 italic bg-slate-50 p-1.5 rounded border border-slate-200">
+                            <div class="text-[10px] text-slate-600 italic bg-slate-50 p-1.5 border border-slate-200 rounded-none">
                                 Posisi: {{ $apar->posisi_detail }}
                             </div>
                         @endif
@@ -260,13 +259,13 @@
 
                     <!-- Masa Berlaku: 2 Kotak High-Visibility (Khusus Auditor & Patroli K3RS) -->
                     <div class="border-t-2 border-slate-900 pt-2 grid grid-cols-2 gap-2 text-[10px]">
-                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-center">
+                        <div class="bg-slate-50 border border-slate-200 rounded-none p-1.5 text-center">
                             <span class="text-[8.5px] font-bold text-slate-500 uppercase block">Tgl Pemasangan</span>
                             <span class="text-xs font-mono font-bold text-slate-800 block mt-0.5">
                                 {{ $apar->tanggal_pemasangan ? $apar->tanggal_pemasangan->format('d/m/Y') : '-' }}
                             </span>
                         </div>
-                        <div class="bg-red-50/70 border border-red-300 rounded-lg p-1.5 text-center">
+                        <div class="bg-red-50/70 border border-red-300 rounded-none p-1.5 text-center">
                             <span class="text-[8.5px] font-black text-red-700 uppercase block tracking-tight">KADALUARSA (EXP)</span>
                             <span class="text-xs font-mono font-black text-red-800 block mt-0.5">
                                 {{ $apar->tanggal_kadaluarsa ? $apar->tanggal_kadaluarsa->format('d/m/Y') : '-' }}
@@ -391,18 +390,14 @@
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, w, h);
 
-                // Border Luar Kotak Label (Hitam Tebal 2px Rounded)
+                // Border Luar Kotak Label (Hitam Tebal 2px - Kotak Padat Tegak Lurus)
                 ctx.strokeStyle = '#0f172a';
                 ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.roundRect(2, 2, w - 4, h - 4, 12);
-                ctx.stroke();
+                ctx.strokeRect(2, 2, w - 4, h - 4);
 
-                // Aksen Garis Merah Proteksi K3RS
+                // Aksen Garis Merah Proteksi K3RS (Kotak Lurus)
                 ctx.fillStyle = '#b91c1c';
-                ctx.beginPath();
-                ctx.roundRect(2, 2, w - 4, 6, [10, 10, 0, 0]);
-                ctx.fill();
+                ctx.fillRect(2, 2, w - 4, 6);
 
                 // 1. Header Kop Rumah Sakit
                 ctx.fillStyle = '#64748b';
@@ -426,14 +421,12 @@
                 ctx.lineTo(w - 16, 58);
                 ctx.stroke();
 
-                // Banner Subheader Label
+                // Banner Subheader Label (Kotak Lurus)
                 ctx.fillStyle = '#f1f5f9';
                 ctx.strokeStyle = '#cbd5e1';
                 ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.roundRect(16, 64, w - 32, 20, 4);
-                ctx.fill();
-                ctx.stroke();
+                ctx.fillRect(16, 64, w - 32, 20);
+                ctx.strokeRect(16, 64, w - 32, 20);
 
                 ctx.fillStyle = '#1e293b';
                 ctx.font = '800 9.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -501,10 +494,8 @@
                     ctx.fillStyle = '#f8fafc';
                     ctx.strokeStyle = '#e2e8f0';
                     ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.roundRect(16, y - 4, w - 32, 19, 4);
-                    ctx.fill();
-                    ctx.stroke();
+                    ctx.fillRect(16, y - 4, w - 32, 19);
+                    ctx.strokeRect(16, y - 4, w - 32, 19);
 
                     ctx.textAlign = 'left';
                     ctx.fillStyle = '#475569';
@@ -521,7 +512,7 @@
                 ctx.lineTo(w - 16, y + 2);
                 ctx.stroke();
 
-                // 4. Dua Kotak High-Visibility: Tgl Pemasangan & Kadaluarsa
+                // 4. Dua Kotak High-Visibility: Tgl Pemasangan & Kadaluarsa (Kotak Padat Biasa)
                 y += 12;
                 const boxW = (w - 32 - 8) / 2;
                 const boxH = 40;
@@ -530,10 +521,8 @@
                 ctx.fillStyle = '#f8fafc';
                 ctx.strokeStyle = '#e2e8f0';
                 ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.roundRect(16, y, boxW, boxH, 6);
-                ctx.fill();
-                ctx.stroke();
+                ctx.fillRect(16, y, boxW, boxH);
+                ctx.strokeRect(16, y, boxW, boxH);
 
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#64748b';
@@ -548,10 +537,8 @@
                 ctx.fillStyle = '#fef2f2';
                 ctx.strokeStyle = '#fca5a5';
                 ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.roundRect(16 + boxW + 8, y, boxW, boxH, 6);
-                ctx.fill();
-                ctx.stroke();
+                ctx.fillRect(16 + boxW + 8, y, boxW, boxH);
+                ctx.strokeRect(16 + boxW + 8, y, boxW, boxH);
 
                 ctx.fillStyle = '#b91c1c';
                 ctx.font = '900 8.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';

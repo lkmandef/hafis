@@ -657,7 +657,7 @@
             <x-card title="QR Code APAR" subtitle="Identitas fisik unik untuk verifikasi scan di lapangan.">
                 <div class="text-center p-4 bg-gray-50 rounded-xl border border-gray-200">
                     <!-- Dynamic Vector QR SVG -->
-                    <div class="mx-auto w-40 h-40 bg-white p-2.5 rounded-lg border border-gray-200 flex items-center justify-center">
+                    <div id="apar-qr-preview-box" class="mx-auto w-40 h-40 bg-white p-2.5 rounded-lg border border-gray-200 flex items-center justify-center">
                         {!! $apar->qr_svg !!}
                     </div>
 
@@ -681,13 +681,13 @@
                             <span>Cetak Label QR</span>
                         </a>
 
-                        <a href="{{ route('apar.download_qr', $apar->id) }}"
-                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition min-h-[40px]">
+                        <button type="button" id="btn-unduh-png-show" onclick="unduhLabelPngShow()"
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition min-h-[40px] cursor-pointer" title="Unduh gambar stiker label lengkap format PNG">
                             <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                             </svg>
-                            <span>Download SVG</span>
-                        </a>
+                            <span>Unduh PNG</span>
+                        </button>
                     </div>
                 </div>
             </x-card>
@@ -728,4 +728,201 @@
         </div>
 
     </div>
+
+    <!-- Script Unduh PNG Label APAR Langsung dari Halaman Detail -->
+    <script>
+        async function unduhLabelPngShow() {
+            const btn = document.getElementById('btn-unduh-png-show');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<svg class="w-3.5 h-3.5 animate-spin text-gray-700 shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> <span>Menyiapkan...</span>`;
+            btn.disabled = true;
+
+            try {
+                const scale = 3; // 3x HD Retina Resolution (300 DPI)
+                const w = 350;
+                const hasPosisi = {{ $apar->posisi_detail ? 'true' : 'false' }};
+                const h = hasPosisi ? 545 : 515;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = w * scale;
+                canvas.height = h * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(scale, scale);
+
+                // Background Putih Bersih
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, w, h);
+
+                // Border Luar Kotak Label (Hitam Tebal 2px - Kotak Padat Tegak Lurus)
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(2, 2, w - 4, h - 4);
+
+                // Aksen Garis Merah Proteksi K3RS (Kotak Lurus)
+                ctx.fillStyle = '#b91c1c';
+                ctx.fillRect(2, 2, w - 4, 6);
+
+                // 1. Header Kop Rumah Sakit
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 8.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('PEMERINTAH PROVINSI KALIMANTAN SELATAN', w / 2, 22);
+
+                ctx.fillStyle = '#020617';
+                ctx.font = '900 12.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('RSUD DR. H. MOCH. ANSARI SALEH', w / 2, 38);
+
+                ctx.fillStyle = '#b91c1c';
+                ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('INSTALASI K3RS • KESELAMATAN KEBAKARAN', w / 2, 51);
+
+                // Garis Pemisah Kop
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(16, 58);
+                ctx.lineTo(w - 16, 58);
+                ctx.stroke();
+
+                // Banner Subheader Label (Kotak Lurus)
+                ctx.fillStyle = '#f1f5f9';
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 1;
+                ctx.fillRect(16, 64, w - 32, 20);
+                ctx.strokeRect(16, 64, w - 32, 20);
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = '800 9.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('LABEL IDENTITAS & INSPEKSI APAR', w / 2, 77);
+
+                // 2. Render QR Code (Bersih Tanpa Kotak Abu-abu)
+                const svgElement = document.querySelector('#apar-qr-preview-box svg');
+                if (svgElement) {
+                    const svgXml = new XMLSerializer().serializeToString(svgElement);
+                    const svgUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgXml);
+                    const qrImg = new Image();
+                    await new Promise((resolve) => {
+                        qrImg.onload = resolve;
+                        qrImg.onerror = resolve;
+                        qrImg.src = svgUri;
+                    });
+                    ctx.drawImage(qrImg, (w - 144) / 2, 92, 144, 144);
+                }
+
+                // Hero Metric: Kode Tabung APAR
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = 'bold 9px ui-monospace, SFMono-Regular, Menlo, monospace';
+                ctx.fillText('KODE UNIT TABUNG', w / 2, 252);
+
+                ctx.fillStyle = '#020617';
+                ctx.font = '900 17px ui-monospace, SFMono-Regular, Menlo, monospace';
+                ctx.fillText('{{ $apar->kode }}', w / 2, 271);
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '500 9px ui-monospace, monospace';
+                ctx.fillText('Token: {{ $apar->qr_code }}', w / 2, 285);
+
+                // Garis Pemisah Spesifikasi
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(16, 297);
+                ctx.lineTo(w - 16, 297);
+                ctx.stroke();
+
+                // 3. Spesifikasi Teknis
+                let y = 315;
+                function drawField(label, value, isBold, isMono) {
+                    ctx.textAlign = 'left';
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '500 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText(label, 16, y);
+
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = '#020617';
+                    ctx.font = (isBold ? '800 ' : '600 ') + (isMono ? '12px ui-monospace, monospace' : '10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
+
+                    let displayVal = value;
+                    while (ctx.measureText(displayVal).width > 200 && displayVal.length > 3) {
+                        displayVal = displayVal.slice(0, -4) + '...';
+                    }
+                    ctx.fillText(displayVal, w - 16, y);
+                    y += 18;
+                }
+
+                drawField('MEDIA / BERAT:', '{{ $apar->jenis_media }} • {{ $apar->kapasitas }}', true, false);
+                drawField('LOKASI:', '{{ $apar->lokasi_lengkap }}', false, false);
+
+                @if($apar->posisi_detail)
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.strokeStyle = '#e2e8f0';
+                    ctx.lineWidth = 1;
+                    ctx.fillRect(16, y - 4, w - 32, 19);
+                    ctx.strokeRect(16, y - 4, w - 32, 19);
+
+                    ctx.textAlign = 'left';
+                    ctx.fillStyle = '#475569';
+                    ctx.font = 'italic 9.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('Posisi: {{ $apar->posisi_detail }}', 22, y + 9);
+                    y += 24;
+                @endif
+
+                // Garis Pemisah Footer
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(16, y + 2);
+                ctx.lineTo(w - 16, y + 2);
+                ctx.stroke();
+
+                // 4. Dua Kotak High-Visibility: Tgl Pemasangan & Kadaluarsa (Kotak Padat Biasa)
+                y += 12;
+                const boxW = (w - 32 - 8) / 2;
+                const boxH = 40;
+
+                // Kotak 1: Tgl Pasang (Slate)
+                ctx.fillStyle = '#f8fafc';
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                ctx.fillRect(16, y, boxW, boxH);
+                ctx.strokeRect(16, y, boxW, boxH);
+
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 8.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('TGL PEMASANGAN', 16 + boxW / 2, y + 14);
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 11px ui-monospace, monospace';
+                ctx.fillText('{{ $apar->tanggal_pemasangan ? $apar->tanggal_pemasangan->format("d/m/Y") : "-" }}', 16 + boxW / 2, y + 30);
+
+                // Kotak 2: Kadaluarsa EXP (Red Alert Box)
+                ctx.fillStyle = '#fef2f2';
+                ctx.strokeStyle = '#fca5a5';
+                ctx.lineWidth = 1;
+                ctx.fillRect(16 + boxW + 8, y, boxW, boxH);
+                ctx.strokeRect(16 + boxW + 8, y, boxW, boxH);
+
+                ctx.fillStyle = '#b91c1c';
+                ctx.font = '900 8.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('KADALUARSA (EXP)', 16 + boxW + 8 + boxW / 2, y + 14);
+
+                ctx.fillStyle = '#991b1b';
+                ctx.font = '900 11.5px ui-monospace, monospace';
+                ctx.fillText('{{ $apar->tanggal_kadaluarsa ? $apar->tanggal_kadaluarsa->format("d/m/Y") : "-" }}', 16 + boxW + 8 + boxW / 2, y + 30);
+
+                // Eksekusi Download Otomatis
+                const downloadLink = document.createElement('a');
+                downloadLink.download = 'Label-APAR-{{ $apar->kode }}.png';
+                downloadLink.href = canvas.toDataURL('image/png', 1.0);
+                downloadLink.click();
+            } catch (error) {
+                console.error('Error generate PNG:', error);
+                alert('Terjadi kesalahan saat membuat file gambar PNG.');
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+    </script>
 </x-layouts.app>
