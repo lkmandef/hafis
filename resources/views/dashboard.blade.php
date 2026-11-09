@@ -30,28 +30,28 @@
     </x-page-header>
 
     <!-- 2. Hero Section: 1 Card Lebar Terpadu (Single Integrated Hero Monitoring Panel) -->
-    <div class="bg-white rounded-xl border border-gray-200/90 shadow-xs p-4 sm:p-6 mb-6">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-xs p-4 sm:p-6 mb-6">
         <!-- Top Metrics & Fleet Summary -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-gray-100">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
                     Kesiapsiagaan Proteksi Kebakaran Rumah Sakit
                 </p>
                 <div class="flex items-baseline gap-3 flex-wrap">
-                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 font-mono tabular-nums">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-emerald-800 font-mono tabular-nums">
                         {{ $kondisiPersen['baik'] }}%
                     </h2>
-                    <span class="text-sm sm:text-base font-semibold text-gray-800">
+                    <span class="text-sm sm:text-base font-bold text-gray-900">
                         Kelaikan Operasional Armada APAR
                     </span>
                 </div>
-                <p class="text-xs text-gray-500 mt-1.5">
+                <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
                     Total <a href="{{ route('apar.index', ['status' => 'aktif']) }}" class="font-semibold text-gray-900 underline-offset-2 hover:underline"><span class="font-mono font-bold">{{ $summaryStats['apar_aktif'] }}</span> APAR Terpasang</a> dari <span class="font-mono font-medium">{{ $summaryStats['apar_total'] }}</span> unit terdaftar, tersebar di <strong class="font-semibold text-gray-800">{{ $summaryStats['total_gedung'] }}</strong> gedung aktif RSUD dr. H. Moch. Ansari Saleh.
                 </p>
             </div>
 
             <div class="flex items-center gap-3 shrink-0">
-                <a href="{{ route('laporan.apar') }}" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 min-h-[40px]">
+                <a href="{{ route('laporan.apar') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 transition-colors shadow-2xs focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 min-h-[40px]">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -62,89 +62,105 @@
 
         <!-- Multi-Segment Visual Progress Bar -->
         <div class="py-4 border-b border-gray-100">
-            <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+            <div class="flex items-center justify-between text-xs text-gray-600 mb-2 font-medium">
                 <span>Distribusi Status Tabung Aktual</span>
                 <span class="font-mono font-semibold text-gray-800">{{ $summaryStats['apar_total'] }} Unit Terdata</span>
             </div>
-            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden flex"
+            <div class="w-full h-2.5 bg-gray-100 border border-gray-200/60 rounded-full overflow-hidden flex gap-0.5 p-0.5"
                  role="progressbar"
                  aria-label="Distribusi Kondisi Kelaikan APAR"
                  aria-valuenow="{{ $kondisiPersen['baik'] }}"
                  aria-valuemin="0"
                  aria-valuemax="100">
                 @if($summaryStats['apar_total'] > 0)
-                    <div style="width: {{ $kondisiPersen['baik'] }}%" class="bg-emerald-600 h-full motion-safe:transition-[width] motion-safe:duration-500 motion-reduce:transition-none" title="Baik: {{ $kondisiCounts['baik'] }} unit ({{ $kondisiPersen['baik'] }}%)"></div>
-                    <div style="width: {{ $kondisiPersen['perhatian'] }}%" class="bg-amber-500 h-full motion-safe:transition-[width] motion-safe:duration-500 motion-reduce:transition-none" title="Perlu Perhatian: {{ $kondisiCounts['perhatian'] }} unit ({{ $kondisiPersen['perhatian'] }}%)"></div>
-                    <div style="width: {{ $kondisiPersen['rusak'] }}%" class="bg-red-500 h-full motion-safe:transition-[width] motion-safe:duration-500 motion-reduce:transition-none" title="Rusak: {{ $kondisiCounts['rusak'] }} unit ({{ $kondisiPersen['rusak'] }}%)"></div>
-                    <div style="width: {{ $kondisiPersen['tidak_aktif'] }}%" class="bg-gray-400 h-full motion-safe:transition-[width] motion-safe:duration-500 motion-reduce:transition-none" title="Tidak Aktif: {{ $kondisiCounts['tidak_aktif'] }} unit ({{ $kondisiPersen['tidak_aktif'] }}%)"></div>
+                    @if($kondisiPersen['baik'] > 0)
+                        <div style="width: {{ $kondisiPersen['baik'] }}%" class="bg-emerald-600 h-full rounded-full motion-safe:transition-[width] motion-safe:duration-500" title="Baik: {{ $kondisiCounts['baik'] }} unit ({{ $kondisiPersen['baik'] }}%)"></div>
+                    @endif
+                    @if($kondisiPersen['perhatian'] > 0)
+                        <div style="width: {{ $kondisiPersen['perhatian'] }}%" class="bg-amber-500 h-full rounded-full motion-safe:transition-[width] motion-safe:duration-500" title="Perlu Perhatian: {{ $kondisiCounts['perhatian'] }} unit ({{ $kondisiPersen['perhatian'] }}%)"></div>
+                    @endif
+                    @if($kondisiPersen['rusak'] > 0)
+                        <div style="width: {{ $kondisiPersen['rusak'] }}%" class="bg-rose-500 h-full rounded-full motion-safe:transition-[width] motion-safe:duration-500" title="Rusak: {{ $kondisiCounts['rusak'] }} unit ({{ $kondisiPersen['rusak'] }}%)"></div>
+                    @endif
+                    @if($kondisiPersen['tidak_aktif'] > 0)
+                        <div style="width: {{ $kondisiPersen['tidak_aktif'] }}%" class="bg-gray-400 h-full rounded-full motion-safe:transition-[width] motion-safe:duration-500" title="Tidak Aktif: {{ $kondisiCounts['tidak_aktif'] }} unit ({{ $kondisiPersen['tidak_aktif'] }}%)"></div>
+                    @endif
                 @else
-                    <div class="w-full bg-gray-200 h-full"></div>
+                    <div class="w-full bg-gray-200 h-full rounded-full"></div>
                 @endif
             </div>
         </div>
 
         <!-- 4 Interactive Filter Pillars -->
-        <div class="pt-4 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-            <!-- 1. Kondisi Baik -->
+        <div class="pt-4 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+            <!-- 1. Kondisi Baik (Emerald Semantic) -->
             <a href="{{ route('apar.index', ['status' => 'baik']) }}"
-               class="group p-3 sm:p-3.5 rounded-lg bg-gray-50/70 hover:bg-emerald-50/50 border border-gray-200/80 hover:border-emerald-300 transition-colors flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 min-h-[44px]">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-gray-700 group-hover:text-emerald-900">Kondisi Baik</span>
-                    <span class="text-xs font-semibold text-emerald-700 font-mono">{{ $kondisiPersen['baik'] }}%</span>
+               class="group p-3.5 rounded-xl bg-emerald-50/20 hover:bg-emerald-50/50 border border-emerald-200/70 border-l-[3.5px] border-l-emerald-600 transition-all flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 shadow-2xs min-h-[110px]">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-xs font-bold text-gray-800 group-hover:text-emerald-950">Kondisi Baik</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold font-mono bg-emerald-100/80 text-emerald-800 border border-emerald-200">
+                        {{ $kondisiPersen['baik'] }}%
+                    </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-1">
-                    <span class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 font-mono tabular-nums">
+                <div class="mt-2 flex items-baseline gap-1.5">
+                    <span class="text-2xl sm:text-3xl font-extrabold tracking-tight text-emerald-800 font-mono tabular-nums">
                         {{ $kondisiCounts['baik'] }}
                     </span>
-                    <span class="text-xs text-gray-500 font-medium font-sans">unit</span>
+                    <span class="text-xs text-emerald-900/70 font-semibold font-sans">unit</span>
                 </div>
                 <span class="text-[11px] text-gray-500 mt-1 block">Kelaikan terjaga siap pakai</span>
             </a>
 
-            <!-- 2. Mendekati Expired / Perlu Perhatian -->
+            <!-- 2. Mendekati Expired (Amber Semantic) -->
             <a href="{{ route('apar.index', ['status' => 'perhatian']) }}"
-               class="group p-3 sm:p-3.5 rounded-lg {{ $summaryStats['apar_perhatian'] > 0 ? 'bg-amber-50/60 border-amber-300' : 'bg-gray-50/70 border-gray-200/80' }} hover:bg-amber-100/60 hover:border-amber-400 transition-colors flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 min-h-[44px]">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-gray-700 group-hover:text-amber-900">Mendekati Expired</span>
-                    <span class="text-xs font-semibold font-mono {{ $summaryStats['apar_perhatian'] > 0 ? 'text-amber-700' : 'text-gray-400' }}">{{ $kondisiPersen['perhatian'] }}%</span>
+               class="group p-3.5 rounded-xl {{ $summaryStats['apar_perhatian'] > 0 ? 'bg-amber-50/40 border-amber-300' : 'bg-gray-50/30 border-gray-200' }} border-l-[3.5px] border-l-amber-500 hover:bg-amber-50/60 hover:border-amber-300 transition-all flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 shadow-2xs min-h-[110px]">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-xs font-bold text-gray-800 group-hover:text-amber-950">Mendekati Expired</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold font-mono {{ $summaryStats['apar_perhatian'] > 0 ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-gray-100 text-gray-600 border border-gray-200' }}">
+                        {{ $kondisiPersen['perhatian'] }}%
+                    </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-1">
-                    <span class="text-xl sm:text-2xl font-bold tracking-tight font-mono tabular-nums {{ $summaryStats['apar_perhatian'] > 0 ? 'text-amber-800' : 'text-gray-900' }}">
+                <div class="mt-2 flex items-baseline gap-1.5">
+                    <span class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono tabular-nums {{ $summaryStats['apar_perhatian'] > 0 ? 'text-amber-800' : 'text-gray-700' }}">
                         {{ $summaryStats['apar_perhatian'] }}
                     </span>
-                    <span class="text-xs text-gray-500 font-medium font-sans">unit</span>
+                    <span class="text-xs text-gray-500 font-semibold font-sans">unit</span>
                 </div>
                 <span class="text-[11px] text-gray-500 mt-1 block">Perlu isi ulang media tabung</span>
             </a>
 
-            <!-- 3. Kondisi Rusak -->
+            <!-- 3. Kondisi Rusak (Rose Semantic) -->
             <a href="{{ route('apar.index', ['status' => 'rusak']) }}"
-               class="group p-3 sm:p-3.5 rounded-lg {{ $summaryStats['apar_rusak'] > 0 ? 'bg-red-50/60 border-red-300' : 'bg-gray-50/70 border-gray-200/80' }} hover:bg-red-100/60 hover:border-red-400 transition-colors flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 min-h-[44px]">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-gray-700 group-hover:text-red-900">Kondisi Rusak</span>
-                    <span class="text-xs font-semibold font-mono {{ $summaryStats['apar_rusak'] > 0 ? 'text-red-700' : 'text-gray-400' }}">{{ $kondisiPersen['rusak'] }}%</span>
+               class="group p-3.5 rounded-xl {{ $summaryStats['apar_rusak'] > 0 ? 'bg-rose-50/40 border-rose-300' : 'bg-gray-50/30 border-gray-200' }} border-l-[3.5px] border-l-rose-500 hover:bg-rose-50/60 hover:border-rose-300 transition-all flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 shadow-2xs min-h-[110px]">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-xs font-bold text-gray-800 group-hover:text-rose-950">Kondisi Rusak</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold font-mono {{ $summaryStats['apar_rusak'] > 0 ? 'bg-rose-100 text-rose-900 border border-rose-300' : 'bg-gray-100 text-gray-600 border border-gray-200' }}">
+                        {{ $kondisiPersen['rusak'] }}%
+                    </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-1">
-                    <span class="text-xl sm:text-2xl font-bold tracking-tight font-mono tabular-nums {{ $summaryStats['apar_rusak'] > 0 ? 'text-red-700' : 'text-gray-900' }}">
+                <div class="mt-2 flex items-baseline gap-1.5">
+                    <span class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono tabular-nums {{ $summaryStats['apar_rusak'] > 0 ? 'text-rose-700' : 'text-gray-700' }}">
                         {{ $summaryStats['apar_rusak'] }}
                     </span>
-                    <span class="text-xs text-gray-500 font-medium font-sans">unit</span>
+                    <span class="text-xs text-gray-500 font-semibold font-sans">unit</span>
                 </div>
                 <span class="text-[11px] text-gray-500 mt-1 block">Tidak laik butuh perbaikan</span>
             </a>
 
-            <!-- 4. Total APAR Terpasang -->
+            <!-- 4. Total APAR Terpasang (Slate Anchor Semantic) -->
             <a href="{{ route('apar.index', ['status' => 'aktif']) }}"
-               class="group p-3 sm:p-3.5 rounded-lg bg-gray-50/70 hover:bg-gray-100/70 border border-gray-200/80 hover:border-gray-300 transition-colors flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 min-h-[44px]">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-gray-700 group-hover:text-gray-900">Total Terpasang</span>
-                    <span class="text-xs font-semibold text-gray-600 font-mono">{{ $summaryStats['total_gedung'] }} Gedung</span>
+               class="group p-3.5 rounded-xl bg-slate-50/50 hover:bg-slate-100/60 border border-slate-200/90 border-l-[3.5px] border-l-slate-800 transition-all flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 shadow-2xs min-h-[110px]">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-xs font-bold text-gray-900">Total Terpasang</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold font-mono bg-slate-200/70 text-slate-800 border border-slate-300/60">
+                        {{ $summaryStats['total_gedung'] }} Gedung
+                    </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-1">
-                    <span class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 font-mono tabular-nums">
+                <div class="mt-2 flex items-baseline gap-1.5">
+                    <span class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-mono tabular-nums">
                         {{ $summaryStats['apar_aktif'] }}
                     </span>
-                    <span class="text-xs text-gray-500 font-medium font-sans">unit</span>
+                    <span class="text-xs text-slate-600 font-semibold font-sans">unit</span>
                 </div>
                 <span class="text-[11px] text-gray-500 mt-1 block">Semua unit aktif operasional</span>
             </a>
