@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Apar;
 use App\Models\Jadwal;
 use App\Models\Lokasi;
+use App\Models\MasterChecklist;
 use App\Models\Pemeriksaan;
 use Carbon\Carbon;
 use DomainException;
@@ -251,16 +252,17 @@ class PemeriksaanController extends Controller
                 ->with('info', "Unit APAR {$apar->kode} sudah memiliki catatan pemeriksaan untuk periode {$periodeBulan}/{$periodeTahun}. Formulir dialihkan ke mode koreksi.");
         }
 
-        // Checklist items: 5 parameter K3RS jika bulanan, atau default jika legacy schedule ad-hoc
+        // Checklist items: Master checklist K3RS jika bulanan, atau default jika legacy schedule ad-hoc
         // Workflow bulanan berlaku jika ada parameter periode eksplisit ATAU untuk inspeksi mandiri APAR terpasang operasional
         $isExplicitLegacySchedule = ! empty($jadwalId) && ! $request->has('periode_bulan') && ! $request->has('periode_tahun');
         $isMonthlyWorkflow = ! $isExplicitLegacySchedule && ($request->has('periode_bulan') || $request->has('periode_tahun') || ! empty($apar->lokasi_id));
-        $checklistItems = $isMonthlyWorkflow ? Pemeriksaan::K3RS_CHECKLIST_ITEMS : Pemeriksaan::DEFAULT_CHECKLIST_ITEMS;
+        $checklistItems = $isMonthlyWorkflow ? MasterChecklist::getActiveItems() : Pemeriksaan::DEFAULT_CHECKLIST_ITEMS;
+        $helperMap = MasterChecklist::getHelperMap();
 
         $petugas = auth()->user()?->name ?? 'Petugas K3RS';
         $waktuSekarang = Carbon::now();
 
-        return view('pemeriksaan.create', compact('apar', 'jadwal', 'checklistItems', 'petugas', 'waktuSekarang', 'periodeTahun', 'periodeBulan', 'isMonthlyWorkflow'));
+        return view('pemeriksaan.create', compact('apar', 'jadwal', 'checklistItems', 'helperMap', 'petugas', 'waktuSekarang', 'periodeTahun', 'periodeBulan', 'isMonthlyWorkflow'));
     }
 
     /**
@@ -327,16 +329,16 @@ class PemeriksaanController extends Controller
             ?? ($jadwal ? (int) Carbon::parse($jadwal->tanggal_mulai)->month : (int) $tanggalPemeriksaan->month);
 
         $isMonthlyWorkflow = ! empty($validated['periode_bulan']) || ! empty($validated['periode_tahun']);
-        $canonicalItems = Pemeriksaan::CANONICAL_CHECKLIST_ITEMS;
+        $canonicalItems = MasterChecklist::getActiveCanonicalNames();
 
-        // Validasi identitas 5 parameter kanonikal K3RS untuk pemeriksaan bulanan
+        // Validasi identitas parameter kelaikan fisik K3RS aktif untuk pemeriksaan bulanan
         if ($isMonthlyWorkflow) {
             $submittedNames = array_map('trim', array_column($validated['items'], 'nama'));
 
             if (count($submittedNames) !== count($canonicalItems)) {
                 return redirect()->back()
                     ->withInput()
-                    ->withErrors(['items' => 'Checklist pemeriksaan bulanan harus memuat tepat 5 parameter K3RS.']);
+                    ->withErrors(['items' => 'Checklist pemeriksaan bulanan harus memuat tepat '.count($canonicalItems).' parameter aktif K3RS.']);
             }
 
             $diff1 = array_diff($submittedNames, $canonicalItems);
@@ -513,8 +515,9 @@ class PemeriksaanController extends Controller
 
         // Pastikan checklist items sesuai
         $checklistItems = $pemeriksaan->isMonthlyInspection()
-            ? Pemeriksaan::K3RS_CHECKLIST_ITEMS
+            ? MasterChecklist::getActiveItems()
             : Pemeriksaan::DEFAULT_CHECKLIST_ITEMS;
+        $helperMap = MasterChecklist::getHelperMap();
 
         $petugas = $pemeriksaan->pemeriksa_nama;
         $waktuSekarang = $pemeriksaan->tanggal_pemeriksaan ?? Carbon::now();
@@ -524,6 +527,7 @@ class PemeriksaanController extends Controller
             'apar',
             'jadwal',
             'checklistItems',
+            'helperMap',
             'savedDetails',
             'petugas',
             'waktuSekarang',
@@ -555,16 +559,16 @@ class PemeriksaanController extends Controller
 
         $apar = $pemeriksaan->apar;
 
-        $canonicalItems = Pemeriksaan::CANONICAL_CHECKLIST_ITEMS;
+        $canonicalItems = MasterChecklist::getActiveCanonicalNames();
 
-        // Validasi identitas 5 parameter kanonikal K3RS jika ini pemeriksaan bulanan
+        // Validasi identitas parameter kelaikan fisik K3RS aktif jika ini pemeriksaan bulanan
         if ($pemeriksaan->isMonthlyInspection()) {
             $submittedNames = array_map('trim', array_column($validated['items'], 'nama'));
 
             if (count($submittedNames) !== count($canonicalItems)) {
                 return redirect()->back()
                     ->withInput()
-                    ->withErrors(['items' => 'Checklist pemeriksaan bulanan harus memuat tepat 5 parameter K3RS.']);
+                    ->withErrors(['items' => 'Checklist pemeriksaan bulanan harus memuat tepat '.count($canonicalItems).' parameter aktif K3RS.']);
             }
 
             $diff1 = array_diff($submittedNames, $canonicalItems);

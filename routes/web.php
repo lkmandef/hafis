@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AparController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChecklistMasterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\LaporanController;
@@ -153,6 +154,17 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{user}', [UserController::class, 'update'])->name('update');
             Route::post('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
             Route::post('/{user}/reset-password', [UserController::class, 'resetPassword'])->name('reset-password');
+        });
+
+        // Pengaturan Sistem: Master Checklist Pemeriksaan Fisik APAR
+        Route::prefix('pengaturan')->name('pengaturan.')->group(function () {
+            Route::prefix('checklist')->name('checklist.')->group(function () {
+                Route::get('/', [ChecklistMasterController::class, 'index'])->name('index');
+                Route::post('/', [ChecklistMasterController::class, 'store'])->name('store');
+                Route::put('/{checklist}', [ChecklistMasterController::class, 'update'])->name('update');
+                Route::post('/{checklist}/toggle-status', [ChecklistMasterController::class, 'toggleStatus'])->name('toggle-status');
+                Route::delete('/{checklist}', [ChecklistMasterController::class, 'destroy'])->name('destroy');
+            });
         });
 
         // Tindakan Administratif / Destruktif

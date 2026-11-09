@@ -236,7 +236,7 @@
                             <input type="text" 
                                    name="items[{{ $index }}][catatan]" 
                                    value="{{ $oldCatatan }}"
-                                   placeholder="Catatan temuan khusus item ini (opsional, misal: jarum manometer di bawah zona hijau)..." 
+                                   placeholder="{{ !empty($helperMap[$itemNama]) ? 'Catatan temuan (contoh: ' . $helperMap[$itemNama] . ')' : 'Catatan temuan khusus item ini (opsional)...' }}" 
                                    class="w-full text-xs px-3.5 py-2.5 rounded-lg border border-gray-200 bg-gray-50/50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-gray-900 focus:outline-none transition min-h-[44px]">
                         </div>
                     </div>

@@ -66,7 +66,7 @@
         $isPenggantian = request()->routeIs('penggantian.*') || request()->is('penggantian*');
         $isLokasi = request()->routeIs('lokasi.*') || request()->is('lokasi*');
         $isLaporan = request()->routeIs('laporan.*') || request()->is('laporan*') || request()->is('riwayat*');
-        $isUsers = request()->routeIs('users.*') || request()->is('pengguna*');
+        $isSettings = request()->routeIs('users.*') || request()->is('pengguna*') || request()->routeIs('pengaturan.*') || request()->is('pengaturan*');
         @endphp
 
         <!-- Dashboard -->
@@ -126,14 +126,15 @@
         </a>
     </nav>
 
-    <!-- Bottom Part: Pengguna & Akses (Khusus Admin) + Logout -->
+    <!-- Bottom Part: Pengaturan & Akses (Khusus Admin) + Logout -->
     <div class="shrink-0 pt-2.5 border-t border-gray-200 space-y-1">
         @if(auth()->user()?->isAdmin())
-            <a href="{{ route('users.index') }}" {{ $isUsers ? 'aria-current="page"' : '' }} class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors motion-safe:active:scale-[0.98] min-h-[40px] {{ $isUsers ? 'bg-gray-900 text-white shadow-2xs' : 'text-gray-600 hover:bg-gray-200/60 hover:text-gray-900' }} focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900">
-                <svg class="w-4 h-4 shrink-0 {{ $isUsers ? 'text-white' : 'text-gray-500 group-hover:text-gray-700' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            <a href="{{ route('users.index') }}" {{ $isSettings ? 'aria-current="page"' : '' }} class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors motion-safe:active:scale-[0.98] min-h-[40px] {{ $isSettings ? 'bg-gray-900 text-white shadow-2xs' : 'text-gray-600 hover:bg-gray-200/60 hover:text-gray-900' }} focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900">
+                <svg class="w-4 h-4 shrink-0 {{ $isSettings ? 'text-white' : 'text-gray-500 group-hover:text-gray-700' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
-                <span>Pengguna & Akses</span>
+                <span>Pengaturan & Akses</span>
             </a>
         @endif
 
