@@ -143,8 +143,8 @@
 </head>
 <body class="bg-slate-100 min-h-screen p-4 sm:p-8 flex flex-col items-center justify-center font-sans antialiased text-slate-900 print-format-a4-single">
 
-    <!-- Action Bar (Hidden during printing) -->
-    <div id="action-bar-container" class="no-print max-w-xl w-full mb-6 flex flex-col gap-3 transition-all duration-200">
+    <!-- Action Bar (Hidden during printing - Konsisten Lebar max-w-3xl di Semua Format) -->
+    <div id="action-bar-container" class="no-print max-w-3xl w-full mb-6 flex flex-col gap-3">
         <!-- Baris 1: Tombol Navigasi & Aksi Utama -->
         <div class="flex flex-wrap items-center justify-between gap-2.5">
             <a href="{{ route('apar.show', $apar->id) }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition min-h-[42px] shadow-2xs">
@@ -386,8 +386,6 @@
             optDual.className = inactiveClass;
             optPas.className = inactiveClass;
 
-            const actionBar = document.getElementById('action-bar-container');
-
             document.body.classList.remove('print-format-a4-single', 'print-format-a4-dual', 'print-format-pas');
 
             if (format === 'a4-single') {
@@ -395,29 +393,17 @@
                 pageStyle.innerHTML = '@media print { @page { size: A4 portrait; margin: 0; } }';
                 optSingle.className = activeClass;
                 slot2.classList.add('hidden');
-                if (actionBar) {
-                    actionBar.classList.remove('max-w-3xl');
-                    actionBar.classList.add('max-w-xl');
-                }
             } else if (format === 'a4-dual') {
                 document.body.classList.add('print-format-a4-dual');
                 pageStyle.innerHTML = '@media print { @page { size: A4 portrait; margin: 0; } }';
                 optDual.className = activeClass;
                 syncDualStickers();
                 slot2.classList.remove('hidden');
-                if (actionBar) {
-                    actionBar.classList.remove('max-w-xl');
-                    actionBar.classList.add('max-w-3xl');
-                }
             } else {
                 document.body.classList.add('print-format-pas');
                 pageStyle.innerHTML = '@media print { @page { size: 90mm 138mm; margin: 0; } }';
                 optPas.className = activeClass;
                 slot2.classList.add('hidden');
-                if (actionBar) {
-                    actionBar.classList.remove('max-w-3xl');
-                    actionBar.classList.add('max-w-xl');
-                }
             }
         }
 
