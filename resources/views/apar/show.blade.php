@@ -790,8 +790,9 @@
                 ctx.font = '900 22px ui-monospace, SFMono-Regular, Menlo, monospace';
                 ctx.fillText('{{ $apar->kode }}', w / 2, 94);
 
-                // 5. QR Code dengan Quiet Zone Bersih
+                // 5. QR Code dengan Quiet Zone Bersih (Diperbesar Optimal)
                 const svgElement = document.querySelector('#apar-qr-preview-box svg');
+                const qrSize = 152;
                 if (svgElement) {
                     const svgXml = new XMLSerializer().serializeToString(svgElement);
                     const svgUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgXml);
@@ -801,24 +802,24 @@
                         qrImg.onerror = resolve;
                         qrImg.src = svgUri;
                     });
-                    // Gambar QR Code 136x136 di tengah kartu
-                    ctx.drawImage(qrImg, (w - 136) / 2, 102, 136, 136);
+                    // Gambar QR Code 152x152 di tengah kartu
+                    ctx.drawImage(qrImg, (w - qrSize) / 2, 98, qrSize, qrSize);
                 }
 
                 ctx.fillStyle = '#94a3b8';
                 ctx.font = '600 8px ui-monospace, monospace';
-                ctx.fillText('PINDAI UNTUK RIWAYAT & LOG INSPEKSI', w / 2, 249);
+                ctx.fillText('PINDAI UNTUK RIWAYAT & LOG INSPEKSI', w / 2, 260);
 
                 // Garis Pembatas Spesifikasi (Navy Slate 2px)
                 ctx.strokeStyle = '#0f172a';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.moveTo(0, 258);
-                ctx.lineTo(w, 258);
+                ctx.moveTo(0, 268);
+                ctx.lineTo(w, 268);
                 ctx.stroke();
 
                 // 6. Spesifikasi Dua Kolom (Tanpa Kotak Bertumpuk)
-                let y = 273;
+                let y = 282;
                 const col1X = 18;
                 const col2X = 185;
 
