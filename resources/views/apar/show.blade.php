@@ -762,37 +762,29 @@
                 ctx.textAlign = 'center';
                 
                 ctx.fillStyle = '#64748b';
-                ctx.font = 'bold 8.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('RSUD DR. H. MOCH. ANSARI SALEH', w / 2, 20);
+                ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('RSUD DR. H. MOCH. ANSARI SALEH', w / 2, 22);
 
                 ctx.fillStyle = '#0f172a';
-                ctx.font = '900 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('INSTALASI K3RS • KESELAMATAN & KESEHATAN KERJA', w / 2, 34);
-
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '600 8px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('LABEL INVENTARIS PROTEKSI KEBAKARAN', w / 2, 45);
+                ctx.font = '900 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('INSTALASI K3RS • KESELAMATAN & KESEHATAN KERJA', w / 2, 37);
 
                 // Garis Pembatas Header (Navy Slate 2px)
                 ctx.strokeStyle = '#0f172a';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.moveTo(0, 52);
-                ctx.lineTo(w, 52);
+                ctx.moveTo(0, 47);
+                ctx.lineTo(w, 47);
                 ctx.stroke();
 
                 // 4. Identitas Utama: Kode Unit APAR Dominan
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = 'bold 8.5px ui-monospace, SFMono-Regular, Menlo, monospace';
-                ctx.fillText('KODE UNIT APAR', w / 2, 70);
-
                 ctx.fillStyle = '#020617';
-                ctx.font = '900 22px ui-monospace, SFMono-Regular, Menlo, monospace';
-                ctx.fillText('{{ $apar->kode }}', w / 2, 94);
+                ctx.font = '900 26px ui-monospace, SFMono-Regular, Menlo, monospace';
+                ctx.fillText('{{ $apar->kode }}', w / 2, 77);
 
-                // 5. QR Code dengan Quiet Zone Bersih (Diperbesar Optimal)
+                // 5. QR Code dengan Quiet Zone Bersih & Proporsional
                 const svgElement = document.querySelector('#apar-qr-preview-box svg');
-                const qrSize = 152;
+                const qrSize = 168;
                 if (svgElement) {
                     const svgXml = new XMLSerializer().serializeToString(svgElement);
                     const svgUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgXml);
@@ -802,13 +794,9 @@
                         qrImg.onerror = resolve;
                         qrImg.src = svgUri;
                     });
-                    // Gambar QR Code 152x152 di tengah kartu
-                    ctx.drawImage(qrImg, (w - qrSize) / 2, 98, qrSize, qrSize);
+                    // Gambar QR Code 168x168 di tengah kartu
+                    ctx.drawImage(qrImg, (w - qrSize) / 2, 88, qrSize, qrSize);
                 }
-
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '600 8px ui-monospace, monospace';
-                ctx.fillText('PINDAI UNTUK RIWAYAT & LOG INSPEKSI', w / 2, 260);
 
                 // Garis Pembatas Spesifikasi (Navy Slate 2px)
                 ctx.strokeStyle = '#0f172a';
