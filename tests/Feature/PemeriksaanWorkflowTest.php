@@ -162,6 +162,7 @@ class PemeriksaanWorkflowTest extends TestCase
         $response->assertSee('Indikator tekanan / manometer');
         $response->assertSee(route('apar.ganti', $apar->id));
         $response->assertSee('Ganti APAR');
+        $response->assertSee('01.');
     }
 
     /**

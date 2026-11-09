@@ -184,7 +184,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="flex items-start gap-2.5 min-w-0">
                                 <span class="font-mono text-xs text-gray-400 font-semibold w-5 shrink-0 mt-0.5">
-                                    {{ sprintf('%02d', $index + 1) }}.
+                                    {{ sprintf('%02d', $loop->iteration) }}.
                                 </span>
                                 <div class="min-w-0">
                                     <span class="text-sm font-semibold text-gray-900 block leading-snug">

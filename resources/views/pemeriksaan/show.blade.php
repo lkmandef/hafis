@@ -320,7 +320,7 @@
                         @endphp
                         <tr class="hover:bg-gray-50/60 transition-colors {{ $detail->hasil === 'tidak_baik' ? 'bg-red-50/20' : '' }}">
                             <td class="px-3.5 py-3 text-center font-mono text-gray-400 font-medium tabular-nums text-[11px]">
-                                {{ sprintf('%02d', $index + 1) }}
+                                {{ sprintf('%02d', $loop->iteration) }}
                             </td>
                             <td class="px-4 py-3 font-medium text-gray-900">
                                 {{ $detail->item_nama }}
