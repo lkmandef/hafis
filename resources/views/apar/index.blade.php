@@ -4,6 +4,26 @@
         title="Master Data APAR"
         description="Pusat pencatatan data identitas, spesifikasi teknis, dan lokasi penempatan unit APAR rumah sakit.">
         <x-slot:actions>
+            @php
+                $isFiltered = ! empty($search) || ! empty($lokasiId) || ! empty($gedungId) || ! empty($lantaiId) || ! empty($jenisMedia) || (request()->has('status') && request('status') !== 'semua' && request('status') !== 'aktif');
+            @endphp
+
+            @if($isFiltered)
+                <x-button variant="secondary" href="{{ route('apar.cetak_semua_qr', request()->query()) }}" target="_blank" title="Cetak {{ $apars->total() }} unit APAR hasil pencarian / filter saat ini (Format 4 stiker per lembar A4)">
+                    <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    <span>Cetak QR Terfilter ({{ $apars->total() }})</span>
+                </x-button>
+            @else
+                <x-button variant="secondary" href="{{ route('apar.cetak_semua_qr', request()->query()) }}" target="_blank" title="Cetak label stiker QR massal (4 stiker per lembar kertas A4)">
+                    <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    <span>Cetak Semua QR (A4)</span>
+                </x-button>
+            @endif
+
             <x-button variant="primary" href="{{ route('apar.create') }}">
                 <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>

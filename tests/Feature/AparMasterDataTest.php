@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Apar;
 use App\Models\Gedung;
 use App\Models\Lantai;
+use App\Models\Lokasi;
 use App\Models\Ruangan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -379,5 +380,185 @@ class AparMasterDataTest extends TestCase
         // Tombol reset tersedia jika status bukan default 'aktif'
         $resRusak->assertSee('Reset');
         $resRusak->assertSee(route('apar.index', ['status' => 'semua']));
+    }
+
+    /**
+     * Tombol cetak semua QR tampil di halaman index APAR
+     */
+    public function test_cetak_semua_qr_button_is_visible_on_index_page(): void
+    {
+        $response = $this->get(route('apar.index'));
+        $response->assertStatus(200);
+        $response->assertSee(route('apar.cetak_semua_qr'));
+        $response->assertSee('Cetak Semua QR (A4)');
+    }
+
+    /**
+     * Halaman cetak semua QR APAR menampilkan grid 4 stiker per halaman A4
+     */
+    public function test_can_access_cetak_semua_qr_page(): void
+    {
+        $gedung = Gedung::create(['kode' => 'GDG-BATCH', 'nama' => 'Gedung Batch']);
+        $lantai = Lantai::create(['gedung_id' => $gedung->id, 'nomor_lantai' => 1, 'nama' => 'Lantai 1']);
+        $ruangan = Ruangan::create(['lantai_id' => $lantai->id, 'nama' => 'Ruang 101']);
+
+        $apar1 = Apar::create([
+            'kode' => 'APAR-BATCH-01',
+            'qr_code' => 'HAFIS-QR-BATCH-01',
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'Dry Chemical Powder',
+            'kapasitas' => '6 kg',
+            'status' => 'baik',
+        ]);
+
+        $apar2 = Apar::create([
+            'kode' => 'APAR-BATCH-02',
+            'qr_code' => 'HAFIS-QR-BATCH-02',
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'CO2',
+            'kapasitas' => '5 kg',
+            'status' => 'baik',
+        ]);
+
+        $response = $this->get(route('apar.cetak_semua_qr'));
+        $response->assertStatus(200);
+        $response->assertSee('Cetak Semua Label');
+        $response->assertSee('APAR-BATCH-01');
+        $response->assertSee('APAR-BATCH-02');
+        $response->assertSee('Format Lembar A4 (Grid 2 &times; 2 &bull; 4 Stiker per Halaman)', false);
+    }
+
+    /**
+     * Filter dropdown lokasi menyaring cetak stiker QR massal
+     */
+    public function test_cetak_semua_qr_filters_by_location(): void
+    {
+        $gedung = Gedung::firstOrCreate(['nama' => 'Gedung Alexandri Filter'], ['kode' => 'GDG-ALXF']);
+        $lantai = Lantai::firstOrCreate(['gedung_id' => $gedung->id, 'nomor_lantai' => 1], ['nama' => 'Lantai 1']);
+        $lokasiA = Lokasi::create([
+            'nama' => 'ALEXANDRI Lt 1 Unik',
+            'gedung_id' => $gedung->id,
+            'lantai_id' => $lantai->id,
+        ]);
+        $lokasiB = Lokasi::create([
+            'nama' => 'Gedung IGD Lt 1 Unik',
+            'gedung_id' => $gedung->id,
+            'lantai_id' => $lantai->id,
+        ]);
+
+        $aparAlexandri = Apar::create([
+            'kode' => 'APAR-ALX-01',
+            'qr_code' => 'QR-ALX-01',
+            'lokasi_id' => $lokasiA->id,
+            'jenis_media' => 'Dry Chemical Powder',
+            'kapasitas' => '6 kg',
+            'status' => 'baik',
+        ]);
+
+        $aparIgd = Apar::create([
+            'kode' => 'APAR-IGD-01',
+            'qr_code' => 'QR-IGD-01',
+            'lokasi_id' => $lokasiB->id,
+            'jenis_media' => 'CO2',
+            'kapasitas' => '5 kg',
+            'status' => 'baik',
+        ]);
+
+        // Cek halaman cetak dengan filter lokasi_id
+        $response = $this->get(route('apar.cetak_semua_qr', ['lokasi_id' => $lokasiA->id]));
+        $response->assertStatus(200);
+        $response->assertSee('APAR-ALX-01');
+        $response->assertDontSee('APAR-IGD-01');
+        $response->assertSee('ALEXANDRI Lt 1 Unik');
+        $response->assertSee('Cetak Hasil Filter (1 APAR)');
+
+        // Cek bahwa tombol di index berubah adaptif saat terfilter
+        $indexResponse = $this->get(route('apar.index', ['lokasi_id' => $lokasiA->id]));
+        $indexResponse->assertStatus(200);
+        $indexResponse->assertSee('Cetak QR Terfilter (1)');
+    }
+
+    /**
+     * Pencarian kata kunci teks (nama ruangan/gedung) menyaring cetak stiker QR massal
+     */
+    public function test_cetak_semua_qr_filters_by_search_query_hierarchically(): void
+    {
+        $gedung = Gedung::firstOrCreate(['nama' => 'Gedung Medis Filter'], ['kode' => 'GDG-MEDF']);
+        $lantai = Lantai::firstOrCreate(['gedung_id' => $gedung->id, 'nomor_lantai' => 2], ['nama' => 'Lantai 2']);
+        $ruangFarmasi = Ruangan::create(['lantai_id' => $lantai->id, 'nama' => 'Ruang Farmasi Sentral']);
+        $ruangRadiologi = Ruangan::create(['lantai_id' => $lantai->id, 'nama' => 'Ruang Radiologi']);
+
+        $aparFarmasi = Apar::create([
+            'kode' => 'APAR-FAR-01',
+            'qr_code' => 'QR-FAR-01',
+            'ruangan_id' => $ruangFarmasi->id,
+            'jenis_media' => 'Dry Chemical Powder',
+            'kapasitas' => '6 kg',
+            'status' => 'baik',
+        ]);
+
+        $aparRadiologi = Apar::create([
+            'kode' => 'APAR-RAD-01',
+            'qr_code' => 'QR-RAD-01',
+            'ruangan_id' => $ruangRadiologi->id,
+            'jenis_media' => 'CO2',
+            'kapasitas' => '5 kg',
+            'status' => 'baik',
+        ]);
+
+        // Cari kata "farmasi"
+        $response = $this->get(route('apar.cetak_semua_qr', ['q' => 'farmasi']));
+        $response->assertStatus(200);
+        $response->assertSee('APAR-FAR-01');
+        $response->assertDontSee('APAR-RAD-01');
+        $response->assertSee('Filter: &quot;farmasi&quot;', false);
+        $response->assertSee('Cetak Hasil Filter (1 APAR)');
+
+        // Tombol di index halaman
+        $indexResponse = $this->get(route('apar.index', ['q' => 'farmasi']));
+        $indexResponse->assertStatus(200);
+        $indexResponse->assertSee('Cetak QR Terfilter (1)');
+    }
+
+    /**
+     * Memastikan halaman cetak QR massal menggunakan ukuran kertas default A4 dan memiliki panduan potong simetris
+     */
+    public function test_cetak_semua_qr_defaults_to_a4_paper_and_has_cutting_guides(): void
+    {
+        $gedung = Gedung::firstOrCreate(['nama' => 'Gedung Uji A4'], ['kode' => 'GDG-UA4']);
+        $lantai = Lantai::firstOrCreate(['gedung_id' => $gedung->id, 'nomor_lantai' => 1], ['nama' => 'Lantai 1']);
+        $ruangan = Ruangan::create(['lantai_id' => $lantai->id, 'nama' => 'Ruang Uji A4']);
+
+        Apar::create([
+            'kode' => 'APAR-A4-01',
+            'qr_code' => 'QR-A4-01',
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'Dry Chemical Powder',
+            'kapasitas' => '6 kg',
+            'status' => 'baik',
+        ]);
+
+        $response = $this->get(route('apar.cetak_semua_qr'));
+        $response->assertStatus(200);
+
+        // Verifikasi CSS Paged Media standar W3C untuk default ukuran A4 tanpa margin printer
+        $response->assertSee('@page', false);
+        $response->assertSee('size: A4 portrait;', false);
+        $response->assertSee('margin: 0;', false);
+
+        // Verifikasi dimensi lembar fisik A4 (210mm x 297mm)
+        $response->assertSee('210mm', false);
+        $response->assertSee('297mm', false);
+
+        // Verifikasi pembagian 4 kuadran simetris (105mm x 148.5mm)
+        $response->assertSee('grid-template-columns: 105mm 105mm', false);
+        $response->assertSee('grid-template-rows: 148.5mm 148.5mm', false);
+
+        // Verifikasi elemen garis panduan potong silang dan penanda gunting
+        $response->assertSee('cut-line-v');
+        $response->assertSee('cut-line-h');
+        $response->assertSee('cut-badge-center');
+        $response->assertSee('cut-badge-edge');
+        $response->assertSee('POTONG');
     }
 }

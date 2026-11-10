@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [AparController::class, 'index'])->name('index');
         Route::get('/create', [AparController::class, 'create'])->name('create');
         Route::post('/', [AparController::class, 'store'])->name('store');
+        Route::get('/cetak-semua-qr', [AparController::class, 'cetakSemuaQr'])->name('cetak_semua_qr');
 
         // Kompatibilitas link statis lama (/apar/detail dan /apar/edit)
         Route::get('/detail', function () {

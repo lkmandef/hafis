@@ -400,7 +400,7 @@ class AparController extends Controller
     }
 
     /**
-     * Tampilan cetak label stiker QR APAR untuk fisik di lapangan
+     * Tampilan cetak label stiker QR APAR untuk fisik di lapangan (Satuan)
      */
     public function cetakQr($id)
     {
@@ -409,6 +409,89 @@ class AparController extends Controller
             : Apar::with(['lokasi', 'ruangan.lantai.gedung'])->where('kode', $id)->firstOrFail();
 
         return view('apar.cetak-qr', compact('apar'));
+    }
+
+    /**
+     * Tampilan cetak label stiker QR massal untuk seluruh armada APAR (4 stiker per lembar A4)
+     */
+    public function cetakSemuaQr(Request $request)
+    {
+        $search = $request->input('q');
+        $lokasiId = $request->input('lokasi_id');
+        $gedungId = $request->input('gedung_id');
+        $lantaiId = $request->input('lantai_id');
+        $status = $request->input('status');
+        $jenisMedia = $request->input('jenis_media');
+
+        $query = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung']);
+
+        // 1. Pencarian teks (Mencakup kode, QR, spek, posisi, serta hierarki nama gedung & ruangan)
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('kode', 'like', "%{$search}%")
+                    ->orWhere('qr_code', 'like', "%{$search}%")
+                    ->orWhere('nomor_register', 'like', "%{$search}%")
+                    ->orWhere('merek', 'like', "%{$search}%")
+                    ->orWhere('tipe_model', 'like', "%{$search}%")
+                    ->orWhere('posisi_detail', 'like', "%{$search}%")
+                    ->orWhere('keterangan', 'like', "%{$search}%")
+                    ->orWhereHas('lokasi', function ($lq) use ($search) {
+                        $lq->where('nama', 'like', "%{$search}%")
+                            ->orWhere('kode', 'like', "%{$search}%")
+                            ->orWhereHas('gedung', fn ($gq) => $gq->where('nama', 'like', "%{$search}%")->orWhere('kode', 'like', "%{$search}%"))
+                            ->orWhereHas('lantai', fn ($flq) => $flq->where('nama', 'like', "%{$search}%"));
+                    })
+                    ->orWhereHas('ruangan', function ($rq) use ($search) {
+                        $rq->where('nama', 'like', "%{$search}%")
+                            ->orWhere('kode', 'like', "%{$search}%")
+                            ->orWhereHas('lantai', function ($lq) use ($search) {
+                                $lq->where('nama', 'like', "%{$search}%")
+                                    ->orWhereHas('gedung', function ($gq) use ($search) {
+                                        $gq->where('nama', 'like', "%{$search}%")
+                                            ->orWhere('kode', 'like', "%{$search}%");
+                                    });
+                            });
+                    });
+            });
+        }
+
+        // 2. Filter Lokasi (Hierarki terpadu: Lokasi K3RS, Gedung, Lantai)
+        if ($lokasiId) {
+            $query->where('lokasi_id', $lokasiId);
+        } elseif ($gedungId) {
+            $query->diGedung($gedungId);
+            if ($lantaiId) {
+                $query->diLantai($lantaiId);
+            }
+        }
+
+        // 3. Filter Status
+        if ($status === 'semua') {
+            // Tampilkan seluruh data tanpa memfilter status
+        } elseif ($status === 'aktif') {
+            $query->where('status', '!=', Apar::STATUS_TIDAK_AKTIF);
+        } elseif ($status === 'tidak_aktif') {
+            $query->where('status', Apar::STATUS_TIDAK_AKTIF)->whereNull('replaced_by_apar_id');
+        } elseif ($status === 'sudah_diganti') {
+            $query->where('status', Apar::STATUS_TIDAK_AKTIF)->whereNotNull('replaced_by_apar_id');
+        } elseif ($status) {
+            $query->where('status', $status);
+        } else {
+            // Default jika tanpa parameter: cetak seluruh unit aktif
+            $query->where('status', '!=', Apar::STATUS_TIDAK_AKTIF)->whereNull('replaced_by_apar_id');
+        }
+
+        // 4. Filter Jenis Media
+        if ($jenisMedia) {
+            $query->where('jenis_media', $jenisMedia);
+        }
+
+        $apars = $query->orderBy('kode', 'asc')->get();
+
+        $activeLokasi = $lokasiId ? Lokasi::find($lokasiId) : null;
+        $isFiltered = ! empty($search) || ! empty($lokasiId) || ! empty($gedungId) || ! empty($lantaiId) || ! empty($jenisMedia) || ($status && $status !== 'semua' && $status !== 'aktif');
+
+        return view('apar.cetak-semua-qr', compact('apars', 'status', 'search', 'lokasiId', 'gedungId', 'lantaiId', 'jenisMedia', 'activeLokasi', 'isFiltered'));
     }
 
     /**
