@@ -3,6 +3,8 @@
 </p>
 
 <p align="center">
+  <img src="public/images/brand/rs.svg" alt="RSUD dr. H. Moch. Ansari Saleh" width="56" height="56" />
+  <br>
   <strong>Hospital APAR & Fire Inspection System</strong><br>
   Sistem Digitalisasi Inspeksi, Manajemen Aset Proteksi Kebakaran & Tagging QR Code Terpadu<br>
   <strong>Instalasi K3RS • RSUD dr. H. Moch. Ansari Saleh Banjarmasin</strong>
@@ -26,15 +28,24 @@ Sistem ini menggantikan pencatatan kartu gantung manual dengan ekosistem digital
 
 ---
 
-## 🖼️ Antarmuka Sistem
+## 🖼️ Tinjauan Visual & Hasil Cetak Stiker Aset
 
 <p align="center">
-  <img src="public/images/brand/s.jpeg" alt="Dashboard Monitoring HAFIS" width="85%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
+  <img src="public/images/brand/preview-cetak-a4.png" alt="Format Cetak Massal QR Code APAR Kertas A4 (4 Stiker per Lembar dengan Garis Panduan Potong)" width="62%" style="border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);" />
+  <br>
+  <em>Layout stiker cetak massal 4-up A4 (105 × 148.5 mm per unit) dengan panduan garis potong simetris presisi (`✂ POTONG`).</em>
+</p>
+
+### Identitas Merek Resmi (Format Vektor SVG)
+
+<p align="center">
+  <img src="public/images/brand/hafis-mark.svg" alt="Lambang Perisai HAFIS" height="85" style="margin: 0 16px;" />
+  <img src="public/images/brand/hafis-wordmark.svg" alt="Tipografi HAFIS" height="52" style="margin: 0 16px;" />
+  <img src="public/images/brand/hafis-logo.svg" alt="Kombinasi Logo Resmi HAFIS" height="85" style="margin: 0 16px;" />
 </p>
 
 <p align="center">
-  <img src="public/images/brand/sa.jpeg" alt="Data Master APAR dan QR Asset Tag" width="42%" style="border-radius: 8px; margin-right: 2%; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
-  <img src="public/images/brand/ss.jpeg" alt="Lembar Kerja Inspeksi dan Penggantian APAR" width="42%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
+  <em>Aset vektor SVG resmi: Lambang Perisai (kiri), Tipografi Wordmark (tengah), dan Logo Kombinasi Resmi (kanan).</em>
 </p>
 
 ---
@@ -96,8 +107,8 @@ Sistem ini menggantikan pencatatan kartu gantung manual dengan ekosistem digital
 
 1. **Clone Repository**
    ```bash
-   git clone https://github.com/loona/aparcek-8.git
-   cd aparcek-8
+   git clone https://github.com/lkmandef/hafis.git
+   cd hafis
    ```
 
 2. **Pasang Dependensi Backend & Frontend**
