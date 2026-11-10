@@ -28,28 +28,6 @@ Sistem ini menggantikan pencatatan kartu gantung manual dengan ekosistem digital
 
 ---
 
-## 🖼️ Tinjauan Visual & Hasil Cetak Stiker Aset
-
-<p align="center">
-  <img src="public/images/brand/preview-cetak-a4.png" alt="Format Cetak Massal QR Code APAR Kertas A4 (4 Stiker per Lembar dengan Garis Panduan Potong)" width="62%" style="border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);" />
-  <br>
-  <em>Layout stiker cetak massal 4-up A4 (105 × 148.5 mm per unit) dengan panduan garis potong simetris presisi (`✂ POTONG`).</em>
-</p>
-
-### Identitas Merek Resmi (Format Vektor SVG)
-
-<p align="center">
-  <img src="public/images/brand/hafis-mark.svg" alt="Lambang Perisai HAFIS" height="85" style="margin: 0 16px;" />
-  <img src="public/images/brand/hafis-wordmark.svg" alt="Tipografi HAFIS" height="52" style="margin: 0 16px;" />
-  <img src="public/images/brand/hafis-logo.svg" alt="Kombinasi Logo Resmi HAFIS" height="85" style="margin: 0 16px;" />
-</p>
-
-<p align="center">
-  <em>Aset vektor SVG resmi: Lambang Perisai (kiri), Tipografi Wordmark (tengah), dan Logo Kombinasi Resmi (kanan).</em>
-</p>
-
----
-
 ## ⚡ Fitur Utama
 
 ### 1. Label Stiker Aset Standar Resmi (*Official Hospital Safety Asset Tag*)
