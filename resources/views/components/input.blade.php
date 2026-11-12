@@ -14,7 +14,7 @@
     $inputId = $id ?? $name ?? 'input-' . uniqid();
 @endphp
 
-<div class="w-full">
+<div class="w-full min-w-0 max-w-full">
     @if ($label)
         <label for="{{ $inputId }}" class="block text-xs font-medium text-gray-700 mb-1.5">
             {{ $label }}
@@ -24,7 +24,7 @@
         </label>
     @endif
 
-    <div class="relative">
+    <div class="relative w-full min-w-0 max-w-full">
         @if (isset($icon))
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                 {{ $icon }}
@@ -39,7 +39,7 @@
             placeholder="{{ $placeholder }}"
             @if ($required) required @endif
             {{ $attributes->merge([
-                'class' => 'w-full rounded-lg ' . 
+                'class' => 'w-full min-w-0 max-w-full rounded-lg ' . 
                     ($error 
                         ? 'border-red-300 bg-red-50/30 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                         : 'border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900') . 

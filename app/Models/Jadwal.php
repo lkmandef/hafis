@@ -150,7 +150,10 @@ class Jadwal extends Model
 
         $today = Carbon::today();
 
-        if ($today->lt($this->tanggal_mulai)) {
+        // Status 'selesai' harus merepresentasikan pekerjaan yang benar-benar sudah diselesaikan
+        if ($this->total_target > 0 && $this->total_diperiksa >= $this->total_target) {
+            $newStatus = 'selesai';
+        } elseif ($today->lt($this->tanggal_mulai)) {
             $newStatus = 'belum_dimulai';
         } else {
             $newStatus = 'berjalan';

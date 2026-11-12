@@ -18,16 +18,20 @@ class TindakLanjut extends Model
 
     public const STATUS_SELESAI = 'selesai';
 
+    public const STATUS_DIBATALKAN = 'dibatalkan';
+
     public const STATUS_LABELS = [
         self::STATUS_BELUM_DITINDAKLANJUTI => 'Belum Ditindaklanjuti',
         self::STATUS_DALAM_PROSES => 'Dalam Proses',
         self::STATUS_SELESAI => 'Selesai',
+        self::STATUS_DIBATALKAN => 'Dibatalkan',
     ];
 
     public const STATUS_BADGE_VARIANTS = [
         self::STATUS_BELUM_DITINDAKLANJUTI => 'warning',
         self::STATUS_DALAM_PROSES => 'neutral',
         self::STATUS_SELESAI => 'success',
+        self::STATUS_DIBATALKAN => 'danger',
     ];
 
     public const JENIS_PERBAIKAN = 'perbaikan';
@@ -78,16 +82,20 @@ class TindakLanjut extends Model
         'tanggal_selesai',
         'catatan',
         'foto_path',
+        'alasan_pembatalan',
+        'dibatalkan_oleh_id',
+        'dibatalkan_at',
     ];
 
     protected $casts = [
         'tanggal_tindakan' => 'date',
         'tanggal_selesai' => 'date',
+        'dibatalkan_at' => 'datetime',
     ];
 
     public function apar(): BelongsTo
     {
-        return $this->belongsTo(Apar::class, 'apar_id');
+        return $this->belongsTo(Apar::class, 'apar_id')->withTrashed();
     }
 
     public function pemeriksaan(): BelongsTo
@@ -103,6 +111,16 @@ class TindakLanjut extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function dibatalkanOleh(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dibatalkan_oleh_id');
+    }
+
+    public function isDibatalkan(): bool
+    {
+        return $this->status === self::STATUS_DIBATALKAN;
     }
 
     public function getStatusLabelAttribute(): string

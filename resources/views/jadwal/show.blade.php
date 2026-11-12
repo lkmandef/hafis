@@ -18,7 +18,7 @@
                 <span>Edit Jadwal</span>
             </x-button>
 
-            @if(!in_array($jadwal->status, ['dibatalkan', 'selesai']))
+            @if(auth()->user()?->isAdmin() && !in_array($jadwal->status, ['dibatalkan', 'selesai']))
                 <form action="{{ route('jadwal.batalkan', $jadwal->id) }}" method="POST"
                       data-confirm
                       data-confirm-title="Batalkan Jadwal Inspeksi"

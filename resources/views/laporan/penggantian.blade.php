@@ -5,12 +5,14 @@
         :filters="$filtersSummary"
         orientation="landscape">
 
-        {{-- Baris ringkasan tunggal --}}
-        <div style="margin-bottom: 10px; font-size: 8.5pt; color: #0f172a;">
-            Total Penggantian: <strong>{{ $rekap['total'] }}</strong> unit &nbsp;&bull;&nbsp;
-            Karena Rusak: <strong>{{ $rekap['rusak'] }}</strong> &nbsp;&bull;&nbsp;
-            Kadaluarsa: <strong>{{ $rekap['kadaluarsa'] }}</strong> &nbsp;&bull;&nbsp;
-            Peremajaan: <strong>{{ $rekap['peremajaan'] }}</strong>
+        {{-- Baris Rekapitulasi Formal & Tanggal di Atas Tabel --}}
+        <div class="report-meta-bar">
+            <div class="report-summary-formal">
+                Total Penggantian: <strong>{{ $rekap['total'] }} unit</strong> (Alasan Rusak: {{ $rekap['rusak'] }}, Kadaluarsa: {{ $rekap['kadaluarsa'] }}, Peremajaan: {{ $rekap['peremajaan'] }})
+            </div>
+            <div class="report-date-formal">
+                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }}
+            </div>
         </div>
 
         <table class="data-table">

@@ -1,11 +1,15 @@
-<x-layouts.app title="HAFIS : Edit Tindak Lanjut {{ $tindakLanjut->apar->kode }}">
+<x-layouts.app title="HAFIS : Edit Tindak Lanjut {{ $tindakLanjut->apar?->kode ?? ('#' . $tindakLanjut->apar_id) }}">
     <!-- 1. Page Header with Breadcrumb -->
     <div class="pb-5 mb-6 border-b border-gray-200">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2 font-medium" aria-label="Breadcrumb">
             <a href="{{ route('apar.index') }}" class="hover:text-gray-900 transition-colors">Data APAR</a>
             <span class="text-gray-300">/</span>
-            <a href="{{ route('apar.show', $tindakLanjut->apar_id) }}" class="hover:text-gray-900 transition-colors">{{ $tindakLanjut->apar->kode }}</a>
+            @if($tindakLanjut->apar && ! $tindakLanjut->apar->trashed())
+                <a href="{{ route('apar.show', $tindakLanjut->apar_id) }}" class="hover:text-gray-900 transition-colors">{{ $tindakLanjut->apar->kode }}</a>
+            @else
+                <span class="text-gray-500">{{ $tindakLanjut->apar?->kode ?? ('APAR #' . $tindakLanjut->apar_id) }}</span>
+            @endif
             <span class="text-gray-300">/</span>
             <a href="{{ route('tindak-lanjut.show', $tindakLanjut->id) }}" class="hover:text-gray-900 transition-colors">Tindak Lanjut #{{ $tindakLanjut->id }}</a>
             <span class="text-gray-300">/</span>
@@ -19,8 +23,13 @@
                         Edit Tindak Lanjut & Pemeliharaan
                     </h1>
                     <span class="font-mono text-base font-bold text-gray-900 bg-gray-100 border border-gray-200 px-3 py-0.5 rounded-lg tabular-nums">
-                        {{ $tindakLanjut->apar->kode }}
+                        {{ $tindakLanjut->apar?->kode ?? ('APAR #' . $tindakLanjut->apar_id) }}
                     </span>
+                    @if($tindakLanjut->apar?->trashed())
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200">
+                            Unit Telah Dihapus
+                        </span>
+                    @endif
                     <x-badge :variant="$tindakLanjut->status_badge_variant" :dot="true">
                         {{ $tindakLanjut->status_label }}
                     </x-badge>
@@ -70,9 +79,15 @@
                 <div class="p-3 rounded-lg bg-gray-50 border border-gray-200 space-y-1">
                     <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Unit APAR & Lokasi</span>
                     <span class="font-bold text-gray-900 block">
-                        <span class="font-mono">{{ $tindakLanjut->apar->kode }}</span> &bull; {{ $tindakLanjut->apar->jenis_media }} (<span class="font-mono">{{ $tindakLanjut->apar->kapasitas }}</span>)
+                        <span class="font-mono">{{ $tindakLanjut->apar?->kode ?? ('APAR #' . $tindakLanjut->apar_id) }}</span>
+                        @if($tindakLanjut->apar?->trashed())
+                            <span class="inline-block text-[10px] text-rose-700 bg-rose-50 px-1 py-0.5 rounded border border-rose-200 ml-1">Terhapus</span>
+                        @endif
+                        @if($tindakLanjut->apar)
+                            &bull; {{ $tindakLanjut->apar->jenis_media }} (<span class="font-mono">{{ $tindakLanjut->apar->kapasitas }}</span>)
+                        @endif
                     </span>
-                    <span class="text-gray-600 block text-[11px]">{{ $tindakLanjut->apar->lokasi_lengkap }}</span>
+                    <span class="text-gray-600 block text-[11px]">{{ $tindakLanjut->apar?->lokasi_lengkap ?? '-' }}</span>
                 </div>
 
                 <div class="p-3 rounded-lg bg-gray-50 border border-gray-200 space-y-1">
@@ -146,6 +161,11 @@
                                 <option value="belum_ditindaklanjuti" {{ old('status', $tindakLanjut->status) === 'belum_ditindaklanjuti' ? 'selected' : '' }}>Belum Ditindaklanjuti</option>
                                 <option value="dalam_proses" {{ old('status', $tindakLanjut->status) === 'dalam_proses' ? 'selected' : '' }}>Dalam Proses</option>
                                 <option value="selesai" {{ old('status', $tindakLanjut->status) === 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                @if(auth()->user()?->isAdmin())
+                                    <option value="dibatalkan" {{ old('status', $tindakLanjut->status) === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                                @elseif($tindakLanjut->status === 'dibatalkan')
+                                    <option value="dibatalkan" selected disabled>Dibatalkan (Hanya Admin)</option>
+                                @endif
                             </select>
                         </div>
 
@@ -212,7 +232,7 @@
                                     Perbarui status kondisi operasional unit APAR menjadi "Baik" jika status tindakan adalah Selesai
                                 </span>
                                 <span class="text-gray-500 text-[11px] block mt-0.5">
-                                    Status kondisi tabung APAR saat ini adalah <strong class="text-gray-700">{{ $tindakLanjut->apar->status_label }}</strong>.
+                                    Status kondisi tabung APAR saat ini adalah <strong class="text-gray-700">{{ $tindakLanjut->apar?->status_label ?? '-' }}</strong>.
                                 </span>
                             </div>
                         </label>

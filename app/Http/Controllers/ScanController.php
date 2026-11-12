@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Apar;
 use App\Models\Lokasi;
 use App\Models\Pemeriksaan;
+use App\Services\SmartInspectionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -159,7 +160,7 @@ class ScanController extends Controller
         if ($hasPeriod || $isOperationalInstalled) {
             $effectiveBulan = $bulan ?? (int) Carbon::now()->month;
             $effectiveTahun = $tahun ?? (int) Carbon::now()->year;
-            $namaBulan = Pemeriksaan::NAMA_BULAN[$effectiveBulan] ?? $effectiveBulan;
+            $namaBulan = Pemeriksaan::NAMA_BULAN[$effectiveBulan] ?? (string) $effectiveBulan;
 
             // Cek apakah sudah ada catatan pemeriksaan untuk periode bulan/tahun ini
             $existingPemeriksaan = Pemeriksaan::findByAparPeriod($apar->id, $effectiveTahun, $effectiveBulan);
@@ -167,6 +168,10 @@ class ScanController extends Controller
                 return redirect()->route('pemeriksaan.show', $existingPemeriksaan->id)
                     ->with('info', "Unit APAR {$apar->kode} sudah memiliki catatan hasil pemeriksaan untuk periode {$namaBulan} {$effectiveTahun}.");
             }
+
+            // Alur Smart Inspection untuk APAR Operasional Terpasang
+            $smartService = app(SmartInspectionService::class);
+            $eval = $smartService->evaluateAparContext($apar, Carbon::createFromDate($effectiveTahun, $effectiveBulan, 1));
 
             // Jika belum diperiksa pada periode ini, buka formulir pemeriksaan baru
             $createParams = [
@@ -180,8 +185,12 @@ class ScanController extends Controller
 
             $lokasiNama = $apar->lokasi?->nama ? " ({$apar->lokasi->nama})" : '';
 
+            $flashMessage = ($eval['mode'] === 'multi_period')
+                ? "Unit APAR {$apar->kode}{$lokasiNama} teridentifikasi. Checklist pemeriksaan ini akan menyelesaikan kepatuhan periode {$eval['backlog_period']['nama_bulan']} (terlambat) dan {$eval['current_period']['nama_bulan']} (berjalan) sekaligus."
+                : "Unit APAR {$apar->kode}{$lokasiNama} teridentifikasi. Silakan isi checklist pemeriksaan untuk periode {$namaBulan} {$effectiveTahun}.";
+
             return redirect()->route('pemeriksaan.create', $createParams)
-                ->with('success', "Unit APAR {$apar->kode}{$lokasiNama} teridentifikasi. Silakan isi checklist pemeriksaan untuk periode {$namaBulan} {$effectiveTahun}.");
+                ->with('success', $flashMessage);
         }
 
         // 6. Default/General Scan Lookup (tanpa parameter periode dan APAR non-operasional/unplaced)

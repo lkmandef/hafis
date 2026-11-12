@@ -205,7 +205,7 @@
                            class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-xs shadow-2xs min-h-[40px] transition">
                             Edit
                         </a>
-                        @if(!in_array($j->status, ['dibatalkan', 'selesai']))
+                        @if(auth()->user()?->isAdmin() && !in_array($j->status, ['dibatalkan', 'selesai']))
                             <form action="{{ route('jadwal.batalkan', $j->id) }}" method="POST"
                                   data-confirm
                                   data-confirm-title="Batalkan Jadwal Inspeksi"
@@ -321,7 +321,7 @@
                                     >
                                         Edit
                                     </a>
-                                    @if(!in_array($j->status, ['dibatalkan', 'selesai']))
+                                    @if(auth()->user()?->isAdmin() && !in_array($j->status, ['dibatalkan', 'selesai']))
                                         <form action="{{ route('jadwal.batalkan', $j->id) }}" method="POST"
                                               data-confirm
                                               data-confirm-title="Batalkan Jadwal Inspeksi"

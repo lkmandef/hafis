@@ -21,6 +21,17 @@
 /storage/*.key
 /storage/pail
 /vendor
+database/*.sqlite
+database/*.sqlite-*
+/scratch/
+/storage/backups/
+/storage/backup_*
+database-query.json
+/docs/e2e-testing/
+/.agent/
+/_bmad/
+/_bmad-output/
+skills-lock.json
 _ide_helper.php
 Homestead.json
 Homestead.yaml

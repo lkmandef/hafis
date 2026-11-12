@@ -74,14 +74,17 @@ Sistem ini menggantikan pencatatan kartu gantung manual dengan ekosistem digital
 
 ---
 
-## 🚀 Panduan Instalasi Lokal
+## 🚀 Panduan Instalasi & Penerapan di Rumah Sakit
 
 ### Prasyarat Sistem
-* PHP $\ge$ 8.5 (dengan ekstensi `pdo`, `mbstring`, `openssl`, `xml`, `gd` / `imagick`)
-* Composer $\ge$ 2.7
-* Node.js $\ge$ 20.x & NPM
+* **PHP** $\ge$ 8.2 (Direkomendasikan PHP 8.3 – 8.5)
+* Ekstensi PHP wajib: `pdo`, `pdo_sqlite`, `sqlite3`, `mbstring`, `openssl`, `xml`, `gd` (atau `imagick`), `curl`, `fileinfo`
+* **Composer** $\ge$ 2.7
+* **Node.js** $\ge$ 18.x / 20.x & **NPM**
 
-### Langkah Instalasi
+---
+
+### Langkah Instalasi Pertama Kali (Fresh Clone)
 
 1. **Clone Repository**
    ```bash
@@ -89,33 +92,106 @@ Sistem ini menggantikan pencatatan kartu gantung manual dengan ekosistem digital
    cd hafis
    ```
 
-2. **Pasang Dependensi Backend & Frontend**
+2. **Pasang Dependensi Backend**
    ```bash
    composer install
+   ```
+
+3. **Jalankan Inisialisasi Otomatis (Setup)**
+   ```bash
+   composer run setup
+   ```
+   > Perintah ini secara otomatis akan:
+   > - Menyiapkan berkas lingkungan `.env` dari `.env.example`.
+   > - Membuat kunci aplikasi enkripsi (`php artisan key:generate`).
+   > - Membuat basis data SQLite kosong di `database/database.sqlite`.
+   > - Menjalankan migrasi skema tabel (`php artisan migrate --force`).
+   > - Mengisi data master resmi rumah sakit dari berkas CSV (`MasterDataSeeder`) meliputi 173 APAR aktif, hierarki gedung, lantai, ruangan, lokasi, denah arsitektur, dan master checklist 5 parameter.
+   > - Menginisialisasi direktori storage publik, membuat tautan simbolik (`storage:link`), dan menyalin aset denah arsitektur bawaan.
+
+4. **Buat Akun Administrator & Petugas Lapangan**
+   ```bash
+   # Mode Interaktif (Sangat Direkomendasikan)
+   php artisan hafis:setup-admin
+   ```
+   > Sistem tidak menyediakan password bawaan (default password) demi keamanan rumah sakit. Anda akan diminta memasukkan nama, username, email, dan kata sandi baru (minimal 8 karakter) untuk akun Admin (Kepala K3RS) dan Petugas Lapangan.
+   >
+   > *Untuk instalasi otomatis (CI/CD atau non-interaktif), Anda dapat menyediakan argumen CLI atau variabel environment:*
+   > ```bash
+   > php artisan hafis:setup-admin --no-interaction \
+   >   --admin-name="Kepala K3RS" --admin-username="admin" --admin-email="admin@rsudansarisaleh.id" --admin-password="PasswordKuat123!" \
+   >   --petugas-name="Petugas K3RS" --petugas-username="petugas" --petugas-email="petugas@rsudansarisaleh.id" --petugas-password="PasswordKuat123!"
+   > ```
+
+5. **Pasang & Kompilasi Aset Frontend**
+   ```bash
    npm install
-   ```
-
-3. **Konfigurasi Environment**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
-
-4. **Jalankan Migrasi & Seeder Basis Data**
-   ```bash
-   php artisan migrate --seed
-   ```
-
-5. **Build Aset Frontend**
-   ```bash
    npm run build
    ```
 
-6. **Jalankan Server Lokal**
+6. **Jalankan Aplikasi**
    ```bash
    php artisan serve
    ```
-   Aplikasi dapat diakses melalui peramban di: `http://127.0.0.1:8000`
+   Buka peramban di: `http://127.0.0.1:8000`
+
+---
+
+## 🔄 Prosedur Pembaruan Sistem (Update)
+
+Ketika tim IT rumah sakit menarik pembaruan kode versi terbaru dari repositori:
+
+```bash
+# 1. Tarik pembaruan kode
+git pull origin main
+
+# 2. Perbarui dependensi backend
+composer install --no-dev --optimize-autoloader
+
+# 3. Jalankan migrasi skema baru jika ada
+php artisan migrate --force
+
+# 4. Muat penambahan data master baru tanpa menimpa data yang telah ada
+php artisan db:seed --class=MasterDataSeeder --force
+
+# 5. Bangun ulang aset antarmuka frontend
+npm install
+npm run build
+
+# 6. Bersihkan cache aplikasi
+php artisan optimize:clear
+```
+
+---
+
+## 💾 Prosedur Cadangan & Pemulihan (Backup & Restore)
+
+Untuk menjamin kelangsungan data keselamatan rumah sakit, pihak IT RS dianjurkan melakukan backup rutin terjadwal terhadap 2 komponen utama:
+
+1. **Berkas Basis Data SQLite**:
+   * Lokasi: `database/database.sqlite`
+   * Berisi seluruh riwayat inspeksi, checklist, tiket tindak lanjut, akun pengguna, dan perubahan status tabung APAR.
+2. **Berkas Lampiran Foto & Dokumen**:
+   * Lokasi: `storage/app/public/`
+   * Berisi foto dokumentasi fisik temuan inspeksi lapangan, foto bukti penanganan tindak lanjut, dan berkas denah.
+
+### Contoh Perintah Pencadangan Manual:
+```bash
+# Simpan salinan bertanggal ke direktori backup lokal/eksternal
+copy database\database.sqlite D:\BACKUP_HAFIS\database_backup_%date:~10,4%%date:~4,2%%date:~7,2%.sqlite
+xcopy /E /I /Y storage\app\public D:\BACKUP_HAFIS\storage_public_%date:~10,4%%date:~4,2%%date:~7,2%
+```
+
+---
+
+## ⚠️ Peringatan Penting: Kebijakan Data Operasional
+
+> [!IMPORTANT]
+> **Data Operasional Tidak Disimpan di Repositori Git**
+> 
+> * Repositori ini secara ketat mengabaikan berkas `.env` dan `database/*.sqlite` untuk melindungi privasi, kredensial pengguna, serta riwayat operasional rumah sakit.
+> * Database hasil `composer run setup` hanya berisi **Data Master Awal** (173 unit tabung APAR riil terdaftar, struktur gedung & lokasi K3RS, serta master checklist).
+> * Riwayat inspeksi lapangan, tiket tindak lanjut, log aktivitas, dan akun pengguna operasional tersimpan secara eksklusif pada server lokal rumah sakit Anda dan **TIDAK AKAN** pernah terunggah ke repositori publik/git. Pastikan prosedur backup di atas dijalankan secara berkala.
 
 ---
 

@@ -61,6 +61,13 @@
                 'dot' => 'bg-emerald-500',
                 'active' => request('status') === 'selesai',
             ],
+            [
+                'key' => 'dibatalkan',
+                'label' => 'Dibatalkan',
+                'count' => $stats['dibatalkan'] ?? 0,
+                'dot' => 'bg-rose-500',
+                'active' => request('status') === 'dibatalkan',
+            ],
         ];
 
         $buildStatusUrl = function ($statusKey) {
@@ -184,12 +191,23 @@
                         <div class="flex items-start justify-between gap-2">
                             <span class="text-gray-500 shrink-0">Unit APAR:</span>
                             <div class="text-right">
-                                <a href="{{ route('apar.show', $tl->apar_id) }}" class="font-mono font-bold text-gray-900 hover:underline">
-                                    {{ $tl->apar->kode }}
-                                </a>
-                                <span class="text-gray-500 block text-[11px] truncate max-w-[200px]" title="{{ $tl->apar->lokasi_lengkap }}">
-                                    {{ $tl->apar->lokasi_lengkap }}
-                                </span>
+                                @if($tl->apar)
+                                    @if(! $tl->apar->trashed())
+                                        <a href="{{ route('apar.show', $tl->apar_id) }}" class="font-mono font-bold text-gray-900 hover:underline">
+                                            {{ $tl->apar->kode }}
+                                        </a>
+                                    @else
+                                        <span class="font-mono font-bold text-gray-700">
+                                            {{ $tl->apar->kode }}
+                                        </span>
+                                        <span class="inline-block text-[10px] text-rose-700 bg-rose-50 px-1 py-0.5 rounded border border-rose-200 ml-1">Terhapus</span>
+                                    @endif
+                                    <span class="text-gray-500 block text-[11px] truncate max-w-[200px]" title="{{ $tl->apar->lokasi_lengkap }}">
+                                        {{ $tl->apar->lokasi_lengkap }}
+                                    </span>
+                                @else
+                                    <span class="font-mono text-gray-400 italic">APAR #{{ $tl->apar_id }} (Tidak Terdaftar)</span>
+                                @endif
                             </div>
                         </div>
 
@@ -272,12 +290,23 @@
 
                             <!-- 2. Unit APAR & Lokasi -->
                             <td class="px-4 py-3.5">
-                                <a href="{{ route('apar.show', $tl->apar_id) }}" class="font-mono font-bold text-gray-900 hover:underline inline-block">
-                                    {{ $tl->apar->kode }}
-                                </a>
-                                <span class="text-gray-500 block text-[11px] mt-0.5 truncate max-w-xs" title="{{ $tl->apar->lokasi_lengkap }}">
-                                    {{ $tl->apar->lokasi_lengkap }}
-                                </span>
+                                @if($tl->apar)
+                                    @if(! $tl->apar->trashed())
+                                        <a href="{{ route('apar.show', $tl->apar_id) }}" class="font-mono font-bold text-gray-900 hover:underline inline-block">
+                                            {{ $tl->apar->kode }}
+                                        </a>
+                                    @else
+                                        <span class="font-mono font-bold text-gray-700">
+                                            {{ $tl->apar->kode }}
+                                        </span>
+                                        <span class="inline-block text-[10px] text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 ml-1 font-sans font-semibold">Terhapus</span>
+                                    @endif
+                                    <span class="text-gray-500 block text-[11px] mt-0.5 truncate max-w-xs" title="{{ $tl->apar->lokasi_lengkap }}">
+                                        {{ $tl->apar->lokasi_lengkap }}
+                                    </span>
+                                @else
+                                    <span class="font-mono text-gray-400 italic">APAR #{{ $tl->apar_id }}</span>
+                                @endif
                             </td>
 
                             <!-- 3. Tanggal Tindakan -->

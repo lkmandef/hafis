@@ -63,16 +63,43 @@ class AuthorizationAndRoleTest extends TestCase
     }
 
     /**
-     * Petugas K3RS dilarang menghapus unit APAR (403 Forbidden)
+     * Petugas K3RS diizinkan mengelola dan menghapus unit APAR (SoftDelete)
      */
-    public function test_petugas_is_forbidden_from_deleting_apar(): void
+    public function test_petugas_can_delete_apar(): void
     {
         $this->actingAsPetugas();
         $apar = $this->createSampleApar();
 
         $response = $this->delete(route('apar.destroy', $apar->id));
-        $response->assertStatus(403);
-        $this->assertNotSoftDeleted('apars', ['id' => $apar->id]);
+        $response->assertRedirect(route('apar.index'));
+        $this->assertSoftDeleted('apars', ['id' => $apar->id]);
+    }
+
+    /**
+     * Petugas K3RS dilarang mengakses modul Laporan & Rekapitulasi (403 Forbidden)
+     */
+    public function test_petugas_is_forbidden_from_accessing_laporan_and_rekapitulasi(): void
+    {
+        $this->actingAsPetugas();
+
+        $this->get(route('laporan.index'))->assertStatus(403);
+        $this->get(route('laporan.apar'))->assertStatus(403);
+        $this->get(route('laporan.pemeriksaan'))->assertStatus(403);
+        $this->get(route('laporan.temuan'))->assertStatus(403);
+        $this->get(route('laporan.tindak_lanjut'))->assertStatus(403);
+        $this->get(route('laporan.penggantian'))->assertStatus(403);
+    }
+
+    /**
+     * Admin (Kepala K3RS) diizinkan mengakses modul Laporan & Rekapitulasi
+     */
+    public function test_admin_can_access_laporan_and_rekapitulasi(): void
+    {
+        $this->actingAsAdmin();
+
+        $this->get(route('laporan.index'))->assertStatus(200);
+        $this->get(route('laporan.apar'))->assertStatus(200);
+        $this->get(route('laporan.pemeriksaan'))->assertStatus(200);
     }
 
     /**
@@ -221,7 +248,6 @@ class AuthorizationAndRoleTest extends TestCase
         $this->get(route('pemeriksaan.index'))->assertStatus(200);
         $this->get(route('tindak-lanjut.index'))->assertStatus(200);
         $this->get(route('penggantian.index'))->assertStatus(200);
-        $this->get(route('laporan.index'))->assertStatus(200);
         $this->get(route('lokasi.index'))->assertStatus(200);
 
         // 2. Admin
@@ -235,5 +261,26 @@ class AuthorizationAndRoleTest extends TestCase
         $this->get(route('penggantian.index'))->assertStatus(200);
         $this->get(route('laporan.index'))->assertStatus(200);
         $this->get(route('lokasi.index'))->assertStatus(200);
+    }
+
+    /**
+     * Akun yang dinonaktifkan saat sedang login langsung diputus sesinya pada rute operasional
+     */
+    public function test_deactivated_user_session_is_terminated_on_operational_route(): void
+    {
+        $user = User::factory()->petugas()->create(['is_active' => true]);
+        $this->actingAs($user);
+
+        // Akses rute operasional normal saat aktif
+        $this->get(route('apar.index'))->assertStatus(200);
+
+        // Admin menonaktifkan akun tersebut di database
+        $user->update(['is_active' => false]);
+
+        // Pada request berikutnya ke rute operasional apa pun, sesi diputus seketika
+        $response = $this->get(route('apar.index'));
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHasErrors(['login']);
+        $this->assertGuest();
     }
 }

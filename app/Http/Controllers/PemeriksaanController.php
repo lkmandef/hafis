@@ -7,6 +7,7 @@ use App\Models\Jadwal;
 use App\Models\Lokasi;
 use App\Models\MasterChecklist;
 use App\Models\Pemeriksaan;
+use App\Services\SmartInspectionService;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -49,7 +50,8 @@ class PemeriksaanController extends Controller
         // Query unit APAR terpasang operasional (tidak termasuk unit tidak aktif atau stok sediaan GUDANG K3RS)
         $query = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung', 'pemeriksaans' => function ($q) use ($tahun, $bulan) {
             $q->where('periode_tahun', $tahun)
-                ->where('periode_bulan', $bulan);
+                ->where('periode_bulan', $bulan)
+                ->with(['pemeriksaanInduk', 'resolusiAnak']);
         }])
             ->where('status', '!=', Apar::STATUS_TIDAK_AKTIF)
             ->whereNotNull('lokasi_id')
@@ -252,6 +254,16 @@ class PemeriksaanController extends Controller
                 ->with('info', "Unit APAR {$apar->kode} sudah memiliki catatan pemeriksaan untuk periode {$periodeBulan}/{$periodeTahun}. Formulir dialihkan ke mode koreksi.");
         }
 
+        // Evaluasi Smart Inspection Context (M dan M-1)
+        $smartService = app(SmartInspectionService::class);
+        $evalContext = $smartService->evaluateAparContext($apar, Carbon::createFromDate($periodeTahun, $periodeBulan, 1));
+
+        $isMultiPeriod = ($request->input('mode') === 'multi_period')
+            || ($evalContext['mode'] === 'multi_period' && $request->boolean('resolve_backlog', true));
+
+        $backlogPeriod = $evalContext['backlog_period'];
+        $resolveBacklog = $isMultiPeriod ? 1 : 0;
+
         // Checklist items: Master checklist K3RS jika bulanan, atau default jika legacy schedule ad-hoc
         // Workflow bulanan berlaku jika ada parameter periode eksplisit ATAU untuk inspeksi mandiri APAR terpasang operasional
         $isExplicitLegacySchedule = ! empty($jadwalId) && ! $request->has('periode_bulan') && ! $request->has('periode_tahun');
@@ -262,7 +274,21 @@ class PemeriksaanController extends Controller
         $petugas = auth()->user()?->name ?? 'Petugas K3RS';
         $waktuSekarang = Carbon::now();
 
-        return view('pemeriksaan.create', compact('apar', 'jadwal', 'checklistItems', 'helperMap', 'petugas', 'waktuSekarang', 'periodeTahun', 'periodeBulan', 'isMonthlyWorkflow'));
+        return view('pemeriksaan.create', compact(
+            'apar',
+            'jadwal',
+            'checklistItems',
+            'helperMap',
+            'petugas',
+            'waktuSekarang',
+            'periodeTahun',
+            'periodeBulan',
+            'isMonthlyWorkflow',
+            'isMultiPeriod',
+            'backlogPeriod',
+            'resolveBacklog',
+            'evalContext'
+        ));
     }
 
     /**
@@ -280,6 +306,7 @@ class PemeriksaanController extends Controller
             'kesimpulan_manual' => ['nullable', 'string', 'in:baik,perlu_tindakan'],
             'catatan_pemeriksaan' => ['nullable', 'string', 'max:1000'],
             'foto' => ['nullable', 'image', 'max:5120'], // Max 5MB
+            'resolve_backlog' => ['nullable', 'boolean'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.nama' => ['required', 'string', 'max:200'],
             'items.*.hasil' => ['required', 'string', 'in:baik,tidak_baik,tidak_diperiksa'],
@@ -373,9 +400,10 @@ class PemeriksaanController extends Controller
         $existing = Pemeriksaan::findByAparPeriod($apar->id, $periodeTahun, $periodeBulan);
 
         $pemeriksaNama = auth()->check() ? auth()->user()->name : $validated['pemeriksa_nama'];
+        $resolveBacklog = $request->boolean('resolve_backlog', false);
 
         try {
-            $pemeriksaan = DB::transaction(function () use ($apar, $jadwal, $validated, $pemeriksaNama, $hasilKeseluruhan, $fotoPath, $tanggalPemeriksaan, $periodeTahun, $periodeBulan, $existing, $canonicalItems) {
+            $pemeriksaan = DB::transaction(function () use ($apar, $jadwal, $validated, $pemeriksaNama, $hasilKeseluruhan, $fotoPath, $tanggalPemeriksaan, $periodeTahun, $periodeBulan, $existing, $canonicalItems, $resolveBacklog) {
                 if ($existing) {
                     // Alur Koreksi: Perbarui record yang ada tanpa mengubah ID atau membuat duplikat
                     $existing->update([
@@ -423,34 +451,24 @@ class PemeriksaanController extends Controller
 
                     $pem = $existing;
                 } else {
-                    // Alur Baru: Buat record pemeriksaan bulanan
-                    $pem = Pemeriksaan::create([
-                        'apar_id' => $apar->id,
+                    // Alur Baru: Simpan pemeriksaan via SmartInspectionService
+                    $smartService = app(SmartInspectionService::class);
+                    $evalContext = $smartService->evaluateAparContext($apar, Carbon::createFromDate($periodeTahun, $periodeBulan, 1));
+
+                    if (! $resolveBacklog && $evalContext['mode'] === 'multi_period') {
+                        $evalContext['mode'] = 'regular';
+                    }
+
+                    $payloadData = array_merge($validated, [
                         'jadwal_id' => $jadwal?->id,
+                        'foto_path' => $fotoPath,
                         'periode_tahun' => $periodeTahun,
                         'periode_bulan' => $periodeBulan,
-                        'user_id' => auth()->id(),
-                        'pemeriksa_nama' => $pemeriksaNama,
                         'tanggal_pemeriksaan' => $tanggalPemeriksaan,
-                        'hasil_keseluruhan' => $hasilKeseluruhan,
-                        'status' => 'selesai',
-                        'catatan' => $validated['catatan_pemeriksaan'] ?? null,
-                        'foto_path' => $fotoPath,
+                        'resolve_backlog' => $resolveBacklog,
                     ]);
 
-                    // Simpan detail setiap item checklist
-                    foreach ($validated['items'] as $itemData) {
-                        $nama = trim($itemData['nama']);
-                        $canonicalIndex = array_search($nama, $canonicalItems);
-                        $urutan = $canonicalIndex !== false ? $canonicalIndex : 0;
-
-                        $pem->details()->create([
-                            'item_nama' => $nama,
-                            'hasil' => $itemData['hasil'],
-                            'catatan' => $itemData['catatan'] ?? null,
-                            'urutan' => $urutan,
-                        ]);
-                    }
+                    $pem = $smartService->executeInspection($apar, $payloadData, auth()->user(), $evalContext);
                 }
 
                 // Update status operasional & tanggal periksa terakhir APAR secara aman
@@ -491,9 +509,18 @@ class PemeriksaanController extends Controller
                 ->with('error', $e->getMessage());
         }
 
-        $pesan = $existing
-            ? "Pemeriksaan bulanan unit APAR {$apar->kode} untuk periode {$periodeBulan}/{$periodeTahun} berhasil diperbarui (koreksi)."
-            : "Pemeriksaan fisik unit APAR {$apar->kode} berhasil disimpan dan dicatat dalam kartu kendali.";
+        $resolveBacklog = $request->boolean('resolve_backlog', false);
+        if (! $existing && $resolveBacklog) {
+            $prev = Carbon::createFromDate($periodeTahun, $periodeBulan, 1)->subMonth();
+            $namaBulanLalu = Pemeriksaan::NAMA_BULAN[(int) $prev->month] ?? (string) $prev->month;
+            $namaBulanIni = Pemeriksaan::NAMA_BULAN[$periodeBulan] ?? (string) $periodeBulan;
+
+            $pesan = "Pemeriksaan fisik berhasil disimpan dan menyelesaikan 2 periode sekaligus: {$namaBulanLalu} {$prev->year} (Terlambat) & {$namaBulanIni} {$periodeTahun} (Tepat Waktu).";
+        } elseif ($existing) {
+            $pesan = "Pemeriksaan bulanan unit APAR {$apar->kode} untuk periode {$periodeBulan}/{$periodeTahun} berhasil diperbarui (koreksi).";
+        } else {
+            $pesan = "Pemeriksaan fisik unit APAR {$apar->kode} berhasil disimpan dan dicatat dalam kartu kendali.";
+        }
 
         return redirect()->route('pemeriksaan.show', $pemeriksaan->id)->with('success', $pesan);
     }
@@ -503,6 +530,12 @@ class PemeriksaanController extends Controller
      */
     public function edit(Pemeriksaan $pemeriksaan)
     {
+        // Proteksi Linked Record: Alihkan koreksi ke pemeriksaan fisik induk
+        if ($pemeriksaan->isLinkedRecord()) {
+            return redirect()->route('pemeriksaan.edit', $pemeriksaan->pemeriksaan_induk_id)
+                ->with('info', "Pemeriksaan periode {$pemeriksaan->periode_label} merupakan catatan pemenuhan terlambat. Koreksi checklist fisik dilakukan melalui pemeriksaan fisik induknya (#{$pemeriksaan->pemeriksaan_induk_id}).");
+        }
+
         $pemeriksaan->load(['apar.lokasi.gedung', 'apar.lokasi.lantai', 'apar.ruangan.lantai.gedung', 'details', 'jadwal']);
 
         $apar = $pemeriksaan->apar;
@@ -541,6 +574,12 @@ class PemeriksaanController extends Controller
      */
     public function update(Request $request, Pemeriksaan $pemeriksaan)
     {
+        // Proteksi Linked Record: Cegah pembaruan checklist langsung pada linked record
+        if ($pemeriksaan->isLinkedRecord()) {
+            return redirect()->route('pemeriksaan.edit', $pemeriksaan->pemeriksaan_induk_id)
+                ->with('warning', "Pemeriksaan periode {$pemeriksaan->periode_label} merupakan resolusi terhubung. Silakan lakukan pembaruan langsung pada pemeriksaan fisik induknya.");
+        }
+
         $validated = $request->validate([
             'pemeriksa_nama' => ['required', 'string', 'max:100'],
             'tanggal_pemeriksaan' => ['nullable', 'date'],

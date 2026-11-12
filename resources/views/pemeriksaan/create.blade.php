@@ -157,7 +157,7 @@
         </x-card>
 
         <!-- Formulir Pemeriksaan Lapangan -->
-        <form action="{{ route('pemeriksaan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 pb-20 sm:pb-0">
+        <form id="form-pemeriksaan" action="{{ route('pemeriksaan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 pb-20 sm:pb-0">
             @csrf
             <input type="hidden" name="apar_id" value="{{ $apar->id }}">
             <input type="hidden" name="jadwal_id" value="{{ $jadwal?->id }}">
@@ -167,7 +167,45 @@
             @if($isMonthlyWorkflow && isset($periodeBulan))
                 <input type="hidden" name="periode_bulan" value="{{ $periodeBulan }}">
             @endif
+            @if(! empty($resolveBacklog))
+                <input type="hidden" name="resolve_backlog" value="1">
+            @endif
             <input type="hidden" name="pemeriksa_nama" value="{{ $petugas }}">
+
+            @if(!empty($isMultiPeriod))
+                <!-- Smart Multi-Period Resolution Banner -->
+                <div class="p-4 rounded-xl border border-amber-300 bg-amber-50/80 text-amber-950 text-xs shadow-2xs">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 font-bold text-sm border border-amber-200">
+                            ⚡
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="font-bold text-gray-900 text-sm">Smart Multi-Period Resolution Aktif</h3>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-200/70 text-amber-900">
+                                    2 Periode Sekaligus
+                                </span>
+                            </div>
+                            <p class="text-gray-700 mt-1 leading-relaxed text-xs">
+                                Unit ini belum diinspeksi pada bulan sebelumnya. Satu verifikasi fisik saat ini akan otomatis menuntaskan:
+                            </p>
+                            <ul class="mt-2.5 space-y-1.5 font-mono text-[11px] bg-white/70 p-2.5 rounded-lg border border-amber-200/60">
+                                <li class="flex items-center gap-2 text-amber-950">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-amber-500"></span>
+                                    <span>Periode <strong>{{ $backlogPeriod['nama_bulan'] ?? 'Bulan Lalu' }} {{ $backlogPeriod['tahun'] ?? '' }}</strong> &rarr; <span class="font-semibold text-amber-800 bg-amber-100/80 px-1.5 py-0.5 rounded">Selesai Terlambat</span></span>
+                                </li>
+                                <li class="flex items-center gap-2 text-emerald-950">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-600"></span>
+                                    <span>Periode <strong>{{ \App\Models\Pemeriksaan::NAMA_BULAN[$periodeBulan] ?? $periodeBulan }} {{ $periodeTahun }}</strong> &rarr; <span class="font-semibold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.5 rounded">Selesai Tepat Waktu</span></span>
+                                </li>
+                            </ul>
+                            <p class="text-[11px] text-gray-500 mt-2">
+                                * Seluruh catatan checklist fisik dicatat pada periode berjalan tanpa backdating atau rekayasa data.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <!-- 3. Checklist Pemeriksaan Fisik (Kotak Bersih rounded-xl p-4) -->
             <x-card
@@ -336,24 +374,29 @@
             </x-card>
 
             <!-- 6. Tombol Aksi Submit Formulir - Sticky Bottom on Mobile with Safe Area Support -->
-            <div class="fixed sm:static bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t sm:border border-gray-200 sm:rounded-xl px-3.5 pt-3.5 pb-[max(0.875rem,calc(0.875rem+env(safe-area-inset-bottom,0px)))] sm:p-4 shadow-lg sm:shadow-none flex flex-row items-center justify-between gap-3">
-                <a href="{{ route('apar.show', $apar->id) }}" 
-                   class="w-auto px-4 py-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-medium text-xs text-center transition min-h-[44px] flex items-center justify-center shrink-0">
-                    Batal
-                </a>
+            <div id="floating-action-bar-container">
+                <div id="floating-action-bar" 
+                     class="fixed sm:static bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t sm:border border-gray-200 sm:rounded-xl px-3.5 pt-3.5 pb-[max(0.875rem,calc(0.875rem+env(safe-area-inset-bottom,0px)))] sm:p-4 shadow-lg sm:shadow-none flex flex-row items-center justify-between gap-3"
+                     style="-webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); -webkit-backface-visibility: hidden; backface-visibility: hidden; will-change: transform;">
+                    <a href="{{ route('apar.show', $apar->id) }}" 
+                       class="w-auto px-4 py-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-medium text-xs text-center transition min-h-[44px] flex items-center justify-center shrink-0">
+                        Batal
+                    </a>
 
-                <button type="submit" 
-                        class="flex-1 sm:flex-none px-6 py-2.5 rounded-lg bg-[#111827] hover:bg-gray-800 text-white font-medium text-xs text-center transition min-h-[44px] inline-flex items-center justify-center gap-2 cursor-pointer">
-                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>Simpan Pemeriksaan</span>
-                </button>
+                    <button type="submit" 
+                            form="form-pemeriksaan"
+                            class="flex-1 sm:flex-none px-6 py-2.5 rounded-lg bg-[#111827] hover:bg-gray-800 text-white font-medium text-xs text-center transition min-h-[44px] inline-flex items-center justify-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Simpan Pemeriksaan</span>
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 
-    <!-- Script Evaluasi Dinamis Otomatis -->
+    <!-- Script Evaluasi Dinamis Otomatis & Penyesuaian Viewport Mobile -->
     <script>
         function evaluateOverallHealth() {
             const radios = document.querySelectorAll('.radio-item-checklist:checked');
@@ -382,6 +425,35 @@
                 if (select) select.value = 'baik';
             }
         }
+
+        // Relokasi Floating Action Bar ke document.body pada Mobile untuk Mengatasi WebKit Containing Block Bug (iOS Safari/Chrome)
+        (function() {
+            const bar = document.getElementById('floating-action-bar');
+            const container = document.getElementById('floating-action-bar-container');
+            if (!bar || !container) return;
+
+            function adjustBarPlacement() {
+                const isMobile = window.innerWidth < 640;
+                if (isMobile) {
+                    if (bar.parentElement !== document.body) {
+                        document.body.appendChild(bar);
+                    }
+                } else {
+                    if (bar.parentElement !== container) {
+                        container.appendChild(bar);
+                    }
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', adjustBarPlacement);
+            } else {
+                adjustBarPlacement();
+            }
+
+            window.addEventListener('resize', adjustBarPlacement, { passive: true });
+            window.addEventListener('orientationchange', adjustBarPlacement, { passive: true });
+        })();
 
         document.addEventListener('DOMContentLoaded', evaluateOverallHealth);
     </script>

@@ -4,38 +4,40 @@
         title="Struktur Lokasi Rumah Sakit"
         description="Manajemen hierarki Gedung, Lantai, dan Ruangan atau Area fasilitas rumah sakit">
         <x-slot:actions>
-            <button 
-                type="button" 
-                onclick="openModal('modal-tambah-gedung')"
-                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#111827] hover:bg-gray-800 active:scale-[0.98] text-white font-semibold text-xs transition duration-150 ease-in-out shadow-xs min-h-[38px] cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
-            >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span>Tambah Gedung</span>
-            </button>
-            <div class="inline-flex items-center gap-1.5">
+            @if(auth()->user()?->isAdmin())
                 <button 
                     type="button" 
-                    onclick="openModal('modal-tambah-lantai')"
-                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] text-gray-700 font-semibold text-xs transition duration-150 ease-in-out shadow-xs min-h-[38px] cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
+                    onclick="openModal('modal-tambah-gedung')"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#111827] hover:bg-gray-800 active:scale-[0.98] text-white font-semibold text-xs transition duration-150 ease-in-out shadow-xs min-h-[38px] cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
                 >
-                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    <span>Tambah Lantai</span>
+                    <span>Tambah Gedung</span>
                 </button>
-                <button 
-                    type="button" 
-                    onclick="openModal('modal-tambah-ruangan')"
-                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] text-gray-700 font-semibold text-xs transition duration-150 ease-in-out shadow-xs min-h-[38px] cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
-                >
-                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    <span>Tambah Ruangan</span>
-                </button>
-            </div>
+                <div class="inline-flex items-center gap-1.5">
+                    <button 
+                        type="button" 
+                        onclick="openModal('modal-tambah-lantai')"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] text-gray-700 font-semibold text-xs transition duration-150 ease-in-out shadow-xs min-h-[38px] cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
+                    >
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Tambah Lantai</span>
+                    </button>
+                    <button 
+                        type="button" 
+                        onclick="openModal('modal-tambah-ruangan')"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] text-gray-700 font-semibold text-xs transition duration-150 ease-in-out shadow-xs min-h-[38px] cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
+                    >
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Tambah Ruangan</span>
+                    </button>
+                </div>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
@@ -228,35 +230,37 @@
                             <span>Detail Gedung</span>
                         </a>
 
-                        <button 
-                            type="button" 
-                            onclick="openEditGedungModal(this)"
-                            data-id="{{ $g->id }}"
-                            data-nama="{{ $g->nama }}"
-                            data-kode="{{ $g->kode }}"
-                            data-status="{{ $g->status }}"
-                            data-keterangan="{{ $g->keterangan ?? '' }}"
-                            class="p-1.5 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 active:scale-[0.96] transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer"
-                            title="Edit Gedung"
-                            aria-label="Edit Gedung {{ $g->nama }}"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                        </button>
+                        @if(auth()->user()?->isAdmin())
+                            <button 
+                                type="button" 
+                                onclick="openEditGedungModal(this)"
+                                data-id="{{ $g->id }}"
+                                data-nama="{{ $g->nama }}"
+                                data-kode="{{ $g->kode }}"
+                                data-status="{{ $g->status }}"
+                                data-keterangan="{{ $g->keterangan ?? '' }}"
+                                class="p-1.5 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 active:scale-[0.96] transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer"
+                                title="Edit Gedung"
+                                aria-label="Edit Gedung {{ $g->nama }}"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
 
-                        <button 
-                            type="button" 
-                            onclick="openAddLantaiForGedung({{ $g->id }}, '{{ $g->nama }}')"
-                            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] text-gray-700 transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer shadow-2xs"
-                            title="Tambah Lantai untuk Gedung ini"
-                            aria-label="Tambah Lantai untuk {{ $g->nama }}"
-                        >
-                            <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            <span>Lantai</span>
-                        </button>
+                            <button 
+                                type="button" 
+                                onclick="openAddLantaiForGedung({{ $g->id }}, '{{ $g->nama }}')"
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] text-gray-700 transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer shadow-2xs"
+                                title="Tambah Lantai untuk Gedung ini"
+                                aria-label="Tambah Lantai untuk {{ $g->nama }}"
+                            >
+                                <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                <span>Lantai</span>
+                            </button>
+                        @endif
                     </div>
                 </div>
 
@@ -286,34 +290,36 @@
                                         @endif
                                         · <strong class="{{ $floorAparCount > 0 ? 'text-gray-900' : 'text-gray-400' }}">{{ $floorAparCount }}</strong> APAR
                                     </span>
-                                    <button 
-                                        type="button" 
-                                        onclick="openAddRuanganForLantai({{ $l->id }}, '{{ $g->nama }} - {{ $l->nama }}')"
-                                        class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-md border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] text-gray-700 transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer shadow-2xs"
-                                        title="Tambah Ruangan untuk {{ $l->nama }}"
-                                        aria-label="Tambah Ruangan untuk {{ $l->nama }}"
-                                    >
-                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-                                        </svg>
-                                        <span>Ruangan/Area</span>
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        onclick="openEditLantaiModal(this)"
-                                        data-id="{{ $l->id }}"
-                                        data-nomor="{{ $l->nomor_lantai }}"
-                                        data-nama="{{ $l->nama }}"
-                                        data-keterangan="{{ $l->keterangan ?? '' }}"
-                                        data-gedung-nama="{{ $g->nama }}"
-                                        class="p-1 text-gray-400 hover:text-gray-700 rounded hover:bg-gray-200/60 active:scale-[0.96] transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer"
-                                        title="Edit Lantai"
-                                        aria-label="Edit Lantai {{ $l->nama }}"
-                                    >
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </button>
+                                    @if(auth()->user()?->isAdmin())
+                                        <button 
+                                            type="button" 
+                                            onclick="openAddRuanganForLantai({{ $l->id }}, '{{ $g->nama }} - {{ $l->nama }}')"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-md border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] text-gray-700 transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer shadow-2xs"
+                                            title="Tambah Ruangan untuk {{ $l->nama }}"
+                                            aria-label="Tambah Ruangan untuk {{ $l->nama }}"
+                                        >
+                                            <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            <span>Ruangan/Area</span>
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            onclick="openEditLantaiModal(this)"
+                                            data-id="{{ $l->id }}"
+                                            data-nomor="{{ $l->nomor_lantai }}"
+                                            data-nama="{{ $l->nama }}"
+                                            data-keterangan="{{ $l->keterangan ?? '' }}"
+                                            data-gedung-nama="{{ $g->nama }}"
+                                            class="p-1 text-gray-400 hover:text-gray-700 rounded hover:bg-gray-200/60 active:scale-[0.96] transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer"
+                                            title="Edit Lantai"
+                                            aria-label="Edit Lantai {{ $l->nama }}"
+                                        >
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
 
@@ -437,25 +443,27 @@
                                                             <span class="font-mono text-gray-600 font-semibold tabular-nums">{{ $r->apars->count() }} APAR</span>
                                                         </div>
                                                     </div>
-                                                    <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100">
-                                                        <button 
-                                                            type="button" 
-                                                            onclick="openEditRuanganModal(this)"
-                                                            data-id="{{ $r->id }}"
-                                                            data-nama="{{ $r->nama }}"
-                                                            data-kode="{{ $r->kode ?? '' }}"
-                                                            data-kategori="{{ $r->kategori ?? '' }}"
-                                                            data-keterangan="{{ $r->keterangan ?? '' }}"
-                                                            data-lokasi-label="{{ $g->nama }} - {{ $l->nama }}"
-                                                            class="p-1 text-gray-400 hover:text-gray-800 rounded hover:bg-gray-100 active:scale-[0.96] transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer"
-                                                            title="Edit Ruangan"
-                                                            aria-label="Edit Ruangan {{ $r->nama }}"
-                                                        >
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
+                                                    @if(auth()->user()?->isAdmin())
+                                                        <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100">
+                                                            <button 
+                                                                type="button" 
+                                                                onclick="openEditRuanganModal(this)"
+                                                                data-id="{{ $r->id }}"
+                                                                data-nama="{{ $r->nama }}"
+                                                                data-kode="{{ $r->kode ?? '' }}"
+                                                                data-kategori="{{ $r->kategori ?? '' }}"
+                                                                data-keterangan="{{ $r->keterangan ?? '' }}"
+                                                                data-lokasi-label="{{ $g->nama }} - {{ $l->nama }}"
+                                                                class="p-1 text-gray-400 hover:text-gray-800 rounded hover:bg-gray-100 active:scale-[0.96] transition focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none cursor-pointer"
+                                                                title="Edit Ruangan"
+                                                                aria-label="Edit Ruangan {{ $r->nama }}"
+                                                            >
+                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             @endforeach
                                         </div>
@@ -505,7 +513,9 @@
                         <th class="px-4 py-3 text-center">Jumlah Ruangan</th>
                         <th class="px-4 py-3">Keterangan / Catatan K3RS</th>
                         <th class="px-4 py-3">Status</th>
-                        <th class="py-3 pl-4 pr-5 sm:pr-6 text-right">Aksi</th>
+                        @if(auth()->user()?->isAdmin())
+                            <th class="py-3 pl-4 pr-5 sm:pr-6 text-right">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
@@ -521,21 +531,23 @@
                                     {{ ucfirst($g->status) }}
                                 </x-badge>
                             </td>
-                            <td class="py-3 pl-4 pr-5 sm:pr-6 text-right space-x-1">
-                                <button 
-                                    type="button" 
-                                    onclick="openEditGedungModal(this)"
-                                    data-id="{{ $g->id }}"
-                                    data-nama="{{ $g->nama }}"
-                                    data-kode="{{ $g->kode }}"
-                                    data-status="{{ $g->status }}"
-                                    data-keterangan="{{ $g->keterangan ?? '' }}"
-                                    class="px-2.5 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.96] text-gray-700 font-medium text-[11px] transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
-                                    aria-label="Edit Gedung {{ $g->nama }}"
-                                >
-                                    Edit
-                                </button>
-                            </td>
+                            @if(auth()->user()?->isAdmin())
+                                <td class="py-3 pl-4 pr-5 sm:pr-6 text-right space-x-1">
+                                    <button 
+                                        type="button" 
+                                        onclick="openEditGedungModal(this)"
+                                        data-id="{{ $g->id }}"
+                                        data-nama="{{ $g->nama }}"
+                                        data-kode="{{ $g->kode }}"
+                                        data-status="{{ $g->status }}"
+                                        data-keterangan="{{ $g->keterangan ?? '' }}"
+                                        class="px-2.5 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.96] text-gray-700 font-medium text-[11px] transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
+                                        aria-label="Edit Gedung {{ $g->nama }}"
+                                    >
+                                        Edit
+                                    </button>
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
@@ -555,7 +567,9 @@
                         <th class="px-4 py-3 text-center">Titik Lokasi APAR</th>
                         <th class="px-4 py-3 text-center">Master Ruangan</th>
                         <th class="px-4 py-3">Keterangan</th>
-                        <th class="py-3 pl-4 pr-5 sm:pr-6 text-right">Aksi</th>
+                        @if(auth()->user()?->isAdmin())
+                            <th class="py-3 pl-4 pr-5 sm:pr-6 text-right">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
@@ -567,23 +581,25 @@
                             <td class="px-4 py-3 text-center font-bold font-mono text-gray-800 tabular-nums">{{ $l->lokasis_count }}</td>
                             <td class="px-4 py-3 text-center font-bold font-mono text-gray-800 tabular-nums">{{ $l->ruangans_count }}</td>
                             <td class="px-4 py-3 text-gray-500 max-w-xs truncate">{{ $l->keterangan ?: '-' }}</td>
-                            <td class="py-3 pl-4 pr-5 sm:pr-6 text-right">
-                                <div class="inline-flex items-center gap-1.5 justify-end">
-                                    <button 
-                                        type="button" 
-                                        onclick="openEditLantaiModal(this)"
-                                        data-id="{{ $l->id }}"
-                                        data-nomor="{{ $l->nomor_lantai }}"
-                                        data-nama="{{ $l->nama }}"
-                                        data-keterangan="{{ $l->keterangan ?? '' }}"
-                                        data-gedung-nama="{{ $l->gedung->nama }}"
-                                        class="px-2.5 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.96] text-gray-700 font-medium text-[11px] transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
-                                        aria-label="Edit Lantai {{ $l->nama }} ({{ $l->gedung->nama }})"
-                                    >
-                                        Edit
-                                    </button>
-                                </div>
-                            </td>
+                            @if(auth()->user()?->isAdmin())
+                                <td class="py-3 pl-4 pr-5 sm:pr-6 text-right">
+                                    <div class="inline-flex items-center gap-1.5 justify-end">
+                                        <button 
+                                            type="button" 
+                                            onclick="openEditLantaiModal(this)"
+                                            data-id="{{ $l->id }}"
+                                            data-nomor="{{ $l->nomor_lantai }}"
+                                            data-nama="{{ $l->nama }}"
+                                            data-keterangan="{{ $l->keterangan ?? '' }}"
+                                            data-gedung-nama="{{ $l->gedung->nama }}"
+                                            class="px-2.5 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.96] text-gray-700 font-medium text-[11px] transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
+                                            aria-label="Edit Lantai {{ $l->nama }} ({{ $l->gedung->nama }})"
+                                        >
+                                            Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
@@ -598,14 +614,16 @@
                 <strong class="font-semibold text-gray-900 block text-xs">Master Ruangan Fisik Terdaftar</strong>
                 <span class="text-gray-500 text-[11px]">Daftar ruangan klinis dan administratif tertutup rumah sakit. Untuk seluruh titik penempatan APAR operasional (termasuk koridor dan zona layanan), lihat tab Hierarki Lokasi.</span>
             </div>
-            <button 
-                type="button" 
-                onclick="openModal('modal-tambah-ruangan')"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111827] hover:bg-gray-800 text-white font-semibold text-xs transition shrink-0 self-start sm:self-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
-            >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                <span>Tambah Ruangan</span>
-            </button>
+            @if(auth()->user()?->isAdmin())
+                <button 
+                    type="button" 
+                    onclick="openModal('modal-tambah-ruangan')"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111827] hover:bg-gray-800 text-white font-semibold text-xs transition shrink-0 self-start sm:self-auto cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
+                >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                    <span>Tambah Ruangan</span>
+                </button>
+            @endif
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-xs text-left min-w-[850px]">
@@ -617,7 +635,9 @@
                         <th class="px-4 py-3">Kategori</th>
                         <th class="px-4 py-3">APAR Terpasang</th>
                         <th class="px-4 py-3">Keterangan</th>
-                        <th class="py-3 pl-4 pr-5 sm:pr-6 text-right">Aksi</th>
+                        @if(auth()->user()?->isAdmin())
+                            <th class="py-3 pl-4 pr-5 sm:pr-6 text-right">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
@@ -650,22 +670,24 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-gray-500 max-w-xs truncate">{{ $r->keterangan ?: '-' }}</td>
-                            <td class="py-3 pl-4 pr-5 sm:pr-6 text-right">
-                                <button 
-                                    type="button" 
-                                    onclick="openEditRuanganModal(this)"
-                                    data-id="{{ $r->id }}"
-                                    data-nama="{{ $r->nama }}"
-                                    data-kode="{{ $r->kode ?? '' }}"
-                                    data-kategori="{{ $r->kategori ?? '' }}"
-                                    data-keterangan="{{ $r->keterangan ?? '' }}"
-                                    data-lokasi-label="{{ $r->lantai ? ($r->lantai->gedung->nama . ' - ' . $r->lantai->nama) : ($r->lokasi && $r->lokasi->gedung ? $r->lokasi->gedung->nama : 'Fasilitas') }}"
-                                    class="px-2.5 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.96] text-gray-700 font-medium text-[11px] transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
-                                    aria-label="Edit Ruangan {{ $r->nama }}"
-                                >
-                                    Edit
-                                </button>
-                            </td>
+                            @if(auth()->user()?->isAdmin())
+                                <td class="py-3 pl-4 pr-5 sm:pr-6 text-right">
+                                    <button 
+                                        type="button" 
+                                        onclick="openEditRuanganModal(this)"
+                                        data-id="{{ $r->id }}"
+                                        data-nama="{{ $r->nama }}"
+                                        data-kode="{{ $r->kode ?? '' }}"
+                                        data-kategori="{{ $r->kategori ?? '' }}"
+                                        data-keterangan="{{ $r->keterangan ?? '' }}"
+                                        data-lokasi-label="{{ $r->lantai ? ($r->lantai->gedung->nama . ' - ' . $r->lantai->nama) : ($r->lokasi && $r->lokasi->gedung ? $r->lokasi->gedung->nama : 'Fasilitas') }}"
+                                        class="px-2.5 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.96] text-gray-700 font-medium text-[11px] transition shadow-2xs cursor-pointer focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:outline-none"
+                                        aria-label="Edit Ruangan {{ $r->nama }}"
+                                    >
+                                        Edit
+                                    </button>
+                                </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
@@ -682,7 +704,7 @@
     <!-- ============================================================== -->
     <!-- MODALS: TAMBAH & EDIT ENTITAS LOKASI                          -->
     <!-- ============================================================== -->
-
+    @if(auth()->user()?->isAdmin())
     <!-- Modal 1: Tambah Gedung -->
     <div id="modal-tambah-gedung" role="dialog" aria-modal="true" aria-labelledby="title-modal-tambah-gedung" class="hidden fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/40 backdrop-blur-xs p-4 flex items-center justify-center">
         <div class="bg-white rounded-2xl border border-gray-200 shadow-xl max-w-md w-full p-5 sm:p-6 text-xs">
@@ -929,6 +951,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <!-- Script Manajemen Interaksi Modal & Tab -->
     <script>

@@ -37,6 +37,9 @@
                             Periode: {{ $pemeriksaan->periode_label }}
                         </span>
                     @endif
+                    <x-badge :variant="$pemeriksaan->tipe_badge_variant">
+                        {{ $pemeriksaan->tipe_penyelesaian_label }}
+                    </x-badge>
                 </div>
                 <p class="text-xs text-gray-500 mt-1">
                     Dokumentasi catatan verifikasi fisik komponen unit APAR di lapangan.
@@ -142,7 +145,76 @@
         </a>
     </div>
 
+    @php
+        $isLinked = $pemeriksaan->isLinkedRecord();
+        $induk = $pemeriksaan->pemeriksaanInduk;
+        $effectiveDetails = $pemeriksaan->details->isNotEmpty()
+            ? $pemeriksaan->details
+            : ($induk ? $induk->details : collect());
+        $temuanDetails = $effectiveDetails->where('hasil', 'tidak_baik');
+    @endphp
+
     <div class="max-w-4xl mx-auto space-y-6">
+        @if($isLinked)
+            <!-- Banner Linked Multi-Period Resolution -->
+            <div class="p-4 rounded-xl border border-amber-300 bg-amber-50/80 text-amber-950 text-xs shadow-2xs">
+                <div class="flex items-start gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 font-bold border border-amber-200">
+                        ⚡
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-bold text-gray-900 text-sm">Resolusi Multi-Periode: Pemenuhan Terlambat</span>
+                            <x-badge variant="warning">
+                                {{ $pemeriksaan->tipe_penyelesaian_label }}
+                            </x-badge>
+                        </div>
+                        <p class="text-gray-700 mt-1 leading-relaxed text-xs">
+                            Kepatuhan inspeksi periode <strong>{{ $pemeriksaan->periode_label }}</strong> ini diselesaikan melalui pemindaian dan pemeriksaan fisik periode <strong>{{ $induk?->periode_label }}</strong> (Pemeriksaan Induk #{{ $pemeriksaan->pemeriksaan_induk_id }} pada {{ $pemeriksaan->tanggal_pemeriksaan->format('d/m/Y H:i') }} WITA).
+                        </p>
+                        <p class="text-gray-500 mt-1 text-[11px]">
+                            * Lembar checklist di bawah ini merujuk langsung pada verifikasi fisik master record tanpa duplikasi fisik.
+                        </p>
+                        @if($induk)
+                            <div class="mt-2.5">
+                                <a href="{{ route('pemeriksaan.show', $induk->id) }}" 
+                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-semibold text-[11px] transition shadow-2xs">
+                                    <span>Buka Pemeriksaan Fisik Induk (#{{ $induk->id }}) &rarr;</span>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @elseif($pemeriksaan->resolusiAnak->isNotEmpty())
+            <!-- Banner Master Resolution Record -->
+            <div class="p-4 rounded-xl border border-emerald-300 bg-emerald-50/80 text-emerald-950 text-xs shadow-2xs">
+                <div class="flex items-start gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 font-bold border border-emerald-200">
+                        ⚡
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-bold text-gray-900 text-sm">Induk Resolusi Multi-Periode Aktif</span>
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-200/70 text-emerald-900">
+                                Master Record Fisik
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mt-1 leading-relaxed text-xs">
+                            Pemeriksaan fisik ini sekaligus menyelesaikan kepatuhan tunggakan periode lampau:
+                        </p>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            @foreach($pemeriksaan->resolusiAnak as $anak)
+                                <a href="{{ route('pemeriksaan.show', $anak->id) }}" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-emerald-300 text-emerald-900 font-semibold text-[11px] hover:bg-emerald-100/60 shadow-2xs transition">
+                                    <span>Periode {{ $anak->periode_label }} (Selesai Terlambat) &rarr;</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- 2. Informasi Pemeriksaan & APAR -->
         <x-card title="Informasi Pemeriksaan & Unit APAR" subtitle="Konteks pelaksanaan inspeksi fisik tabung APAR di lokasi rumah sakit.">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
@@ -215,6 +287,13 @@
                     </div>
 
                     <div class="flex items-center justify-between">
+                        <span class="text-gray-500 font-medium">Tipe Kepatuhan</span>
+                        <x-badge :variant="$pemeriksaan->tipe_badge_variant">
+                            {{ $pemeriksaan->tipe_penyelesaian_label }}
+                        </x-badge>
+                    </div>
+
+                    <div class="flex items-center justify-between">
                         <span class="text-gray-500 font-medium">Hasil Keseluruhan</span>
                         <x-badge :variant="$pemeriksaan->hasil_badge_variant" :dot="true">
                             {{ $pemeriksaan->hasil_label }}
@@ -234,9 +313,6 @@
         </x-card>
 
         <!-- 3. Panel Temuan Pemeriksaan & Tindak Lanjut -->
-        @php
-            $temuanDetails = $pemeriksaan->details->where('hasil', 'tidak_baik');
-        @endphp
         @if($temuanDetails->isNotEmpty() || $pemeriksaan->hasil_keseluruhan === 'perlu_tindakan')
             <x-card title="Temuan Pemeriksaan & Tindak Lanjut" subtitle="Rincian masalah fisik yang memerlukan penanganan atau pemeliharaan unit.">
                 <div class="space-y-3">
@@ -314,7 +390,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white text-gray-700">
-                        @forelse($pemeriksaan->details as $index => $detail)
+                        @forelse($effectiveDetails as $index => $detail)
                         @php
                             $detailTl = $detail->tindak_lanjut;
                         @endphp
@@ -350,7 +426,7 @@
                                             </a>
                                         </div>
                                     @else
-                                        <a href="{{ route('tindak-lanjut.create', ['pemeriksaan_id' => $pemeriksaan->id, 'detail_id' => $detail->id]) }}"
+                                        <a href="{{ route('tindak-lanjut.create', ['pemeriksaan_id' => ($isLinked ? $induk->id : $pemeriksaan->id), 'detail_id' => $detail->id]) }}"
                                            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-medium text-xs transition min-h-[36px]">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>

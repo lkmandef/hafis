@@ -43,6 +43,7 @@ class DashboardController extends Controller
         $tlBelum = (int) ($tindakLanjutCounts[TindakLanjut::STATUS_BELUM_DITINDAKLANJUTI] ?? 0);
         $tlProses = (int) ($tindakLanjutCounts[TindakLanjut::STATUS_DALAM_PROSES] ?? 0);
         $tlSelesai = (int) ($tindakLanjutCounts[TindakLanjut::STATUS_SELESAI] ?? 0);
+        $tlDibatalkan = (int) ($tindakLanjutCounts[TindakLanjut::STATUS_DIBATALKAN] ?? 0);
         $tlTotal = array_sum($tindakLanjutCounts);
         $tindakLanjutBelumSelesai = $tlBelum + $tlProses;
 
@@ -51,10 +52,12 @@ class DashboardController extends Controller
             'belum' => $tlBelum,
             'proses' => $tlProses,
             'selesai' => $tlSelesai,
+            'dibatalkan' => $tlDibatalkan,
         ];
 
-        // Pemeriksaan Stats Terkonsolidasi (1 Kueri Hasil + 1 Kueri Bulan Ini)
-        $pemeriksaanHasilCounts = Pemeriksaan::selectRaw('hasil_keseluruhan, count(*) as count')
+        // Pemeriksaan Stats Terkonsolidasi (Hanya Aktivitas Fisik Riil, Linked Record Tidak Dihitung Ganda)
+        $pemeriksaanHasilCounts = Pemeriksaan::aktivitasFisik()
+            ->selectRaw('hasil_keseluruhan, count(*) as count')
             ->groupBy('hasil_keseluruhan')
             ->pluck('count', 'hasil_keseluruhan')
             ->all();
@@ -63,7 +66,8 @@ class DashboardController extends Controller
         $pemeriksaanBaik = (int) ($pemeriksaanHasilCounts[Pemeriksaan::HASIL_BAIK] ?? 0);
         $pemeriksaanPerluTindakan = (int) ($pemeriksaanHasilCounts[Pemeriksaan::HASIL_PERLU_TINDAKAN] ?? 0);
 
-        $pemeriksaanBulanIni = Pemeriksaan::whereMonth('tanggal_pemeriksaan', $now->month)
+        $pemeriksaanBulanIni = Pemeriksaan::aktivitasFisik()
+            ->whereMonth('tanggal_pemeriksaan', $now->month)
             ->whereYear('tanggal_pemeriksaan', $now->year)
             ->count();
 
@@ -107,7 +111,8 @@ class DashboardController extends Controller
             'tidak_aktif' => round(($kondisiCounts['tidak_aktif'] / $totalUntukPersen) * 100),
         ];
 
-        $pemeriksaanTerbaru = Pemeriksaan::with(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'jadwal'])
+        $pemeriksaanTerbaru = Pemeriksaan::aktivitasFisik()
+            ->with(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'jadwal', 'resolusiAnak'])
             ->orderBy('tanggal_pemeriksaan', 'desc')
             ->take(5)
             ->get();
@@ -173,10 +178,13 @@ class DashboardController extends Controller
         ];
 
         // Kompatibilitas alur jadwal legacy jika masih ada komponen yang memerlukan
+        // Ambil jadwal aktif yang relevan dengan rentang tanggal saat ini (mencegah jadwal lampau mengunci dashboard)
         $jadwalAktif = Jadwal::with(['apars'])
             ->whereIn('status', ['berjalan', 'belum_dimulai'])
+            ->whereDate('tanggal_mulai', '<=', $now)
+            ->whereDate('tanggal_selesai', '>=', $now)
             ->orderByRaw("CASE WHEN status = 'berjalan' THEN 1 ELSE 2 END")
-            ->orderBy('tanggal_mulai', 'asc')
+            ->orderBy('tanggal_mulai', 'desc')
             ->first();
 
         $jadwalData = null;

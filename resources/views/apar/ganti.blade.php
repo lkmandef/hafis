@@ -140,7 +140,7 @@
                         </h3>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div>
+                            <div class="min-w-0">
                                 <x-select
                                     name="jenis_media"
                                     label="Jenis Media Pemadam"
@@ -155,7 +155,7 @@
                                 </x-select>
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <x-input
                                     name="kapasitas"
                                     label="Kapasitas Tabung"
@@ -166,7 +166,7 @@
                                     hint="Ukuran berat isi tabung" />
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <x-input
                                     name="merek"
                                     label="Merek Tabung"
@@ -176,7 +176,7 @@
                                     hint="Produsen atau merek tabung" />
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <x-input
                                     name="tipe_model"
                                     label="Tipe / Model Fisik"
@@ -188,7 +188,7 @@
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                            <div>
+                            <div class="min-w-0">
                                 <x-input
                                     type="date"
                                     name="tanggal_pemasangan"
@@ -198,7 +198,7 @@
                                     hint="Tanggal unit tabung mulai dipasang di lokasi" />
                             </div>
 
-                            <div>
+                            <div class="min-w-0">
                                 <x-input
                                     type="date"
                                     name="tanggal_kadaluarsa"
@@ -228,7 +228,7 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <!-- Gedung -->
-                            <div>
+                            <div class="min-w-0">
                                 <label for="gedung_id" class="block text-xs font-medium text-gray-700 mb-1.5">
                                     Gedung <span class="text-red-500 font-bold">*</span>
                                 </label>
@@ -257,7 +257,7 @@
                             </div>
 
                             <!-- Lantai -->
-                            <div>
+                            <div class="min-w-0">
                                 <label for="lantai_id" class="block text-xs font-medium text-gray-700 mb-1.5">
                                     Lantai <span class="text-red-500 font-bold">*</span>
                                 </label>
@@ -281,7 +281,7 @@
                             </div>
 
                             <!-- Ruangan / Area -->
-                            <div>
+                            <div class="min-w-0">
                                 <label for="ruangan_id" class="block text-xs font-medium text-gray-700 mb-1.5">
                                     Ruangan / Area <span class="text-gray-400 font-normal">(Opsional untuk ruang tertutup)</span>
                                 </label>
@@ -325,7 +325,7 @@
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Tanggal Penggantian -->
-                        <div>
+                        <div class="min-w-0">
                             <x-input
                                 type="date"
                                 name="tanggal_penggantian"
@@ -337,7 +337,7 @@
                         </div>
 
                         <!-- Petugas Pelaksana -->
-                        <div>
+                        <div class="min-w-0">
                             <x-input
                                 name="petugas_nama"
                                 label="Nama Petugas Pelaksana"

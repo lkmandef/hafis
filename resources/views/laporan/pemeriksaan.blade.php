@@ -4,13 +4,14 @@
         reportTitle="LAPORAN RIWAYAT PEMERIKSAAN & INSPEKSI FISIK APAR" 
         :filters="$filtersSummary">
 
-        {{-- Baris ringkasan tunggal --}}
-        <div style="margin-bottom: 10px; font-size: 8.5pt; color: #0f172a;">
-            Total Pemeriksaan: <strong>{{ $rekap['total'] }}</strong> kali &nbsp;&bull;&nbsp;
-            Hasil Baik: <strong>{{ $rekap['baik'] }}</strong> &nbsp;&bull;&nbsp;
-            Perlu Tindakan: <strong>{{ $rekap['perlu_tindakan'] }}</strong> &nbsp;&bull;&nbsp;
-            Jadwal Rutin: <strong>{{ $rekap['terjadwal'] }}</strong> &nbsp;&bull;&nbsp;
-            Mandiri: <strong>{{ $rekap['mandiri'] }}</strong>
+        {{-- Baris Rekapitulasi Formal & Tanggal di Atas Tabel --}}
+        <div class="report-meta-bar">
+            <div class="report-summary-formal">
+                Total Pemeriksaan: <strong>{{ $rekap['total'] }} kali</strong> (Hasil Baik: {{ $rekap['baik'] }}, Perlu Tindakan: {{ $rekap['perlu_tindakan'] }} | Jadwal Rutin: {{ $rekap['terjadwal'] }}, Mandiri: {{ $rekap['mandiri'] }})
+            </div>
+            <div class="report-date-formal">
+                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }}
+            </div>
         </div>
 
         <table class="data-table">
@@ -121,10 +122,34 @@
         <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 sm:p-3 mb-4 overflow-x-auto">
             <div class="flex items-center divide-x divide-slate-200 min-w-max sm:min-w-0">
                 <div class="flex-1 px-3 sm:px-4 first:pl-1 sm:first:pl-2">
-                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Inspeksi</span>
+                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Kepatuhan</span>
                     <span class="text-base sm:text-lg font-bold text-slate-900 tabular-nums">
                         {{ $rekap['total'] }}
-                        <span class="text-xs font-normal text-slate-500">kali</span>
+                        <span class="text-xs font-normal text-slate-500">periode</span>
+                    </span>
+                </div>
+
+                <div class="flex-1 px-3 sm:px-4">
+                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Inspeksi Fisik Riil</span>
+                    <span class="text-base sm:text-lg font-bold text-slate-900 tabular-nums">
+                        {{ $rekap['aktivitas_fisik'] ?? $rekap['total'] }}
+                        <span class="text-xs font-normal text-slate-500">scan</span>
+                    </span>
+                </div>
+
+                <div class="flex-1 px-3 sm:px-4">
+                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Tepat Waktu</span>
+                    <span class="text-base sm:text-lg font-bold text-emerald-800 tabular-nums">
+                        {{ $rekap['tepat_waktu'] ?? 0 }}
+                        <span class="text-xs font-normal text-slate-500">sesuai siklus</span>
+                    </span>
+                </div>
+
+                <div class="flex-1 px-3 sm:px-4">
+                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Selesai Terlambat</span>
+                    <span class="text-base sm:text-lg font-bold {{ ($rekap['terlambat'] ?? 0) > 0 ? 'text-amber-800' : 'text-slate-800' }} tabular-nums">
+                        {{ $rekap['terlambat'] ?? 0 }}
+                        <span class="text-xs font-normal text-slate-500">backlog</span>
                     </span>
                 </div>
 
@@ -136,27 +161,11 @@
                     </span>
                 </div>
 
-                <div class="flex-1 px-3 sm:px-4">
+                <div class="flex-1 px-3 sm:px-4 last:pr-1 sm:last:pr-2">
                     <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Perlu Tindakan</span>
                     <span class="text-base sm:text-lg font-bold {{ $rekap['perlu_tindakan'] > 0 ? 'text-rose-800' : 'text-slate-800' }} tabular-nums">
                         {{ $rekap['perlu_tindakan'] }}
                         <span class="text-xs font-normal text-slate-500">ada temuan</span>
-                    </span>
-                </div>
-
-                <div class="flex-1 px-3 sm:px-4">
-                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Jadwal Rutin</span>
-                    <span class="text-base sm:text-lg font-bold text-slate-800 tabular-nums">
-                        {{ $rekap['terjadwal'] }}
-                        <span class="text-xs font-normal text-slate-500">kegiatan</span>
-                    </span>
-                </div>
-
-                <div class="flex-1 px-3 sm:px-4 last:pr-1 sm:last:pr-2">
-                    <span class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Pemeriksaan Mandiri</span>
-                    <span class="text-base sm:text-lg font-bold text-slate-800 tabular-nums">
-                        {{ $rekap['mandiri'] }}
-                        <span class="text-xs font-normal text-slate-500">ad-hoc</span>
                     </span>
                 </div>
             </div>
@@ -208,6 +217,17 @@
                             <option value="">Semua Hasil</option>
                             <option value="baik" {{ request('hasil') == 'baik' ? 'selected' : '' }}>Baik</option>
                             <option value="perlu_tindakan" {{ request('hasil') == 'perlu_tindakan' ? 'selected' : '' }}>Perlu Tindakan</option>
+                        </select>
+                    </div>
+
+                    <!-- Tipe Kepatuhan -->
+                    <div>
+                        <label for="filter_pem_tipe" class="block text-[11px] font-semibold text-slate-600 mb-1">Tipe Kepatuhan</label>
+                        <select id="filter_pem_tipe" name="tipe_penyelesaian" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-md focus:bg-white focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 min-h-[38px]">
+                            <option value="">Semua Tipe</option>
+                            <option value="{{ \App\Models\Pemeriksaan::TIPE_TEPAT_WAKTU }}" {{ request('tipe_penyelesaian') === \App\Models\Pemeriksaan::TIPE_TEPAT_WAKTU ? 'selected' : '' }}>Tepat Waktu</option>
+                            <option value="{{ \App\Models\Pemeriksaan::TIPE_TERLAMBAT }}" {{ request('tipe_penyelesaian') === \App\Models\Pemeriksaan::TIPE_TERLAMBAT ? 'selected' : '' }}>Selesai Terlambat</option>
+                            <option value="{{ \App\Models\Pemeriksaan::TIPE_KOREKSI }}" {{ request('tipe_penyelesaian') === \App\Models\Pemeriksaan::TIPE_KOREKSI ? 'selected' : '' }}>Koreksi Data</option>
                         </select>
                     </div>
 
@@ -277,7 +297,8 @@
                     <thead class="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-600 font-bold">
                         <tr>
                             <th class="py-3 pl-5 sm:pl-6 pr-3.5 text-center w-12">No</th>
-                            <th class="py-3 px-3.5">Tanggal</th>
+                            <th class="py-3 px-3.5">Tanggal Fisik</th>
+                            <th class="py-3 px-3.5">Periode & Kepatuhan</th>
                             <th class="py-3 px-3.5">Kode APAR</th>
                             <th class="py-3 px-3.5">Lokasi</th>
                             <th class="py-3 px-3.5">Jadwal</th>
@@ -296,6 +317,19 @@
                                 <td class="py-3 px-3.5 font-mono whitespace-nowrap">
                                     <span class="font-bold text-slate-900 tabular-nums">{{ $p->tanggal_pemeriksaan ? $p->tanggal_pemeriksaan->format('d/m/Y') : '-' }}</span>
                                     <div class="text-[10px] text-slate-500 tabular-nums">{{ $p->tanggal_pemeriksaan ? $p->tanggal_pemeriksaan->format('H:i') : '' }} WITA</div>
+                                </td>
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="font-semibold text-slate-900">{{ $p->periode_label }}</div>
+                                    <div class="flex items-center gap-1 mt-0.5">
+                                        <x-badge :variant="$p->tipe_badge_variant" size="sm">
+                                            {{ $p->tipe_penyelesaian_label }}
+                                        </x-badge>
+                                        @if($p->isLinkedRecord())
+                                            <span class="text-[10px] text-indigo-700 font-mono bg-indigo-50 px-1 rounded border border-indigo-200" title="Resolusi dari Pemeriksaan Fisik #{{ $p->pemeriksaan_induk_id }}">
+                                                #{{ $p->pemeriksaan_induk_id }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-3 px-3.5 font-mono font-bold text-slate-900 whitespace-nowrap">
                                     {{ $p->apar?->kode ?? '-' }}
@@ -346,7 +380,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="py-12 text-center text-slate-500">
+                                <td colspan="10" class="py-12 text-center text-slate-500">
                                     <p class="text-sm font-semibold text-slate-700">Belum ada data untuk filter yang dipilih.</p>
                                     <p class="text-xs text-slate-500 mt-1">Coba sesuaikan tanggal atau pilihan filter lainnya.</p>
                                 </td>

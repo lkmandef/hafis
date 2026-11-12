@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}', [AparController::class, 'show'])->name('show');
         Route::get('/{id}/edit', [AparController::class, 'edit'])->name('edit');
         Route::put('/{id}', [AparController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AparController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/cetak-qr', [AparController::class, 'cetakQr'])->name('cetak_qr');
         Route::get('/{id}/download-qr', [AparController::class, 'downloadQr'])->name('download_qr');
 
@@ -110,30 +111,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{penggantian}', [PenggantianAparController::class, 'show'])->name('show');
     });
 
-    // Modul Laporan & Rekapitulasi (Tahap 9)
-    Route::prefix('laporan')->name('laporan.')->group(function () {
-        Route::get('/', [LaporanController::class, 'index'])->name('index');
-        Route::get('/apar', [LaporanController::class, 'apar'])->name('apar');
-        Route::get('/pemeriksaan', [LaporanController::class, 'pemeriksaan'])->name('pemeriksaan');
-        Route::get('/temuan', [LaporanController::class, 'temuan'])->name('temuan');
-        Route::get('/tindak-lanjut', [LaporanController::class, 'tindakLanjut'])->name('tindak_lanjut');
-        Route::get('/tindak-lanjut-alias', [LaporanController::class, 'tindakLanjut'])->name('tindak-lanjut');
-        Route::get('/penggantian', [LaporanController::class, 'penggantian'])->name('penggantian');
-    });
-
-    // Kompatibilitas link lama /riwayat -> /laporan
-    Route::get('/riwayat', function () {
-        return redirect()->route('laporan.index');
-    })->name('riwayat.index');
-
-    Route::get('/riwayat/detail', function () {
-        return redirect()->route('laporan.pemeriksaan');
-    });
-
-    Route::get('/riwayat/{id}', function () {
-        return redirect()->route('laporan.pemeriksaan');
-    });
-
     // Modul Struktur Lokasi Rumah Sakit (Lihat Struktur)
     Route::prefix('lokasi')->name('lokasi.')->group(function () {
         Route::get('/', [LokasiController::class, 'index'])->name('index');
@@ -146,6 +123,30 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:admin'])->group(function () {
+        // Modul Laporan & Rekapitulasi (Khusus Admin / Kepala K3RS)
+        Route::prefix('laporan')->name('laporan.')->group(function () {
+            Route::get('/', [LaporanController::class, 'index'])->name('index');
+            Route::get('/apar', [LaporanController::class, 'apar'])->name('apar');
+            Route::get('/pemeriksaan', [LaporanController::class, 'pemeriksaan'])->name('pemeriksaan');
+            Route::get('/temuan', [LaporanController::class, 'temuan'])->name('temuan');
+            Route::get('/tindak-lanjut', [LaporanController::class, 'tindakLanjut'])->name('tindak_lanjut');
+            Route::get('/tindak-lanjut-alias', [LaporanController::class, 'tindakLanjut'])->name('tindak-lanjut');
+            Route::get('/penggantian', [LaporanController::class, 'penggantian'])->name('penggantian');
+        });
+
+        // Kompatibilitas link lama /riwayat -> /laporan
+        Route::get('/riwayat', function () {
+            return redirect()->route('laporan.index');
+        })->name('riwayat.index');
+
+        Route::get('/riwayat/detail', function () {
+            return redirect()->route('laporan.pemeriksaan');
+        });
+
+        Route::get('/riwayat/{id}', function () {
+            return redirect()->route('laporan.pemeriksaan');
+        });
+
         // Manajemen Pengguna & Akses
         Route::prefix('pengguna')->name('users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
@@ -168,8 +169,8 @@ Route::middleware(['auth'])->group(function () {
             });
         });
 
-        // Tindakan Administratif / Destruktif
-        Route::delete('/apar/{id}', [AparController::class, 'destroy'])->name('apar.destroy');
+        // Tindakan Administratif / Pembatalan & Destruktif
+        Route::post('/tindak-lanjut/{tindakLanjut}/batalkan', [TindakLanjutController::class, 'batalkan'])->name('tindak-lanjut.batalkan');
         Route::delete('/tindak-lanjut/{tindakLanjut}', [TindakLanjutController::class, 'destroy'])->name('tindak-lanjut.destroy');
         Route::post('/jadwal/{jadwal}/batalkan', [JadwalController::class, 'batalkan'])->name('jadwal.batalkan');
         Route::delete('/jadwal/{jadwal}', [JadwalController::class, 'destroy'])->name('jadwal.destroy');

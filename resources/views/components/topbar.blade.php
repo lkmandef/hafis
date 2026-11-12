@@ -1,7 +1,31 @@
 @php
+    $now = \Carbon\Carbon::now();
     $notifAparPerhatian = \App\Models\Apar::whereIn('status', [\App\Models\Apar::STATUS_PERHATIAN, \App\Models\Apar::STATUS_RUSAK])->count();
-    $notifTlPending = \App\Models\TindakLanjut::where('status', '!=', \App\Models\TindakLanjut::STATUS_SELESAI)->count();
-    $totalNotif = $notifAparPerhatian + $notifTlPending;
+    $notifTlPending = \App\Models\TindakLanjut::whereNotIn('status', [\App\Models\TindakLanjut::STATUS_SELESAI, \App\Models\TindakLanjut::STATUS_DIBATALKAN])->count();
+
+    // Periode bulan sebelumnya
+    $bulanLalu = $now->copy()->subMonth();
+    $tahunLalu = (int) $bulanLalu->year;
+    $bulanLaluNum = (int) $bulanLalu->month;
+    $namaBulanLalu = \App\Models\Pemeriksaan::NAMA_BULAN[$bulanLaluNum] ?? $bulanLalu->translatedFormat('F');
+
+    // Baseline Operasional Resmi (November 2026):
+    // Periode sebelum awal operasional resmi tidak boleh dianggap sebagai tunggakan
+    $startYear = (int) config('hafis.operational_start_year', 2026);
+    $startMonth = (int) config('hafis.operational_start_month', 11);
+    $isPriorToOperationalStart = ($tahunLalu < $startYear || ($tahunLalu === $startYear && $bulanLaluNum < $startMonth));
+
+    // Unit APAR operasional aktif yang belum diinspeksi pada bulan sebelumnya (1 notifikasi agregat)
+    $notifAparBelumDiperiksaBulanLalu = $isPriorToOperationalStart ? 0 : \App\Models\Apar::where('status', '!=', \App\Models\Apar::STATUS_TIDAK_AKTIF)
+        ->whereNotNull('lokasi_id')
+        ->whereDoesntHave('lokasi', fn ($loc) => $loc->where('status', \App\Models\Lokasi::STATUS_STOK))
+        ->whereDoesntHave('pemeriksaans', function ($q) use ($tahunLalu, $bulanLaluNum) {
+            $q->where('periode_tahun', $tahunLalu)
+                ->where('periode_bulan', $bulanLaluNum);
+        })
+        ->count();
+
+    $totalNotif = $notifAparPerhatian + $notifTlPending + ($notifAparBelumDiperiksaBulanLalu > 0 ? 1 : 0);
 @endphp
 
 <header class="sticky top-0 z-30 bg-white border-b border-gray-200 px-3 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
@@ -108,6 +132,23 @@
                             </a>
                         @endif
 
+                        @if($notifAparBelumDiperiksaBulanLalu > 0)
+                            <a href="{{ route('pemeriksaan.index', ['bulan' => $bulanLaluNum, 'tahun' => $tahunLalu, 'status_periksa' => 'belum']) }}" class="flex items-start gap-3 p-3 hover:bg-gray-50/80 transition-colors group">
+                                <div class="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200/80 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center justify-between gap-1">
+                                        <p class="text-xs font-semibold text-gray-900 group-hover:text-gray-900">Inspeksi Bulan Lalu Tertunda</p>
+                                        <span class="text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">{{ $notifAparBelumDiperiksaBulanLalu }} Unit</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Terdapat {{ $notifAparBelumDiperiksaBulanLalu }} APAR belum diinspeksi pada periode {{ $namaBulanLalu }} {{ $tahunLalu }}.</p>
+                                </div>
+                            </a>
+                        @endif
+
                         @if($notifTlPending > 0)
                             <a href="{{ route('tindak-lanjut.index') }}" class="flex items-start gap-3 p-3 hover:bg-gray-50/80 transition-colors group">
                                 <div class="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200/80 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
@@ -139,10 +180,17 @@
                 </div>
 
                 <div class="p-2 bg-gray-50 border-t border-gray-100 text-center">
-                    <a href="{{ route('laporan.temuan') }}" class="text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors inline-flex items-center justify-center gap-1 focus:outline-none focus-visible:underline">
-                        <span>Lihat Rekap Temuan & Kerusakan</span>
-                        <span aria-hidden="true">&rarr;</span>
-                    </a>
+                    @if($notifAparBelumDiperiksaBulanLalu > 0 && $notifAparPerhatian === 0 && $notifTlPending === 0)
+                        <a href="{{ route('pemeriksaan.index', ['bulan' => $bulanLaluNum, 'tahun' => $tahunLalu, 'status_periksa' => 'belum']) }}" class="text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors inline-flex items-center justify-center gap-1 focus:outline-none focus-visible:underline">
+                            <span>Lihat APAR Belum Diperiksa ({{ $namaBulanLalu }})</span>
+                            <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    @else
+                        <a href="{{ route('laporan.temuan') }}" class="text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors inline-flex items-center justify-center gap-1 focus:outline-none focus-visible:underline">
+                            <span>Lihat Rekap Temuan & Kerusakan</span>
+                            <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

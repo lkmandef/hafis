@@ -158,7 +158,8 @@ class TransactionUserIdentityTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Petugas K3RS Historis');
 
-        // Buka laporan pemeriksaan
+        // Buka laporan pemeriksaan sebagai Admin
+        $this->actingAsAdmin();
         $laporanResponse = $this->get(route('laporan.pemeriksaan'));
         $laporanResponse->assertStatus(200);
         $laporanResponse->assertSee('Petugas K3RS Historis');

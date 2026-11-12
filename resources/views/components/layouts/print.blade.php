@@ -120,113 +120,61 @@
             flex: 1 0 auto;
         }
 
-        /* KOP SURAT RESMI PEMPROV KALSEL / RSUD ANSARI SALEH */
+        /* KOP SURAT RESMI PEMPROV KALSEL / RSUD ANSARI SALEH (SVG) */
         .header-kop {
-            margin-bottom: 12px;
-        }
-
-        .kop-grid {
-            display: grid;
-            grid-template-columns: 75px 1fr 75px;
-            align-items: center;
-            padding-bottom: 8px;
-        }
-
-        .kop-logo-col {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-        }
-
-        .kop-logo-img {
-            width: 64px;
-            height: auto;
-            max-height: 72px;
-            display: block;
-            object-fit: contain;
-        }
-
-        .kop-text-col {
+            width: 100%;
             text-align: center;
+            margin-bottom: 6px;
         }
 
-        .kop-spacer-col {
-            width: 75px;
-        }
-
-        .kop-prov {
-            font-size: 9pt;
-            font-weight: 700;
-            margin: 0;
-            color: #000000;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-        }
-
-        .kop-rs {
-            font-size: 13.5pt;
-            font-weight: 800;
-            margin: 2px 0;
-            color: #000000;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            line-height: 1.15;
-        }
-
-        .kop-detail {
-            font-size: 7.2pt;
-            color: #1e293b;
-            margin: 0;
-            line-height: 1.35;
-        }
-
-        /* Garis ganda resmi KOP naskah dinas pemerintah */
-        .kop-separator {
-            border-bottom: 3px double #000000;
-            margin-top: 4px;
+        .kop-svg-img {
+            width: {{ $orientation === 'landscape' ? '62%' : '85%' }};
+            max-width: {{ $orientation === 'landscape' ? '175mm' : '162mm' }};
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
         /* Judul Dokumen Laporan */
         .title-section {
             text-align: center;
-            margin: 10px 0 6px 0;
+            margin: 8px 0 6px 0;
         }
 
         .title-section h3 {
             font-size: 11pt;
             font-weight: 800;
-            margin: 0 0 2px 0;
+            margin: 0;
             text-transform: uppercase;
             color: #000000;
             letter-spacing: 0.3px;
         }
 
-        .title-section .title-sub {
-            font-size: 7.5pt;
-            color: #334155;
-            margin: 0;
-        }
-
-        /* Baris Metadata Cetak */
-        .print-meta-row {
+        /* Baris Metadata Cetak & Ringkasan Formal Di Atas Tabel */
+        .report-meta-bar {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            font-size: 7.5pt;
-            color: #475569;
             margin-bottom: 8px;
-            padding-bottom: 4px;
-            border-bottom: 1px dashed #cbd5e1;
+            gap: 12px;
         }
 
-        .meta-system {
-            font-weight: 600;
-            letter-spacing: 0.2px;
+        .report-summary-formal {
+            font-size: 8pt;
+            color: #000000;
+            margin-bottom: 0;
+            line-height: 1.35;
         }
 
-        .meta-timestamp {
-            font-weight: 600;
-            color: #1e293b;
+        .report-date-formal {
+            font-size: 7.5pt;
+            color: #000000;
+            font-weight: 500;
+            white-space: nowrap;
+            text-align: right;
+            margin-bottom: 0;
         }
 
         /* Ringkasan Filter/Parameter Laporan */
@@ -265,14 +213,15 @@
             font-weight: 700;
         }
 
-        /* Tabel Data Resmi & Hemat Toner */
+        /* Tabel Data Sederhana & Bersih Sesuai Dokumen Fisik */
         table.data-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 7.2pt;
             line-height: 1.25;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             table-layout: auto;
+            border: 1px solid #000000;
         }
 
         table.data-table thead {
@@ -285,26 +234,31 @@
         }
 
         table.data-table th, table.data-table td {
-            border: 1px solid #94a3b8;
+            border: 1px solid #000000;
             padding: 4px 5px;
             text-align: left;
-            vertical-align: top;
+            vertical-align: middle;
             word-wrap: break-word;
+            color: #000000;
         }
 
         table.data-table th {
-            background-color: #f1f5f9;
+            background-color: transparent;
             color: #000000;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 6.8pt;
+            font-size: 7pt;
             letter-spacing: 0.2px;
             text-align: center;
-            border-bottom: 1.5px solid #000000;
+            border: 1px solid #000000;
+        }
+
+        table.data-table tbody tr {
+            background-color: transparent;
         }
 
         table.data-table tbody tr:nth-child(even) {
-            background-color: #fbfcfd;
+            background-color: transparent;
         }
 
         .text-center { text-align: center; }
@@ -442,8 +396,43 @@
                 display: block !important;
             }
 
-            .print-meta-row {
-                border-bottom: 1px solid #000000 !important;
+            .header-kop {
+                width: 100% !important;
+                text-align: center !important;
+                margin-bottom: 6px !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .kop-svg-img {
+                width: {{ $orientation === 'landscape' ? '62%' : '85%' }} !important;
+                max-width: {{ $orientation === 'landscape' ? '175mm' : '162mm' }} !important;
+                height: auto !important;
+                margin: 0 auto !important;
+                display: block !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .report-meta-bar {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: baseline !important;
+                margin-bottom: 8px !important;
+                gap: 12px !important;
+            }
+
+            .report-meta-bar .report-summary-formal {
+                font-size: 8pt !important;
+                color: #000000 !important;
+                margin-bottom: 0 !important;
+            }
+
+            .report-meta-bar .report-date-formal {
+                font-size: 7.5pt !important;
+                color: #000000 !important;
+                white-space: nowrap !important;
+                text-align: right !important;
             }
 
             .filter-summary {
@@ -451,19 +440,23 @@
                 border: 1px solid #000000 !important;
             }
 
-            .filter-heading, .filter-item .label, .title-sub, .sig-hospital, .signature-nip {
+            .filter-heading, .filter-item .label, .sig-hospital, .signature-nip {
                 color: #000000 !important;
             }
 
-            table.data-table th, table.data-table td {
+            table.data-table,
+            table.data-table th, 
+            table.data-table td {
                 border: 1px solid #000000 !important;
             }
 
             table.data-table th {
-                background-color: #f1f5f9 !important;
-                border-bottom: 1.5px solid #000000 !important;
+                background-color: transparent !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
             }
 
+            table.data-table tbody tr,
             table.data-table tbody tr:nth-child(even) {
                 background-color: transparent !important;
             }
@@ -523,40 +516,16 @@
 
     {{-- Lembar Fisik Dokumen Cetak --}}
     <div class="print-container" id="printContainer">
-        {{-- KOP Surat Resmi RSUD (Optical Center Simetris 3 Kolom) --}}
+        {{-- KOP Surat Resmi RSUD dr. H. Moch. Ansari Saleh (Format Vektor SVG) --}}
         <div class="header-kop">
-            <div class="kop-grid">
-                <div class="kop-logo-col">
-                    <img src="{{ asset('images/brand/lambang-provinsi.svg') }}"
-                         alt="Lambang Provinsi Kalimantan Selatan"
-                         class="kop-logo-img" />
-                </div>
-                <div class="kop-text-col">
-                    <p class="kop-prov">PEMERINTAH PROVINSI KALIMANTAN SELATAN</p>
-                    <p class="kop-rs">RSUD dr. H. MOCH. ANSARI SALEH</p>
-                    <p class="kop-detail">
-                        Jl. Brig. Jend. H. Hasan Basri No. 1 Banjarmasin, Kalimantan Selatan 70125<br>
-                        Telepon: (0511) 6710000 &bull; Faksimile: (0511) 6710001<br>
-                        Laman: http://rsas.kalselprov.go.id &bull; Pos-el: rsas@kalselprov.go.id
-                    </p>
-                </div>
-                <div class="kop-spacer-col" aria-hidden="true"></div>
-            </div>
-            <div class="kop-separator"></div>
+            <img src="{{ asset('images/brand/Kop_RSUD_Ansari_Saleh.svg') }}"
+                 alt="Kop Surat Resmi RSUD dr. H. Moch. Ansari Saleh"
+                 class="kop-svg-img" />
         </div>
 
         {{-- Judul Laporan Resmi --}}
         <div class="title-section">
             <h3>{{ $reportTitle }}</h3>
-            <p class="title-sub">Instalasi Keselamatan dan Kesehatan Kerja Rumah Sakit (K3RS) &bull; Dokumen Resmi</p>
-        </div>
-
-        {{-- Baris Metadata Cetak --}}
-        <div class="print-meta-row">
-            <span class="meta-system">HAFIS &ndash; Hospital APAR &amp; Fire Inspection System</span>
-            <span class="meta-timestamp">
-                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }} &bull; Pukul {{ now()->timezone('Asia/Makassar')->format('H:i') }} WITA
-            </span>
         </div>
 
         {{-- Ringkasan Parameter Filter Aktif --}}

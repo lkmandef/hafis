@@ -4,12 +4,14 @@
         reportTitle="LAPORAN REKAPITULASI TINDAK LANJUT & PEMELIHARAAN APAR" 
         :filters="$filtersSummary">
 
-        {{-- Baris ringkasan tunggal --}}
-        <div style="margin-bottom: 10px; font-size: 8.5pt; color: #0f172a;">
-            Total Tindak Lanjut: <strong>{{ $rekap['total'] }}</strong> kegiatan &nbsp;&bull;&nbsp;
-            Belum Ditindaklanjuti: <strong>{{ $rekap['belum_ditindaklanjuti'] }}</strong> &nbsp;&bull;&nbsp;
-            Dalam Proses: <strong>{{ $rekap['dalam_proses'] }}</strong> &nbsp;&bull;&nbsp;
-            Selesai: <strong>{{ $rekap['selesai'] }}</strong>
+        {{-- Baris Rekapitulasi Formal & Tanggal di Atas Tabel --}}
+        <div class="report-meta-bar">
+            <div class="report-summary-formal">
+                Total Tindak Lanjut: <strong>{{ $rekap['total'] }} kegiatan</strong> (Belum Ditindaklanjuti: {{ $rekap['belum_ditindaklanjuti'] }}, Dalam Proses: {{ $rekap['dalam_proses'] }}, Selesai: {{ $rekap['selesai'] }})
+            </div>
+            <div class="report-date-formal">
+                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }}
+            </div>
         </div>
 
         <table class="data-table">

@@ -91,7 +91,11 @@
                             <option value="belum_dimulai" {{ old('status', $jadwal->status) === 'belum_dimulai' ? 'selected' : '' }}>Belum Dimulai</option>
                             <option value="berjalan" {{ old('status', $jadwal->status) === 'berjalan' ? 'selected' : '' }}>Berjalan</option>
                             <option value="selesai" {{ old('status', $jadwal->status) === 'selesai' ? 'selected' : '' }}>Selesai</option>
-                            <option value="dibatalkan" {{ old('status', $jadwal->status) === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                            @if(auth()->user()?->isAdmin())
+                                <option value="dibatalkan" {{ old('status', $jadwal->status) === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                            @elseif($jadwal->status === 'dibatalkan')
+                                <option value="dibatalkan" selected disabled>Dibatalkan (Hanya Admin)</option>
+                            @endif
                         </select>
                     </div>
 
@@ -116,13 +120,17 @@
                 </div>
 
                 <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
-                    <button 
-                        type="button" 
-                        onclick="confirmDeleteJadwal()" 
-                        class="text-rose-600 hover:text-rose-800 font-semibold text-xs cursor-pointer"
-                    >
-                        Hapus Jadwal
-                    </button>
+                    @if(auth()->user()?->isAdmin())
+                        <button 
+                            type="button" 
+                            onclick="confirmDeleteJadwal()" 
+                            class="text-rose-600 hover:text-rose-800 font-semibold text-xs cursor-pointer"
+                        >
+                            Hapus Jadwal
+                        </button>
+                    @else
+                        <div></div>
+                    @endif
 
                     <div class="flex items-center gap-2">
                         <a 

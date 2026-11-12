@@ -1,0 +1,67 @@
+id,nama,kode,kategori,status,keterangan,created_at,updated_at,gedung_id,lantai_id,tipe_lokasi,ruangan_id
+1,"POS PANTAU SECURITY",SEC,"Keamanan Lingkungan",aktif,"Pos Keamanan / Security","2026-10-09 02:03:15","2026-11-05 11:09:31",19,45,SERVICE_AREA,10
+2,"IGD Lt. 1",IGD1,"Pelayanan Gawat Darurat",aktif,"Instalasi Gawat Darurat Lantai 1","2026-10-09 02:03:15","2026-11-05 11:09:31",1,1,ROOM,1
+3,"STROKE CENTER",STR,"Pelayanan Medis Khusus",aktif,"Unit Layanan Stroke Center","2026-10-09 02:03:15","2026-11-05 11:09:31",1,1,ROOM,2
+4,"IRJA Lt. 1",IRJ1,"Pelayanan Rawat Jalan",aktif,"Instalasi Rawat Jalan Lantai 1","2026-10-09 02:03:16","2026-11-05 11:09:31",2,2,CORRIDOR,3
+5,KASIR,KAS,"Administrasi & Keuangan",aktif,"Loket Kasir Pembayaran","2026-10-09 02:03:16","2026-11-05 11:09:31",2,2,ROOM,11
+6,"REKAM MEDIS",RM,"Penunjang Medis",aktif,"Instalasi Rekam Medis","2026-10-09 02:03:16","2026-11-05 11:09:31",2,2,ROOM,12
+7,FISIOTERAPI,FIS,"Rehabilitasi Medik",aktif,"Instalasi Rehabilitasi Medik / Fisioterapi","2026-10-09 02:03:16","2026-11-05 11:09:31",2,2,ROOM,13
+8,"IRJA LT 2",IRJ2,"Selasar / Koridor",aktif,"Instalasi Rawat Jalan Lantai 2","2026-10-09 02:03:16","2026-11-05 11:09:31",2,3,CORRIDOR,8
+9,"KOMITE MEDIK",KM,"Manajemen & Komite",aktif,"Ruang Komite Medik","2026-10-09 02:03:16","2026-11-05 11:09:31",2,3,ROOM,14
+10,AUDITORIUM,AUD,"Fasilitas Pertemuan",aktif,"Gedung Pertemuan Auditorium","2026-10-09 02:03:16","2026-11-05 11:09:31",2,3,ROOM,15
+11,"MANAJEMEN + Rg ARSIP KEPEGAWAIAN",MNJ,"Administrasi & Manajemen",aktif,"Gedung Manajemen & Arsip Kepegawaian","2026-10-09 02:03:16","2026-11-05 11:09:31",2,3,ROOM,4
+12,"INSTALASI FARMASI",FAR,"Pelayanan Farmasi",aktif,"Instalasi Farmasi Sentral","2026-10-09 02:03:16","2026-11-05 11:09:31",14,35,ROOM,16
+13,"EMERALD Lt 1",EMR1,"Selasar / Koridor",aktif,"Gedung Emerald Lantai 1","2026-10-09 02:03:16","2026-11-05 11:09:31",3,4,CORRIDOR,9
+14,"EMERALD Lt 2",EMR2,"Selasar / Koridor",aktif,"Gedung Emerald Lantai 2","2026-10-09 02:03:16","2026-11-05 11:09:31",3,5,CORRIDOR,17
+15,"EMERALD Lt 3",EMR3,"Selasar / Koridor",aktif,"Gedung Emerald Lantai 3","2026-10-09 02:03:16","2026-11-05 11:09:31",3,6,CORRIDOR,18
+16,"EMERALD Lt 4",EMR4,"Selasar / Koridor",aktif,"Gedung Emerald Lantai 4","2026-10-09 02:03:16","2026-11-05 11:09:31",3,7,CORRIDOR,19
+17,"EMERALD Lt 5",EMR5,"Selasar / Koridor",aktif,"Gedung Emerald Lantai 5","2026-10-09 02:03:16","2026-11-05 11:09:31",3,8,CORRIDOR,20
+18,"NILAM Lt 1",NLM1,"Selasar / Koridor",aktif,"Gedung Nilam Lantai 1","2026-10-09 02:03:16","2026-11-05 11:09:31",4,9,CORRIDOR,21
+19,"NILAM Lt 2",NLM2,"Selasar / Koridor",aktif,"Gedung Nilam Lantai 2","2026-10-09 02:03:16","2026-11-05 11:09:31",4,10,CORRIDOR,22
+20,"NILAM Lt 3",NLM3,"Selasar / Koridor",aktif,"Gedung Nilam Lantai 3","2026-10-09 02:03:16","2026-11-05 11:09:31",4,11,CORRIDOR,23
+21,"DEPO RAWAT INAP",DRI,"Pelayanan Farmasi",aktif,"Depo Farmasi Rawat Inap","2026-10-09 02:03:16","2026-11-05 11:09:31",4,9,ROOM,24
+22,"ALEXANDRI Lt 1",ALX1,"Selasar / Koridor",aktif,"Gedung Alexandri Lantai 1","2026-10-09 02:03:16","2026-11-05 11:09:31",5,12,CORRIDOR,25
+23,"ALEXANDRI Lt 2",ALX2,"Selasar / Koridor",aktif,"Gedung Alexandri Lantai 2","2026-10-09 02:03:16","2026-11-05 11:09:31",5,13,CORRIDOR,26
+24,"ALEXANDRI Lt 3",ALX3,"Selasar / Koridor",aktif,"Gedung Alexandri Lantai 3","2026-10-09 02:03:16","2026-11-05 11:09:31",5,14,CORRIDOR,27
+25,"ALEXANDRI Lt 4",ALX4,"Selasar / Koridor",aktif,"Gedung Alexandri Lantai 4","2026-10-09 02:03:16","2026-11-05 11:09:31",5,15,CORRIDOR,28
+26,JAMRUD,JMR,"Bangunan Kosong / Non-Aktif",kosong,"Ruang Jamrud (Master kosong, 0 APAR)","2026-10-09 02:03:16","2026-11-05 11:09:31",21,,OTHER,29
+27,YAKUT,YKT,"Bangunan Kosong / Non-Aktif",kosong,"Ruang Yakut (Master kosong, 0 APAR)","2026-10-09 02:03:16","2026-11-05 11:09:32",22,,OTHER,30
+28,GIOK,GIO,"Bangunan Kosong / Non-Aktif",kosong,"Ruang Giok (Master kosong, 0 APAR)","2026-10-09 02:03:16","2026-11-05 11:09:32",6,16,OTHER,31
+29,"POLI JIWA DAN PSIKOLOGI",JIW,"Pelayanan Rawat Jalan",aktif,"Poliklinik Jiwa dan Psikologi","2026-10-09 02:03:16","2026-11-05 11:09:32",2,2,ROOM,32
+30,"KUMALA Lt 1",KML1,"Selasar / Koridor",aktif,"Gedung Kumala Lantai 1","2026-10-09 02:03:16","2026-11-05 11:09:32",12,29,CORRIDOR,33
+31,"KUMALA Lt 2",KML2,"Selasar / Koridor",aktif,"Gedung Kumala Lantai 2","2026-10-09 02:03:16","2026-11-05 11:09:32",12,30,CORRIDOR,34
+32,"KUMALA Lt 3",KML3,"Selasar / Koridor",aktif,"Gedung Kumala Lantai 3","2026-10-09 02:03:16","2026-11-05 11:09:32",12,31,CORRIDOR,35
+33,"KUMALA Lt 4 (OK) s.d. Gedung Mutiara Lt 4",KML4,"Pelayanan Bedah Sentral",aktif,"Area Transisi Kumala Lt 4 s.d. Mutiara Lt 4 (dipertahankan utuh)","2026-10-09 02:03:16","2026-11-05 11:09:32",12,32,ROOM,36
+34,"DEPO OK",DOK,"Pelayanan Farmasi Khusus",aktif,"Depo Farmasi Kamar Operasi (OK)","2026-10-09 02:03:16","2026-11-05 11:09:32",12,32,ROOM,37
+35,"KUMALA Lt 5",KML5,"Selasar / Koridor",aktif,"Gedung Kumala Lantai 5","2026-10-09 02:03:16","2026-11-05 11:09:32",12,33,CORRIDOR,38
+36,"POLI ESWL",ESWL,"Pelayanan Rawat Jalan",aktif,"Poliklinik ESWL (Pemecah Batu Ginjal)","2026-10-09 02:03:16","2026-11-05 11:09:32",13,34,ROOM,39
+37,RADIOLOGI,RAD,"Penunjang Medis",aktif,"Instalasi Radiologi & Pencitraan","2026-10-09 02:03:16","2026-11-05 11:09:32",13,34,ROOM,5
+38,LABORATORIUM,LAB,"Penunjang Medis",aktif,"Instalasi Laboratorium Patologi & Klinis","2026-10-09 02:03:16","2026-11-05 11:09:32",13,41,ROOM,6
+39,"MUTIARA Lt 1 HD",MTR1,"Pelayanan Medis Khusus",aktif,"Gedung Mutiara Lantai 1 Unit Hemodialisa","2026-10-09 02:03:16","2026-11-05 11:09:32",18,42,ROOM,40
+40,"MUTIARA Lt 2 Bayi",MTR2,"Pelayanan Medis Khusus",aktif,"Gedung Mutiara Lantai 2 Ruang Perawatan Bayi","2026-10-09 02:03:16","2026-11-05 11:09:32",18,43,ROOM,41
+41,"MUTIARA Lt 3 ICU",MTR3,"Pelayanan Medis Khusus",aktif,"Gedung Mutiara Lantai 3 Ruang ICU","2026-10-09 02:03:16","2026-11-05 11:09:32",18,44,ROOM,42
+42,"LAUNDRY LT 1",LND1,"Pelayanan Laundry",aktif,"Instalasi Laundry / Binatu Rumah Sakit","2026-10-09 02:03:16","2026-11-05 11:09:32",10,22,ROOM,43
+43,"CSSD LT 2",CSD2,"Sterilisasi CSSD",aktif,"Central Sterile Services Department Lantai 2","2026-10-09 02:03:16","2026-11-05 11:09:32",10,23,ROOM,44
+44,"BURN CENTER",BRN,"Pelayanan Medis Khusus",aktif,"Unit Perawatan Luka Bakar (Burn Center)","2026-10-09 02:03:16","2026-11-05 11:09:32",12,32,ROOM,45
+45,"INSTALASI GIZI LT 1",GIZ1,"Pelayanan Gizi",aktif,"Instalasi Gizi & Dapur Utama Lantai 1","2026-10-09 02:03:16","2026-11-05 11:09:32",9,20,ROOM,46
+46,"INSTALASI GIZI LT 2",GIZ2,"Pelayanan Gizi",aktif,"Instalasi Gizi Lantai 2","2026-10-09 02:03:16","2026-11-05 11:09:32",9,21,ROOM,47
+47,"IT DALAM",ITD,"Sistem Informasi & IT",aktif,"Ruang Server & IT Internal","2026-10-09 02:03:16","2026-11-05 11:09:32",14,36,ROOM,48
+48,"IT LUAR",ITL,"Sistem Informasi & IT",aktif,"Selasar / Area Koridor Luar IT","2026-10-09 02:03:16","2026-11-05 11:09:32",14,36,CORRIDOR,49
+49,"GUDANG LIMBAH B3",LB3,"Pengolahan Limbah & B3",aktif,"Gudang Penyimpanan Sementara Limbah Medis B3","2026-10-09 02:03:16","2026-11-05 11:09:32",17,39,WAREHOUSE,50
+50,"C S FREEZEER (SANITASI)",CSF,"Sanitasi & K3",aktif,"Cold Storage / Freezer Unit Sanitasi","2026-10-09 02:03:16","2026-11-05 11:09:32",17,39,SERVICE_AREA,51
+51,"INSTALASI SANITASI",SAN,"Sanitasi & K3",aktif,"Kantor Instalasi Kesehatan Lingkungan & Sanitasi","2026-10-09 02:03:16","2026-11-05 11:09:32",17,39,ROOM,52
+52,INCENERATOR,INC,"Pengolahan Limbah & B3",aktif,"Area Pengolahan Sampah Medis Incenerator","2026-10-09 02:03:16","2026-11-05 11:09:32",17,39,SERVICE_AREA,53
+53,"GUDANG LOGISTIK",LOG,"Logistik & Penyimpanan",aktif,"Gudang Logistik Umum & Barang","2026-10-09 02:03:16","2026-11-05 11:09:32",7,18,WAREHOUSE,54
+54,K3RS,K3RS,"Keselamatan Kerja (K3RS)",aktif,"Kantor / Sekretariat Komite K3RS","2026-10-09 02:03:16","2026-11-05 11:09:32",14,36,ROOM,55
+55,IPSRS,IPSR,"Pemeliharaan Sarana",aktif,"Instalasi Pemeliharaan Sarana RS (IPSRS)","2026-10-09 02:03:16","2026-11-05 11:09:32",8,19,SERVICE_AREA,56
+56,GENZET,GEN,"Utilitas Listrik & Genset",aktif,"Ruang Mesin Pembangkit Listrik (Genset)","2026-10-09 02:03:16","2026-11-05 11:09:32",8,19,SERVICE_AREA,57
+57,"KAMAR JENAZAH",JNZ,"Pelayanan Pemulasaraan",aktif,"Instalasi Forensik & Kamar Jenazah","2026-10-09 02:03:16","2026-11-05 11:09:32",15,37,SERVICE_AREA,58
+58,LIFT,LFT,"Fasilitas Transportasi Vertikal",aktif,"Area Penempatan APAR Selasar/Lobi Lift Vertikal","2026-10-09 02:03:16","2026-11-05 11:09:32",20,,ELEVATOR,59
+59,KANTIN,KTN,"Fasilitas Umum & Kantin",kosong,"Area Kantin Rumah Sakit (Master kosong, 0 APAR)","2026-10-09 02:03:16","2026-11-05 11:09:32",23,,OTHER,60
+60,"RESEPCIONIST Lt 2",RSP2,"Pelayanan Pelanggan",aktif,"Area Meja Resepsionis Lantai 2","2026-10-09 02:03:16","2026-11-05 11:09:32",2,3,LOBBY,61
+61,"GAS MEDIS (BELAKANG CSSD)",GAS,"Utilitas Gas Medis",aktif,"Sentral Distribusi Gas Medis Belakang CSSD","2026-10-09 02:03:16","2026-11-05 11:09:32",10,22,SERVICE_AREA,62
+62,119,119,"Pelayanan Gawat Darurat",aktif,"Pos / Pusat Layanan Gawat Darurat PSC 119","2026-10-09 02:03:16","2026-11-05 11:09:32",1,1,ROOM,63
+63,"GUDANG K3RS",GK3,"Gudang Stok K3RS",stok,"64 unit stok sediaan (sumber K3RS) - bukan target inspeksi aktif","2026-10-09 02:03:16","2026-11-05 11:09:32",14,36,WAREHOUSE,64
+64,"OK CITO",OKC,"Pelayanan Bedah Cito",aktif,"Kamar Operasi Cito / Bedah Darurat","2026-10-09 02:03:16","2026-11-05 11:09:32",12,32,ROOM,65
+66,"Ruang Triase",TRS,"Pelayanan Gawat Darurat",kosong,"Ruang Triase Gawat Darurat (Non-penempatan APAR / 0 APAR)","2026-11-05 11:07:51","2026-11-05 11:09:32",1,1,ROOM,7
+67,"Gedung IGD",LOK-FJQT5,,aktif,,"2026-11-06 09:29:20","2026-11-06 09:29:20",1,40,SERVICE_AREA,

@@ -407,6 +407,7 @@
                         <thead>
                             <tr class="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-xs font-medium uppercase tracking-wider">
                                 <th class="px-4 py-3 whitespace-nowrap">Tanggal Pemeriksaan</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Periode & Kepatuhan</th>
                                 <th class="px-4 py-3">Jadwal Inspeksi</th>
                                 <th class="px-4 py-3 whitespace-nowrap">Pemeriksa</th>
                                 <th class="px-4 py-3 text-center whitespace-nowrap">Hasil</th>
@@ -422,6 +423,23 @@
                                 <tr class="hover:bg-gray-50/60 transition-colors">
                                     <td class="px-4 py-3 font-mono font-medium text-gray-900 whitespace-nowrap tabular-nums">
                                         {{ $p->tanggal_pemeriksaan->format('d/m/Y H:i') }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900">{{ $p->periode_label }}</div>
+                                        <div class="flex items-center gap-1 mt-0.5">
+                                            <x-badge :variant="$p->tipe_badge_variant">
+                                                {{ $p->tipe_penyelesaian_label }}
+                                            </x-badge>
+                                            @if($p->isLinkedRecord())
+                                                <span class="text-[10px] text-indigo-700 font-mono bg-indigo-50 px-1 rounded border border-indigo-200" title="Resolusi dari Pemeriksaan Fisik #{{ $p->pemeriksaan_induk_id }}">
+                                                    #{{ $p->pemeriksaan_induk_id }}
+                                                </span>
+                                            @elseif($p->resolusiAnak->isNotEmpty())
+                                                <span class="text-[10px] text-purple-700 font-mono bg-purple-50 px-1 rounded border border-purple-200" title="Menyelesaikan backlog">
+                                                    Multi
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3">
                                         @if($p->jadwal)
@@ -458,7 +476,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic">
+                                    <td colspan="7" class="px-4 py-8 text-center text-gray-400 italic">
                                         Belum ada log pemeriksaan fisik untuk unit APAR ini.
                                     </td>
                                 </tr>

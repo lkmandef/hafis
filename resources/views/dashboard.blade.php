@@ -529,15 +529,22 @@
                                     {{ $p->pemeriksa_nama ?: 'Petugas K3RS' }} &bull; {{ $p->apar?->gedung?->nama ?? '-' }}
                                 </div>
                             </div>
-                            @if($p->hasil_keseluruhan === 'baik')
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
-                                    Baik
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
-                                    Perlu Tindakan
-                                </span>
-                            @endif
+                            <div class="flex flex-col items-end gap-1 shrink-0">
+                                @if($p->hasil_keseluruhan === 'baik')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                        Baik
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                        Perlu Tindakan
+                                    </span>
+                                @endif
+                                @if($p->resolusiAnak->isNotEmpty())
+                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200" title="Menyelesaikan 2 periode sekaligus">
+                                        Multi-Periode
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                         <div class="flex items-center justify-between pt-1">
                             <span class="font-mono text-gray-500 text-[11px]">
@@ -589,6 +596,11 @@
                                     @else
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                                             Perlu Tindakan
+                                        </span>
+                                    @endif
+                                    @if($p->resolusiAnak->isNotEmpty())
+                                        <span class="block text-[10px] font-bold text-amber-800 mt-0.5">
+                                            Multi-Periode
                                         </span>
                                     @endif
                                 </td>

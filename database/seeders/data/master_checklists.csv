@@ -1,0 +1,6 @@
+id,nama,deskripsi_bantuan,urutan,is_active,is_default,created_at,updated_at
+1,Tekanan,"Jarum manometer berada tepat di dalam zona hijau (tekanan kerja normal).",1,1,1,"2026-11-09 09:06:35","2026-11-09 09:06:35"
+2,Pin/Segel,"Pin pengaman terpasang kokoh dan segel pengaman (safety seal) masih utuh tidak putus.",2,1,1,"2026-11-09 09:06:35","2026-11-09 09:06:35"
+3,Handle,"Tuas penekan (handle lever) dan pegangan bersih, tidak macet, dan tidak bengkok.",3,1,1,"2026-11-09 09:06:35","2026-11-09 09:06:35"
+4,"Kondisi Fisik","Tabung bebas korosi, karat, penyok, serta stiker instruksi dan identitas terbaca jelas.",4,1,1,"2026-11-09 09:06:35","2026-11-09 09:06:35"
+5,Nozel,"Corong semprot (nozzle) dan selang lentur, tidak retak, dan bebas dari sumbatan kotoran.",5,1,1,"2026-11-09 09:06:35","2026-11-09 09:06:35"

@@ -14,7 +14,7 @@
     $textareaId = $id ?? $name ?? 'textarea-' . uniqid();
 @endphp
 
-<div class="w-full">
+<div class="w-full min-w-0 max-w-full">
     @if ($label)
         <label for="{{ $textareaId }}" class="block text-xs font-semibold text-slate-700 mb-1.5">
             {{ $label }}
@@ -31,7 +31,7 @@
         placeholder="{{ $placeholder }}"
         @if ($required) required @endif
         {{ $attributes->merge([
-            'class' => 'w-full rounded-lg ' . 
+            'class' => 'w-full min-w-0 max-w-full rounded-lg ' . 
                 ($error ? 'border-rose-400 bg-rose-50/20 text-rose-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-200' : 'border-slate-300 bg-white text-slate-800 focus:border-slate-400 focus:ring-1 focus:ring-slate-400') . 
                 ' border px-3 py-2 text-xs placeholder-slate-400 focus:bg-white focus:outline-none transition'
         ]) }}

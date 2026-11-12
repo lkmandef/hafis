@@ -4,12 +4,14 @@
         reportTitle="LAPORAN TEMUAN KERUSAKAN CHECKLIST PEMERIKSAAN APAR" 
         :filters="$filtersSummary">
 
-        {{-- Baris ringkasan tunggal --}}
-        <div style="margin-bottom: 10px; font-size: 8.5pt; color: #0f172a;">
-            Total Temuan: <strong>{{ $rekap['total'] }}</strong> item &nbsp;&bull;&nbsp;
-            Belum Ditindaklanjuti: <strong>{{ $rekap['belum_ditindaklanjuti'] }}</strong> &nbsp;&bull;&nbsp;
-            Dalam Penanganan: <strong>{{ $rekap['dalam_proses'] }}</strong> &nbsp;&bull;&nbsp;
-            Telah Diselesaikan: <strong>{{ $rekap['selesai'] }}</strong>
+        {{-- Baris Rekapitulasi Formal & Tanggal di Atas Tabel --}}
+        <div class="report-meta-bar">
+            <div class="report-summary-formal">
+                Total Temuan Kerusakan: <strong>{{ $rekap['total'] }} item</strong> (Belum Ditindaklanjuti: {{ $rekap['belum_ditindaklanjuti'] }}, Dalam Penanganan: {{ $rekap['dalam_proses'] }}, Telah Diselesaikan: {{ $rekap['selesai'] }})
+            </div>
+            <div class="report-date-formal">
+                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }}
+            </div>
         </div>
 
         <table class="data-table">

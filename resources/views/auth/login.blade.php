@@ -52,8 +52,6 @@
                 <h2 class="text-2xl xl:text-3xl font-bold tracking-tight text-white leading-snug mb-4">
                     Kesiapsiagaan & Proteksi Kebakaran Rumah Sakit
                 </h2>
-                    Kesiapsiagaan & Proteksi Kebakaran Rumah Sakit
-                </h2>
                 <p class="text-sm text-gray-400 leading-relaxed mb-8">
                     Platform inspeksi terpadu untuk monitoring kondisi fisik, masa berlaku media, dan kelayakan titik APAR di seluruh gedung rumah sakit.
                 </p>
@@ -110,27 +108,30 @@
         <!-- ================================================================== -->
         <div class="col-span-12 lg:col-span-7 xl:col-span-7 flex flex-col justify-between bg-white px-5 py-6 sm:px-10 sm:py-10 lg:px-14 xl:px-18 min-h-screen min-h-dvh overflow-y-auto">
             
-            <!-- Top Header Mobile (Hanya tampil di mobile/tablet kecil) -->
-            <div class="w-full max-w-md mx-auto pt-2 sm:pt-4 lg:hidden">
-                <div class="text-center mb-6">
-                    <a href="{{ url('/') }}" class="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-xl p-1" title="HAFIS">
-                        <img src="{{ asset('images/brand/hafis-logo.svg') }}"
-                             alt="Logo HAFIS"
-                             width="130"
-                             height="57"
-                             class="h-10 w-auto mx-auto object-contain" />
-                    </a>
-                    <div class="mt-2 text-xs font-semibold text-gray-700">
-                        RSUD dr. H. Moch. Ansari Saleh
-                    </div>
-                    <div class="text-[11px] text-gray-500">
-                        Unit Keselamatan dan Kesehatan Kerja Rumah Sakit (K3RS)
-                    </div>
-                </div>
-            </div>
-
             <!-- Container Kartu Form -->
             <div class="w-full max-w-md mx-auto my-auto py-4">
+
+                <!-- Brand Lockup Mobile (Unified flow terintegrasi, hanya tampil di mobile/tablet < lg) -->
+                <div class="lg:hidden mb-6 pb-5 border-b border-gray-100">
+                    <a href="{{ url('/') }}" class="inline-flex items-center gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-xl" title="HAFIS RSUD dr. H. Moch. Ansari Saleh">
+                        <div class="w-11 h-11 rounded-xl bg-gray-900 p-2 flex items-center justify-center shrink-0 shadow-xs group-hover:bg-black transition-colors">
+                            <img src="{{ asset('images/brand/hafis-mark.svg') }}" alt="Mark HAFIS" class="w-full h-full object-contain filter invert" />
+                        </div>
+                        <div class="text-left">
+                            <div class="flex items-center gap-2">
+                                <span class="text-base font-bold tracking-tight text-gray-900 leading-tight">HAFIS</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-700 border border-gray-200">K3RS</span>
+                            </div>
+                            <div class="text-xs font-semibold text-gray-700 leading-tight mt-1">
+                                RSUD dr. H. Moch. Ansari Saleh
+                            </div>
+                            <div class="text-[11px] text-gray-500 leading-tight mt-0.5">
+                                Hospital APAR & Fire Inspection System
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
                 <div class="mb-6">
                     <h1 class="text-2xl sm:text-[26px] font-bold text-gray-900 tracking-tight">Masuk ke Sistem</h1>
                     <p class="text-xs sm:text-sm text-gray-500 mt-1.5 leading-relaxed">

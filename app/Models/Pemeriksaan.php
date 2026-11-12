@@ -22,6 +22,18 @@ class Pemeriksaan extends Model
         self::HASIL_PERLU_TINDAKAN => 'Perlu Tindakan',
     ];
 
+    public const TIPE_TEPAT_WAKTU = 'tepat_waktu';
+
+    public const TIPE_TERLAMBAT = 'terlambat';
+
+    public const TIPE_KOREKSI = 'koreksi';
+
+    public const TIPE_LABELS = [
+        self::TIPE_TEPAT_WAKTU => 'Tepat Waktu',
+        self::TIPE_TERLAMBAT => 'Selesai Terlambat',
+        self::TIPE_KOREKSI => 'Koreksi',
+    ];
+
     /**
      * Item checklist fisik 5 parameter utama K3RS (Arsitektur Baru)
      */
@@ -63,12 +75,14 @@ class Pemeriksaan extends Model
     protected $fillable = [
         'apar_id',
         'jadwal_id',
+        'pemeriksaan_induk_id',
         'periode_tahun',
         'periode_bulan',
         'user_id',
         'pemeriksa_nama',
         'tanggal_pemeriksaan',
         'hasil_keseluruhan',
+        'tipe_penyelesaian',
         'status',
         'catatan',
         'foto_path',
@@ -185,6 +199,75 @@ class Pemeriksaan extends Model
     public function scopeForPeriod($query, int $tahun, int $bulan)
     {
         return $query->where('periode_tahun', $tahun)->where('periode_bulan', $bulan);
+    }
+
+    /**
+     * Scope: Hanya ambil aktivitas pemeriksaan fisik riil (mengecualikan linked record resolusi)
+     */
+    public function scopeAktivitasFisik($query)
+    {
+        return $query->whereNull('pemeriksaan_induk_id');
+    }
+
+    /**
+     * Scope: Hanya ambil pemeriksaan berstatus terlambat
+     */
+    public function scopeTerlambat($query)
+    {
+        return $query->where('tipe_penyelesaian', self::TIPE_TERLAMBAT);
+    }
+
+    /**
+     * Scope: Hanya ambil pemeriksaan berstatus tepat waktu
+     */
+    public function scopeTepatWaktu($query)
+    {
+        return $query->where('tipe_penyelesaian', self::TIPE_TEPAT_WAKTU);
+    }
+
+    /**
+     * Relasi ke record fisik induk jika baris ini merupakan linked multi-period resolution
+     */
+    public function pemeriksaanInduk(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'pemeriksaan_induk_id');
+    }
+
+    /**
+     * Relasi ke seluruh baris resolusi anak yang tersambung ke record fisik ini
+     */
+    public function resolusiAnak(): HasMany
+    {
+        return $this->hasMany(self::class, 'pemeriksaan_induk_id');
+    }
+
+    /**
+     * Helper: Cek apakah record ini merupakan linked record resolusi periode lain
+     */
+    public function isLinkedRecord(): bool
+    {
+        return $this->pemeriksaan_induk_id !== null;
+    }
+
+    /**
+     * Accessor: Label tipe penyelesaian kepatuhan periode
+     */
+    public function getTipePenyelesaianLabelAttribute(): string
+    {
+        return self::TIPE_LABELS[$this->tipe_penyelesaian] ?? ucfirst(str_replace('_', ' ', $this->tipe_penyelesaian ?? 'Tepat Waktu'));
+    }
+
+    /**
+     * Accessor: Varian badge UI untuk tipe penyelesaian
+     */
+    public function getTipeBadgeVariantAttribute(): string
+    {
+        return match ($this->tipe_penyelesaian) {
+            self::TIPE_TEPAT_WAKTU => 'success',
+            self::TIPE_TERLAMBAT => 'warning',
+            self::TIPE_KOREKSI => 'info',
+            default => 'neutral',
+        };
     }
 
     /**

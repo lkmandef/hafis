@@ -13,7 +13,7 @@
     $selectId = $id ?? $name ?? 'select-' . uniqid();
 @endphp
 
-<div class="w-full">
+<div class="w-full min-w-0 max-w-full">
     @if ($label)
         <label for="{{ $selectId }}" class="block text-xs font-medium text-gray-700 mb-1.5">
             {{ $label }}
@@ -23,13 +23,13 @@
         </label>
     @endif
 
-    <div class="relative">
+    <div class="relative w-full min-w-0 max-w-full">
         <select 
             id="{{ $selectId }}"
             name="{{ $name }}"
             @if ($required) required @endif
             {{ $attributes->merge([
-                'class' => 'appearance-none w-full rounded-lg ' . 
+                'class' => 'appearance-none w-full min-w-0 max-w-full rounded-lg ' . 
                     ($error 
                         ? 'border-red-300 bg-red-50/30 text-red-900 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                         : 'border-gray-200 bg-white text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900') . 

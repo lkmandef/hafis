@@ -191,7 +191,7 @@ class LaporanController extends Controller
      */
     public function pemeriksaan(Request $request)
     {
-        $query = Pemeriksaan::with(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'jadwal', 'user']);
+        $query = Pemeriksaan::with(['apar.lokasi', 'apar.ruangan.lantai.gedung', 'jadwal', 'user', 'pemeriksaanInduk']);
 
         // 1. Filter Periode Tanggal
         if ($request->filled('dari_tanggal')) {
@@ -219,7 +219,12 @@ class LaporanController extends Controller
             $query->where('hasil_keseluruhan', $request->hasil);
         }
 
-        // 4. Filter Jadwal
+        // 4. Filter Tipe Penyelesaian / Kepatuhan
+        if ($request->filled('tipe_penyelesaian')) {
+            $query->where('tipe_penyelesaian', $request->tipe_penyelesaian);
+        }
+
+        // 5. Filter Jadwal
         if ($request->filled('jadwal_id')) {
             if ($request->jadwal_id === 'mandiri') {
                 $query->whereNull('jadwal_id');
@@ -228,12 +233,12 @@ class LaporanController extends Controller
             }
         }
 
-        // 5. Filter Pemeriksa
+        // 6. Filter Pemeriksa
         if ($request->filled('pemeriksa')) {
             $query->where('pemeriksa_nama', 'like', "%{$request->pemeriksa}%");
         }
 
-        // 6. Pencarian teks
+        // 7. Pencarian teks
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function ($sub) use ($q) {
@@ -247,6 +252,9 @@ class LaporanController extends Controller
 
         $rekap = [
             'total' => Pemeriksaan::count(),
+            'aktivitas_fisik' => Pemeriksaan::aktivitasFisik()->count(),
+            'tepat_waktu' => Pemeriksaan::where('tipe_penyelesaian', Pemeriksaan::TIPE_TEPAT_WAKTU)->count(),
+            'terlambat' => Pemeriksaan::where('tipe_penyelesaian', Pemeriksaan::TIPE_TERLAMBAT)->count(),
             'baik' => Pemeriksaan::where('hasil_keseluruhan', Pemeriksaan::HASIL_BAIK)->count(),
             'perlu_tindakan' => Pemeriksaan::where('hasil_keseluruhan', Pemeriksaan::HASIL_PERLU_TINDAKAN)->count(),
             'terjadwal' => Pemeriksaan::whereNotNull('jadwal_id')->count(),
@@ -260,6 +268,9 @@ class LaporanController extends Controller
                 return [
                     $i + 1,
                     $p->tanggal_pemeriksaan ? $p->tanggal_pemeriksaan->format('d/m/Y H:i') : '-',
+                    $p->periode_label,
+                    $p->tipe_penyelesaian_label.($p->isLinkedRecord() ? " (Resolusi #{$p->pemeriksaan_induk_id})" : ''),
+                    $p->isLinkedRecord() ? 'Resolusi Multi-Periode' : 'Inspeksi Fisik Langsung',
                     $p->apar?->kode ?? '-',
                     $p->apar?->lokasi?->nama ?? $p->apar?->lokasi_lengkap ?? '-',
                     $p->jadwal?->nama ?? 'Pemeriksaan Mandiri (Ad-Hoc)',
@@ -271,8 +282,8 @@ class LaporanController extends Controller
             });
 
             $headers = [
-                'No', 'Tanggal Pemeriksaan', 'Kode APAR', 'Lokasi', 'Jadwal Inspeksi',
-                'Pemeriksa', 'Hasil Keseluruhan', 'Catatan', 'Status',
+                'No', 'Tanggal Pemeriksaan Fisik', 'Periode Kepatuhan', 'Tipe Kepatuhan', 'Kategori Log',
+                'Kode APAR', 'Lokasi', 'Jadwal Inspeksi', 'Pemeriksa', 'Hasil Keseluruhan', 'Catatan', 'Status',
             ];
 
             return $this->exportCsv('laporan-pemeriksaan-apar-'.date('Ymd-His').'.csv', $headers, $rows);
@@ -514,6 +525,7 @@ class LaporanController extends Controller
             'belum_ditindaklanjuti' => TindakLanjut::where('status', TindakLanjut::STATUS_BELUM_DITINDAKLANJUTI)->count(),
             'dalam_proses' => TindakLanjut::where('status', TindakLanjut::STATUS_DALAM_PROSES)->count(),
             'selesai' => TindakLanjut::where('status', TindakLanjut::STATUS_SELESAI)->count(),
+            'dibatalkan' => TindakLanjut::where('status', TindakLanjut::STATUS_DIBATALKAN)->count(),
             'terfilter' => (clone $query)->count(),
         ];
 
@@ -784,6 +796,15 @@ class LaporanController extends Controller
 
         if ($request->filled('hasil')) {
             $summary['Hasil'] = ucfirst(str_replace('_', ' ', $request->hasil));
+        }
+
+        if ($request->filled('tipe_penyelesaian')) {
+            $tipeLabels = [
+                Pemeriksaan::TIPE_TEPAT_WAKTU => 'Tepat Waktu',
+                Pemeriksaan::TIPE_TERLAMBAT => 'Selesai Terlambat',
+                Pemeriksaan::TIPE_KOREKSI => 'Koreksi Data',
+            ];
+            $summary['Tipe Kepatuhan'] = $tipeLabels[$request->tipe_penyelesaian] ?? ucfirst($request->tipe_penyelesaian);
         }
 
         if ($request->filled('status_tl')) {

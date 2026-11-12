@@ -35,12 +35,13 @@
     },
     "scripts": {
         "setup": [
-            "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@php artisan key:generate",
-            "@php artisan migrate --force",
-            "npm install --ignore-scripts",
-            "npm run build"
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan migrate --force --ansi",
+            "@php artisan db:seed --class=MasterDataSeeder --force --ansi",
+            "@php artisan hafis:init-storage --ansi",
+            "@php -r \"echo PHP_EOL . '========================================================================' . PHP_EOL . ' [HAFIS] Setup database dan data master selesai!' . PHP_EOL . ' Silakan buat akun pengguna pertama dengan menjalankan:' . PHP_EOL . '   php artisan hafis:setup-admin' . PHP_EOL . '========================================================================' . PHP_EOL . PHP_EOL;\""
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",

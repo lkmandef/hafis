@@ -155,7 +155,7 @@ class Apar extends Model
             if ($this->status === self::STATUS_PERHATIAN) {
                 // Jangan pulihkan jika masih ada tiket tindak lanjut yang belum selesai
                 $hasOpenFollowUps = $this->tindakLanjuts()
-                    ->whereNotIn('status', [TindakLanjut::STATUS_SELESAI])
+                    ->whereNotIn('status', [TindakLanjut::STATUS_SELESAI, TindakLanjut::STATUS_DIBATALKAN])
                     ->exists();
 
                 if (! $hasOpenFollowUps) {

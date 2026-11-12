@@ -6,6 +6,7 @@ use App\Models\Apar;
 use App\Models\Gedung;
 use App\Models\Jadwal;
 use App\Models\Lantai;
+use App\Models\Lokasi;
 use App\Models\Pemeriksaan;
 use App\Models\PenggantianApar;
 use App\Models\Ruangan;
@@ -124,6 +125,27 @@ class DashboardTest extends TestCase
         $response->assertSee('1');
         $response->assertSee('2');
         $response->assertSee(route('jadwal.show', $jadwal->id));
+    }
+
+    public function test_dashboard_tidak_mengunci_jadwal_kedaluwarsa_dari_bulan_sebelumnya(): void
+    {
+        [$gedung, $lantai, $ruangan, $aparBaik, $aparPerhatian, $aparRusak] = $this->createHierarchy();
+
+        // Buat jadwal bulan sebelumnya yang sudah lewat tanggal selesainya tetapi belum selesai
+        $jadwalLampau = Jadwal::create([
+            'nama' => 'Inspeksi APAR Oktober 2026',
+            'tanggal_mulai' => Carbon::now()->subMonths(1)->startOfMonth(),
+            'tanggal_selesai' => Carbon::now()->subMonths(1)->endOfMonth(),
+            'status' => 'berjalan',
+        ]);
+        $jadwalLampau->apars()->attach($aparBaik->id, ['status_pemeriksaan' => 'belum_diperiksa']);
+
+        $response = $this->get('/');
+        $response->assertStatus(200);
+
+        // Dashboard tidak boleh menampilkan jadwal lampau di kartu Jadwal Berkala
+        $response->assertDontSee('Inspeksi APAR Oktober 2026');
+        $response->assertSee('Tidak ada jadwal inspeksi aktif');
     }
 
     public function test_dashboard_menampilkan_unit_memerlukan_perhatian_dan_link_tindak_lanjut(): void
@@ -250,5 +272,62 @@ class DashboardTest extends TestCase
         // 5. Bagian khusus Tindak Lanjut & Pemeliharaan di bawah Dashboard tetap ada
         $response->assertSee('Tindak Lanjut & Pemeliharaan', false);
         $response->assertSee(route('tindak-lanjut.index'));
+    }
+
+    public function test_topbar_notifikasi_menampilkan_agregat_apar_belum_diinspeksi_bulan_lalu(): void
+    {
+        $gedung = Gedung::create(['kode' => 'GDG-NOTIF', 'nama' => 'Gedung Notif', 'status' => 'aktif']);
+        $lantai = Lantai::create(['gedung_id' => $gedung->id, 'nomor_lantai' => 1, 'nama' => 'Lantai 1']);
+        $ruangan = Ruangan::create(['lantai_id' => $lantai->id, 'kode' => 'R-NTF', 'nama' => 'Ruang Notif', 'kategori' => 'pelayanan']);
+        $lokasi = Lokasi::create([
+            'nama' => 'Koridor Notif',
+            'kode' => 'LOK-NTF',
+            'kategori' => 'koridor',
+            'status' => Lokasi::STATUS_AKTIF,
+            'gedung_id' => $gedung->id,
+            'lantai_id' => $lantai->id,
+            'ruangan_id' => $ruangan->id,
+        ]);
+
+        $apar = Apar::create([
+            'kode' => 'APAR-NTF-01',
+            'nomor_register' => 'REG-NTF-001',
+            'qr_code' => 'HAFIS-QR-NTF01',
+            'lokasi_id' => $lokasi->id,
+            'ruangan_id' => $ruangan->id,
+            'jenis_media' => 'Dry Chemical Powder',
+            'kapasitas' => '6 kg',
+            'status' => Apar::STATUS_BAIK,
+        ]);
+
+        $bulanLalu = Carbon::now()->subMonth();
+        $targetRoute = route('pemeriksaan.index', [
+            'bulan' => (int) $bulanLalu->month,
+            'tahun' => (int) $bulanLalu->year,
+            'status_periksa' => 'belum',
+        ]);
+
+        // 1. Sebelum diperiksa bulan lalu, notifikasi agregat muncul di topbar
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('Inspeksi Bulan Lalu Tertunda');
+        $response->assertSee('1 Unit');
+        $response->assertSee($targetRoute);
+
+        // 2. Simulasikan pemeriksaan pada bulan lalu
+        Pemeriksaan::create([
+            'apar_id' => $apar->id,
+            'periode_tahun' => (int) $bulanLalu->year,
+            'periode_bulan' => (int) $bulanLalu->month,
+            'tanggal_pemeriksaan' => $bulanLalu->copy()->startOfMonth()->addDays(5),
+            'hasil_keseluruhan' => Pemeriksaan::HASIL_BAIK,
+            'status' => 'selesai',
+            'pemeriksa_nama' => 'Inspektur K3RS',
+        ]);
+
+        // 3. Setelah diperiksa, notifikasi bulan lalu hilang (tuntas)
+        $responseAfter = $this->get('/');
+        $responseAfter->assertStatus(200);
+        $responseAfter->assertDontSee('Inspeksi Bulan Lalu Tertunda');
     }
 }

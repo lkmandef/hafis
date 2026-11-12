@@ -228,15 +228,22 @@
                             {{ $apar->kode }}
                         </a>
                         @if($sudahDiperiksa)
-                            @if($pemBulanIni->hasil_keseluruhan === \App\Models\Pemeriksaan::HASIL_BAIK)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                    Kondisi Baik
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
-                                    Perlu Tindakan
-                                </span>
-                            @endif
+                            <div class="flex flex-col items-end gap-1">
+                                @if($pemBulanIni->hasil_keseluruhan === \App\Models\Pemeriksaan::HASIL_BAIK)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                        Kondisi Baik
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+                                        Perlu Tindakan
+                                    </span>
+                                @endif
+                                @if($pemBulanIni->tipe_penyelesaian === \App\Models\Pemeriksaan::TIPE_TERLAMBAT)
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                                        Selesai Terlambat
+                                    </span>
+                                @endif
+                            </div>
                         @else
                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                                 Belum Diperiksa
@@ -279,7 +286,7 @@
                                 <a href="{{ route('pemeriksaan.show', $pemBulanIni->id) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition min-h-[44px] shadow-2xs">
                                     Lihat Hasil
                                 </a>
-                                <a href="{{ route('pemeriksaan.edit', $pemBulanIni->id) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition min-h-[44px]">
+                                <a href="{{ route('pemeriksaan.edit', $pemBulanIni->pemeriksaan_induk_id ?? $pemBulanIni->id) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition min-h-[44px]">
                                     Koreksi
                                 </a>
                             </div>
@@ -348,18 +355,25 @@
                             </td>
                             <td class="py-2.5 px-3 sm:px-4 text-center">
                                 @if($sudahDiperiksa)
-                                    @if($pemBulanIni->hasil_keseluruhan === \App\Models\Pemeriksaan::HASIL_BAIK)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50/50 text-emerald-700 border border-emerald-200/80">
-                                            Kondisi Baik
+                                    <div class="flex flex-col items-center gap-0.5">
+                                        @if($pemBulanIni->hasil_keseluruhan === \App\Models\Pemeriksaan::HASIL_BAIK)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50/50 text-emerald-700 border border-emerald-200/80">
+                                                Kondisi Baik
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-rose-50/50 text-rose-700 border border-rose-200/80">
+                                                Perlu Tindakan
+                                            </span>
+                                        @endif
+                                        @if($pemBulanIni->tipe_penyelesaian === \App\Models\Pemeriksaan::TIPE_TERLAMBAT)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                                                Selesai Terlambat
+                                            </span>
+                                        @endif
+                                        <span class="block text-[10px] text-gray-400 font-mono">
+                                            {{ $pemBulanIni->tanggal_pemeriksaan?->format('d/m/Y') }}
                                         </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-rose-50/50 text-rose-700 border border-rose-200/80">
-                                            Perlu Tindakan
-                                        </span>
-                                    @endif
-                                    <span class="block text-[10px] text-gray-400 mt-0.5 font-mono">
-                                        {{ $pemBulanIni->tanggal_pemeriksaan?->format('d/m/Y') }}
-                                    </span>
+                                    </div>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-amber-50/50 text-amber-700 border border-amber-200/80">
                                         Belum Diperiksa
@@ -372,7 +386,7 @@
                                         <a href="{{ route('pemeriksaan.show', $pemBulanIni->id) }}" class="px-2.5 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition min-h-[30px] inline-flex items-center">
                                             Lihat Hasil
                                         </a>
-                                        <a href="{{ route('pemeriksaan.edit', $pemBulanIni->id) }}" class="px-2.5 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition min-h-[30px] inline-flex items-center">
+                                        <a href="{{ route('pemeriksaan.edit', $pemBulanIni->pemeriksaan_induk_id ?? $pemBulanIni->id) }}" class="px-2.5 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition min-h-[30px] inline-flex items-center">
                                             Koreksi
                                         </a>
                                     </div>

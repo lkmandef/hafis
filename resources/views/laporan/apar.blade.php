@@ -4,13 +4,14 @@
         reportTitle="LAPORAN DATA MASTER & STATUS APAR RUMAH SAKIT" 
         :filters="$filtersSummary">
 
-        {{-- Baris ringkasan tunggal --}}
-        <div style="margin-bottom: 10px; font-size: 8.5pt; color: #0f172a;">
-            Total Tabung APAR: <strong>{{ $rekap['total'] }}</strong> unit &nbsp;&bull;&nbsp;
-            Aktif: <strong>{{ $rekap['aktif'] }}</strong> &nbsp;&bull;&nbsp;
-            Perlu Perhatian: <strong>{{ $rekap['perhatian'] }}</strong> &nbsp;&bull;&nbsp;
-            Rusak: <strong>{{ $rekap['rusak'] }}</strong> &nbsp;&bull;&nbsp;
-            Tidak Aktif: <strong>{{ $rekap['tidak_aktif'] }}</strong>
+        {{-- Baris Rekapitulasi Formal & Tanggal di Atas Tabel --}}
+        <div class="report-meta-bar">
+            <div class="report-summary-formal">
+                Total Tabung APAR: <strong>{{ $rekap['total'] }} unit</strong> (Aktif: {{ $rekap['aktif'] }}, Perlu Perhatian: {{ $rekap['perhatian'] }}, Rusak: {{ $rekap['rusak'] }}, Tidak Aktif: {{ $rekap['tidak_aktif'] }})
+            </div>
+            <div class="report-date-formal">
+                {{ now()->timezone('Asia/Makassar')->locale('id')->translatedFormat('l, d F Y') }}
+            </div>
         </div>
 
         <table class="data-table">

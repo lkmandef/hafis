@@ -8,6 +8,7 @@ use App\Models\Jadwal;
 use App\Models\Lokasi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class JadwalController extends Controller
 {
@@ -86,13 +87,22 @@ class JadwalController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->input('status') === 'dibatalkan' && ! $request->user()?->isAdmin()) {
+            abort(403, 'Hanya Administrator yang memiliki wewenang untuk membatalkan jadwal inspeksi.');
+        }
+
+        $allowedStatuses = ['draft', 'belum_dimulai', 'berjalan', 'selesai'];
+        if ($request->user()?->isAdmin()) {
+            $allowedStatuses[] = 'dibatalkan';
+        }
+
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:150'],
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
             'tipe_target' => ['required', 'string', 'in:semua,gedung,custom'],
             'gedung_id' => ['nullable', 'required_if:tipe_target,gedung', 'exists:gedungs,id'],
-            'status' => ['required', 'string', 'in:draft,belum_dimulai,berjalan,selesai,dibatalkan'],
+            'status' => ['required', 'string', Rule::in($allowedStatuses)],
             'deskripsi' => ['nullable', 'string', 'max:1000'],
             'dibuat_oleh' => ['nullable', 'string', 'max:100'],
             'apar_ids' => ['nullable', 'array'],
@@ -105,6 +115,7 @@ class JadwalController extends Controller
             'tipe_target.required' => 'Pilih cakupan target APAR.',
             'gedung_id.required_if' => 'Pilih gedung target inspeksi.',
             'status.required' => 'Status jadwal wajib dipilih.',
+            'status.in' => 'Hanya Administrator yang memiliki wewenang untuk membatalkan jadwal inspeksi.',
         ]);
 
         $validated['dibuat_oleh'] = auth()->check() ? auth()->user()->name : ($validated['dibuat_oleh'] ?: 'Admin K3RS');
@@ -209,11 +220,20 @@ class JadwalController extends Controller
      */
     public function update(Request $request, Jadwal $jadwal)
     {
+        if ($request->input('status') === 'dibatalkan' && ! $request->user()?->isAdmin()) {
+            abort(403, 'Hanya Administrator yang memiliki wewenang untuk membatalkan jadwal inspeksi.');
+        }
+
+        $allowedStatuses = ['draft', 'belum_dimulai', 'berjalan', 'selesai'];
+        if ($request->user()?->isAdmin() || $jadwal->status === 'dibatalkan') {
+            $allowedStatuses[] = 'dibatalkan';
+        }
+
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:150'],
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
-            'status' => ['required', 'string', 'in:draft,belum_dimulai,berjalan,selesai,dibatalkan'],
+            'status' => ['required', 'string', Rule::in($allowedStatuses)],
             'deskripsi' => ['nullable', 'string', 'max:1000'],
         ], [
             'nama.required' => 'Nama jadwal inspeksi wajib diisi.',
@@ -221,6 +241,7 @@ class JadwalController extends Controller
             'tanggal_selesai.required' => 'Tanggal selesai periode wajib diisi.',
             'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
             'status.required' => 'Status jadwal wajib dipilih.',
+            'status.in' => 'Hanya Administrator yang memiliki wewenang untuk mengubah status jadwal menjadi dibatalkan.',
         ]);
 
         $jadwal->update($validated);
@@ -234,6 +255,10 @@ class JadwalController extends Controller
      */
     public function batalkan(Jadwal $jadwal)
     {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya Administrator yang memiliki wewenang untuk membatalkan jadwal inspeksi.');
+        }
+
         $jadwal->update(['status' => 'dibatalkan']);
 
         return redirect()->back()

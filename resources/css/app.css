@@ -130,6 +130,21 @@ input:-webkit-autofill:active {
     transition: background-color 5000s ease-in-out 0s;
 }
 
+/* Mobile WebKit date & time input normalization (iOS Safari & Chrome) */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+    text-align: left;
+    min-height: 1.5em;
+}
+
 /* Cross-browser scrollbar hiding utility (Chrome, Safari, Firefox, Edge) */
 @utility scrollbar-none {
     scrollbar-width: none;

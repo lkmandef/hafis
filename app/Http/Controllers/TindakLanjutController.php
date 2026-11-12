@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class TindakLanjutController extends Controller
 {
@@ -49,6 +50,7 @@ class TindakLanjutController extends Controller
             'belum' => TindakLanjut::where('status', TindakLanjut::STATUS_BELUM_DITINDAKLANJUTI)->count(),
             'proses' => TindakLanjut::where('status', TindakLanjut::STATUS_DALAM_PROSES)->count(),
             'selesai' => TindakLanjut::where('status', TindakLanjut::STATUS_SELESAI)->count(),
+            'dibatalkan' => TindakLanjut::where('status', TindakLanjut::STATUS_DIBATALKAN)->count(),
         ];
 
         return view('tindak-lanjut.index', compact('tindakLanjuts', 'stats'));
@@ -278,6 +280,15 @@ class TindakLanjutController extends Controller
      */
     public function update(Request $request, TindakLanjut $tindakLanjut)
     {
+        if ($request->input('status') === TindakLanjut::STATUS_DIBATALKAN && ! $request->user()?->isAdmin()) {
+            abort(403, 'Hanya Administrator yang memiliki wewenang untuk membatalkan tiket tindak lanjut.');
+        }
+
+        $allowedStatuses = ['belum_ditindaklanjuti', 'dalam_proses', 'selesai'];
+        if ($request->user()?->isAdmin() || $tindakLanjut->status === TindakLanjut::STATUS_DIBATALKAN) {
+            $allowedStatuses[] = 'dibatalkan';
+        }
+
         $validated = $request->validate([
             'jenis_tindakan' => [
                 'required',
@@ -288,7 +299,7 @@ class TindakLanjutController extends Controller
             'status' => [
                 'required',
                 'string',
-                'in:belum_ditindaklanjuti,dalam_proses,selesai',
+                Rule::in($allowedStatuses),
             ],
             'prioritas' => [
                 'required',
@@ -305,6 +316,7 @@ class TindakLanjutController extends Controller
             'jenis_tindakan.required' => 'Pilih jenis tindakan pemeliharaan.',
             'uraian_tindakan.required' => 'Uraian rincian tindakan wajib diisi.',
             'status.required' => 'Status tindak lanjut wajib dipilih.',
+            'status.in' => 'Hanya Administrator yang memiliki wewenang untuk mengubah status tiket menjadi dibatalkan.',
             'petugas_pelaksana.required' => 'Nama petugas pelaksana wajib diisi.',
             'tanggal_tindakan.required' => 'Tanggal pelaksanaan tindakan wajib diisi.',
             'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh lebih awal dari tanggal pelaksanaan tindakan.',
@@ -359,6 +371,11 @@ class TindakLanjutController extends Controller
      */
     public function updateStatus(Request $request, TindakLanjut $tindakLanjut)
     {
+        if ($tindakLanjut->status === TindakLanjut::STATUS_DIBATALKAN) {
+            return redirect()->back()
+                ->with('error', 'Tiket tindak lanjut yang telah dibatalkan tidak dapat diubah status pengerjaannya.');
+        }
+
         $validated = $request->validate([
             'status' => ['required', 'in:belum_ditindaklanjuti,dalam_proses,selesai'],
             'update_kondisi_apar' => ['nullable', 'boolean'],
@@ -399,19 +416,51 @@ class TindakLanjutController extends Controller
     }
 
     /**
-     * Hapus data tindak lanjut
+     * Batalkan tiket tindak lanjut dengan alasan wajib untuk kebutuhan audit K3RS
      */
-    public function destroy(TindakLanjut $tindakLanjut)
+    public function batalkan(Request $request, TindakLanjut $tindakLanjut)
     {
-        $aparId = $tindakLanjut->apar_id;
-
-        if ($tindakLanjut->foto_path && Storage::disk('public')->exists($tindakLanjut->foto_path)) {
-            Storage::disk('public')->delete($tindakLanjut->foto_path);
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya Administrator yang memiliki wewenang untuk membatalkan tiket tindak lanjut.');
         }
 
-        $tindakLanjut->delete();
+        if ($tindakLanjut->status === TindakLanjut::STATUS_DIBATALKAN) {
+            return redirect()->route('tindak-lanjut.show', $tindakLanjut->id)
+                ->with('warning', 'Tiket tindak lanjut ini sudah dalam status dibatalkan.');
+        }
 
-        return redirect()->route('apar.show', $aparId)
-            ->with('success', 'Catatan tindak lanjut berhasil dihapus dari riwayat.');
+        $validated = $request->validate([
+            'alasan_pembatalan' => ['required', 'string', 'min:5', 'max:1000'],
+        ], [
+            'alasan_pembatalan.required' => 'Alasan pembatalan tiket tindak lanjut wajib diisi untuk kebutuhan audit.',
+            'alasan_pembatalan.min' => 'Alasan pembatalan minimal berisi 5 karakter.',
+            'alasan_pembatalan.max' => 'Alasan pembatalan maksimal 1000 karakter.',
+        ]);
+
+        $userName = auth()->user()?->name ?? 'Administrator';
+        $timestamp = Carbon::now()->format('d/m/Y H:i');
+        $catatanAudit = "[{$timestamp}] Dibatalkan oleh {$userName}. Alasan: {$validated['alasan_pembatalan']}";
+        $catatanLengkap = trim(($tindakLanjut->catatan ? $tindakLanjut->catatan."\n" : '').$catatanAudit);
+
+        DB::transaction(function () use ($tindakLanjut, $validated, $catatanLengkap) {
+            $tindakLanjut->update([
+                'status' => TindakLanjut::STATUS_DIBATALKAN,
+                'alasan_pembatalan' => $validated['alasan_pembatalan'],
+                'dibatalkan_oleh_id' => auth()->id(),
+                'dibatalkan_at' => Carbon::now(),
+                'catatan' => $catatanLengkap,
+            ]);
+        });
+
+        return redirect()->route('tindak-lanjut.show', $tindakLanjut->id)
+            ->with('success', "Tiket tindak lanjut #{$tindakLanjut->id} berhasil dibatalkan dan tercatat dalam riwayat audit K3RS.");
+    }
+
+    /**
+     * Hapus data tindak lanjut — dialihkan ke pembatalan beralasan demi kepatuhan audit trail K3RS
+     */
+    public function destroy(Request $request, TindakLanjut $tindakLanjut)
+    {
+        return $this->batalkan($request, $tindakLanjut);
     }
 }

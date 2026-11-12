@@ -261,7 +261,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <!-- Tanggal Pemasangan -->
-                    <div>
+                    <div class="min-w-0">
                         <x-input
                             type="date"
                             name="tanggal_pemasangan"
@@ -272,7 +272,7 @@
                     </div>
 
                     <!-- Tanggal Kedaluwarsa Media -->
-                    <div>
+                    <div class="min-w-0">
                         <x-input
                             type="date"
                             name="tanggal_kadaluarsa"
@@ -283,7 +283,7 @@
                     </div>
 
                     <!-- Tanggal Pemeriksaan Terakhir -->
-                    <div>
+                    <div class="min-w-0">
                         <x-input
                             type="date"
                             name="tanggal_pemeriksaan_terakhir"
