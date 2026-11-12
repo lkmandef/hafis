@@ -76,18 +76,18 @@ class AuthorizationAndRoleTest extends TestCase
     }
 
     /**
-     * Petugas K3RS dilarang mengakses modul Laporan & Rekapitulasi (403 Forbidden)
+     * Petugas K3RS diizinkan mengakses modul Laporan & Rekapitulasi (200 OK)
      */
-    public function test_petugas_is_forbidden_from_accessing_laporan_and_rekapitulasi(): void
+    public function test_petugas_can_access_laporan_and_rekapitulasi(): void
     {
         $this->actingAsPetugas();
 
-        $this->get(route('laporan.index'))->assertStatus(403);
-        $this->get(route('laporan.apar'))->assertStatus(403);
-        $this->get(route('laporan.pemeriksaan'))->assertStatus(403);
-        $this->get(route('laporan.temuan'))->assertStatus(403);
-        $this->get(route('laporan.tindak_lanjut'))->assertStatus(403);
-        $this->get(route('laporan.penggantian'))->assertStatus(403);
+        $this->get(route('laporan.index'))->assertStatus(200);
+        $this->get(route('laporan.apar'))->assertStatus(200);
+        $this->get(route('laporan.pemeriksaan'))->assertStatus(200);
+        $this->get(route('laporan.temuan'))->assertStatus(200);
+        $this->get(route('laporan.tindak_lanjut'))->assertStatus(200);
+        $this->get(route('laporan.penggantian'))->assertStatus(200);
     }
 
     /**
@@ -248,6 +248,7 @@ class AuthorizationAndRoleTest extends TestCase
         $this->get(route('pemeriksaan.index'))->assertStatus(200);
         $this->get(route('tindak-lanjut.index'))->assertStatus(200);
         $this->get(route('penggantian.index'))->assertStatus(200);
+        $this->get(route('laporan.index'))->assertStatus(200);
         $this->get(route('lokasi.index'))->assertStatus(200);
 
         // 2. Admin
@@ -261,6 +262,74 @@ class AuthorizationAndRoleTest extends TestCase
         $this->get(route('penggantian.index'))->assertStatus(200);
         $this->get(route('laporan.index'))->assertStatus(200);
         $this->get(route('lokasi.index'))->assertStatus(200);
+    }
+
+    /**
+     * Petugas K3RS dapat membuka seluruh halaman laporan dan ekspor CSV/print,
+     * tamu tidak terautentikasi dialihkan ke login, dan akun nonaktif ditolak
+     */
+    public function test_petugas_can_access_all_laporan_pages_and_exports_while_unauthenticated_and_inactive_are_rejected(): void
+    {
+        // 1. Petugas aktif dapat membuka tiap halaman laporan (200 OK)
+        $this->actingAsPetugas();
+
+        $routes = [
+            route('laporan.index'),
+            route('laporan.apar'),
+            route('laporan.pemeriksaan'),
+            route('laporan.temuan'),
+            route('laporan.tindak_lanjut'),
+            route('laporan.penggantian'),
+        ];
+
+        foreach ($routes as $url) {
+            $this->get($url)->assertStatus(200);
+        }
+
+        // Petugas aktif dapat mengakses ekspor CSV
+        $exportRoutes = [
+            route('laporan.apar', ['format' => 'csv']),
+            route('laporan.pemeriksaan', ['format' => 'csv']),
+            route('laporan.temuan', ['format' => 'csv']),
+            route('laporan.tindak_lanjut', ['format' => 'csv']),
+            route('laporan.penggantian', ['format' => 'csv']),
+        ];
+
+        foreach ($exportRoutes as $url) {
+            $response = $this->get($url);
+            $response->assertStatus(200);
+            $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        }
+
+        // Petugas aktif dapat mengakses tampilan print view
+        $printRoutes = [
+            route('laporan.apar', ['format' => 'print']),
+            route('laporan.pemeriksaan', ['format' => 'print']),
+            route('laporan.temuan', ['format' => 'print']),
+            route('laporan.tindak_lanjut', ['format' => 'print']),
+            route('laporan.penggantian', ['format' => 'print']),
+        ];
+
+        foreach ($printRoutes as $url) {
+            $this->get($url)->assertStatus(200);
+        }
+
+        // 2. Pengguna belum login (tamu) dialihkan ke login (302 Redirect)
+        auth()->logout();
+        $this->assertGuest();
+
+        foreach ($routes as $url) {
+            $this->get($url)->assertRedirect(route('login'));
+        }
+
+        // 3. Akun nonaktif ditolak dan sesinya diputus
+        $inactiveUser = User::factory()->petugas()->create(['is_active' => false]);
+        $this->actingAs($inactiveUser);
+
+        $response = $this->get(route('laporan.index'));
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHasErrors(['login']);
+        $this->assertGuest();
     }
 
     /**
