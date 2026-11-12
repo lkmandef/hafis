@@ -22,6 +22,10 @@ class MasterDataSeeder extends Seeder
             return;
         }
 
+        // Jika ini instalasi fresh (tabel apars & pemeriksaans masih kosong),
+        // bersihkan baris placeholder sementara hasil migrasi rekonsiliasi agar integritas ID 100% sinkron dengan CSV
+        $isFreshSetup = (DB::table('apars')->count() === 0 && DB::table('pemeriksaans')->count() === 0);
+
         // Urutan dependensi tabel master:
         // 1. gedungs (tanpa dependensi)
         // 2. lantais (bergantung gedung_id)
@@ -35,12 +39,20 @@ class MasterDataSeeder extends Seeder
             'lantais' => ['check_columns' => ['id']],
             'ruangans' => ['check_columns' => ['id']],
             'lokasis' => ['check_columns' => ['id']],
-            'denahs' => ['check_columns' => ['id', 'lantai_id']],
-            'master_checklists' => ['check_columns' => ['id', 'nama']],
+            'denahs' => ['check_columns' => ['id']],
+            'master_checklists' => ['check_columns' => ['id']],
             'apars' => ['check_columns' => ['id', 'kode', 'qr_code']],
         ];
 
-        DB::transaction(function () use ($dataPath, $tables) {
+        DB::transaction(function () use ($dataPath, $tables, $isFreshSetup) {
+            if ($isFreshSetup) {
+                // Hapus data placeholder parsial migrasi berurutan dari child ke parent
+                DB::table('lokasis')->delete();
+                DB::table('ruangans')->delete();
+                DB::table('lantais')->delete();
+                DB::table('gedungs')->delete();
+            }
+
             foreach ($tables as $table => $config) {
                 $file = "{$dataPath}/{$table}.csv";
                 if (! File::exists($file)) {
@@ -129,4 +141,3 @@ class MasterDataSeeder extends Seeder
         ));
     }
 }
-
