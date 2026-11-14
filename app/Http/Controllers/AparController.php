@@ -7,6 +7,7 @@ use App\Models\Gedung;
 use App\Models\Lantai;
 use App\Models\Lokasi;
 use App\Models\Ruangan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -18,6 +19,9 @@ class AparController extends Controller
      */
     public function index(Request $request)
     {
+        // Sinkronisasi status APAR yang seminggu sebelum expired (H-7) atau sudah kadaluarsa
+        Apar::syncExpiredStatus();
+
         $search = $request->input('q');
         $lokasiId = $request->input('lokasi_id');
         $gedungId = $request->input('gedung_id');
@@ -239,6 +243,14 @@ class AparController extends Controller
         $cleanKode = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $validated['kode']));
         $validated['qr_code'] = 'HAFIS-QR-'.$cleanKode.'-'.strtoupper(Str::random(6));
 
+        // Jika tanggal kadaluarsa seminggu sebelum expired (H-7) atau sudah lewat, status otomatis Perlu Perhatian
+        if ($validated['status'] === Apar::STATUS_BAIK && ! empty($validated['tanggal_kadaluarsa'])) {
+            $threshold = Carbon::now()->addDays(7)->endOfDay();
+            if (Carbon::parse($validated['tanggal_kadaluarsa'])->startOfDay()->lte($threshold)) {
+                $validated['status'] = Apar::STATUS_PERHATIAN;
+            }
+        }
+
         $apar = Apar::create($validated);
 
         return redirect()->route('apar.show', $apar->id)->with('success', "Unit APAR {$apar->kode} berhasil didaftarkan ke sistem.");
@@ -381,6 +393,14 @@ class AparController extends Controller
                 ]);
             }
             $validated['lokasi_id'] = $matchingLokasi->id;
+        }
+
+        // Jika tanggal kadaluarsa seminggu sebelum expired (H-7) atau sudah lewat, status otomatis Perlu Perhatian
+        if ($validated['status'] === Apar::STATUS_BAIK && ! empty($validated['tanggal_kadaluarsa'])) {
+            $threshold = Carbon::now()->addDays(7)->endOfDay();
+            if (Carbon::parse($validated['tanggal_kadaluarsa'])->startOfDay()->lte($threshold)) {
+                $validated['status'] = Apar::STATUS_PERHATIAN;
+            }
         }
 
         $apar->update($validated);

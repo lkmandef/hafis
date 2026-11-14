@@ -7,8 +7,10 @@
             <span class="text-gray-300">/</span>
             <a href="{{ route('apar.show', $apar->id) }}" class="hover:text-gray-900 transition-colors">{{ $apar->kode }}</a>
             <span class="text-gray-300">/</span>
-            <a href="{{ route('pemeriksaan.show', $pemeriksaan->id) }}" class="hover:text-gray-900 transition-colors">Hasil Pemeriksaan</a>
-            <span class="text-gray-300">/</span>
+            @if($pemeriksaan)
+                <a href="{{ route('pemeriksaan.show', $pemeriksaan->id) }}" class="hover:text-gray-900 transition-colors">Hasil Pemeriksaan</a>
+                <span class="text-gray-300">/</span>
+            @endif
             <span class="text-gray-900 font-semibold">Buat Tindak Lanjut</span>
         </nav>
 
@@ -23,18 +25,28 @@
                     </span>
                 </div>
                 <p class="text-xs text-gray-500 mt-1">
-                    Pencatatan penanganan dan perbaikan unit APAR berdasarkan hasil temuan pemeriksaan fisik.
+                    {{ $pemeriksaan ? 'Pencatatan penanganan dan perbaikan unit APAR berdasarkan hasil temuan pemeriksaan fisik.' : 'Pencatatan penanganan teknis, pengisian ulang, dan pemeliharaan unit APAR.' }}
                 </p>
             </div>
 
             <div class="flex items-center gap-2">
-                <a href="{{ route('pemeriksaan.show', $pemeriksaan->id) }}"
-                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition min-h-[44px]">
-                    <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    <span>Kembali ke Pemeriksaan</span>
-                </a>
+                @if($pemeriksaan)
+                    <a href="{{ route('pemeriksaan.show', $pemeriksaan->id) }}"
+                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition min-h-[44px]">
+                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Kembali ke Pemeriksaan</span>
+                    </a>
+                @else
+                    <a href="{{ route('apar.show', $apar->id) }}"
+                       class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition min-h-[44px]">
+                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Kembali ke Detail APAR</span>
+                    </a>
+                @endif
             </div>
         </div>
     </div>
@@ -95,58 +107,109 @@
                 </div>
 
                 <!-- Kolom Kanan: Sesi Pemeriksaan & Temuan -->
-                <div class="space-y-3">
-                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Pemeriksaan Sumber</span>
+                @if($pemeriksaan)
+                    <div class="space-y-3">
+                        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Pemeriksaan Sumber</span>
 
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-500 font-medium">Tanggal Pemeriksaan</span>
-                        <span class="font-mono font-medium text-gray-900 tabular-nums">
-                            {{ $pemeriksaan->tanggal_pemeriksaan->format('d/m/Y H:i') }} WITA
-                        </span>
-                    </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 font-medium">Tanggal Pemeriksaan</span>
+                            <span class="font-mono font-medium text-gray-900 tabular-nums">
+                                {{ $pemeriksaan->tanggal_pemeriksaan->format('d/m/Y H:i') }} WITA
+                            </span>
+                        </div>
 
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-500 font-medium">Pemeriksa</span>
-                        <span class="font-semibold text-gray-900">{{ $pemeriksaan->pemeriksa_nama }}</span>
-                    </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 font-medium">Pemeriksa</span>
+                            <span class="font-semibold text-gray-900">{{ $pemeriksaan->pemeriksa_nama }}</span>
+                        </div>
 
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-500 font-medium">Hasil Keseluruhan</span>
-                        <x-badge :variant="$pemeriksaan->hasil_badge_variant" :dot="true">
-                            {{ $pemeriksaan->hasil_label }}
-                        </x-badge>
-                    </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 font-medium">Hasil Keseluruhan</span>
+                            <x-badge :variant="$pemeriksaan->hasil_badge_variant" :dot="true">
+                                {{ $pemeriksaan->hasil_label }}
+                            </x-badge>
+                        </div>
 
-                    <div class="pt-2 border-t border-gray-100">
-                        <span class="text-gray-500 font-medium block mb-1">Dasar Temuan Masalah:</span>
-                        @if($detail)
-                            <div class="p-3 rounded-lg bg-rose-50/70 border border-rose-200">
-                                <div class="flex items-center justify-between gap-2">
-                                    <span class="font-semibold text-rose-950 text-xs">{{ $detail->item_nama }}</span>
-                                    <x-badge variant="danger" :dot="true">{{ $detail->hasil_label }}</x-badge>
+                        <div class="pt-2 border-t border-gray-100">
+                            <span class="text-gray-500 font-medium block mb-1">Dasar Temuan Masalah:</span>
+                            @if($detail)
+                                <div class="p-3 rounded-lg bg-rose-50/70 border border-rose-200">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="font-semibold text-rose-950 text-xs">{{ $detail->item_nama }}</span>
+                                        <x-badge variant="danger" :dot="true">{{ $detail->hasil_label }}</x-badge>
+                                    </div>
+                                    <p class="text-rose-800 text-[11px] mt-1 italic">
+                                        Catatan: {{ $detail->catatan ?: 'Tidak ada catatan spesifik.' }}
+                                    </p>
                                 </div>
-                                <p class="text-rose-800 text-[11px] mt-1 italic">
-                                    Catatan: {{ $detail->catatan ?: 'Tidak ada catatan spesifik.' }}
-                                </p>
-                            </div>
-                        @else
-                            <div class="p-3 rounded-lg bg-amber-50/70 border border-amber-200">
-                                <span class="font-semibold text-amber-950 text-xs block">Tindak Lanjut Umum Pemeriksaan</span>
-                                <p class="text-amber-800 text-[11px] mt-0.5">
-                                    {{ $pemeriksaan->catatan ?: 'Tindakan pemeliharaan berkala untuk unit APAR ini.' }}
-                                </p>
-                            </div>
-                        @endif
+                            @else
+                                <div class="p-3 rounded-lg bg-amber-50/70 border border-amber-200">
+                                    <span class="font-semibold text-amber-950 text-xs block">Tindak Lanjut Umum Pemeriksaan</span>
+                                    <p class="text-amber-800 text-[11px] mt-0.5">
+                                        {{ $pemeriksaan->catatan ?: 'Tindakan pemeliharaan berkala untuk unit APAR ini.' }}
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                </div>
+                @else
+                    <div class="space-y-3">
+                        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Sumber Kebutuhan Tindakan</span>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 font-medium">Kategori Sumber</span>
+                            <span class="font-semibold text-gray-900">Pemeliharaan & Masa Kadaluarsa</span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 font-medium">Tanggal Kadaluarsa</span>
+                            <span class="font-mono font-medium text-gray-900 tabular-nums">
+                                {{ $apar->tanggal_kadaluarsa ? $apar->tanggal_kadaluarsa->format('d/m/Y') : 'Belum terdata' }}
+                            </span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 font-medium">Status Masa Pakai</span>
+                            @if($apar->isExpired())
+                                <x-badge variant="danger" :dot="true">Sudah Kadaluarsa</x-badge>
+                            @elseif($apar->isExpiringSoon())
+                                <x-badge variant="warning" :dot="true">Mendekati Kadaluarsa (&le; 7 Hari)</x-badge>
+                            @else
+                                <x-badge variant="info" :dot="true">Pemeliharaan Terjadwal</x-badge>
+                            @endif
+                        </div>
+
+                        <div class="pt-2 border-t border-gray-100">
+                            <span class="text-gray-500 font-medium block mb-1">Dasar Kebutuhan Tindakan:</span>
+                            <div class="p-3 rounded-lg bg-amber-50/70 border border-amber-200">
+                                <span class="font-semibold text-amber-950 text-xs block">
+                                    {{ $apar->isExpiringSoonOrExpired() ? 'Pengisian Ulang & Servis Media Tabung' : 'Pemeliharaan Teknis Mandiri' }}
+                                </span>
+                                <p class="text-amber-800 text-[11px] mt-0.5">
+                                    @if($apar->isExpiringSoonOrExpired())
+                                        Unit APAR ini memerlukan pengisian ulang atau pengecekan menyeluruh karena masa berlaku tabung telah mendekati atau melewati batas waktu pemakaian.
+                                    @else
+                                        Pencatatan tindakan pemeliharaan atau perbaikan teknis langsung tanpa riwayat sesi pemeriksaan fisik terkait.
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </x-card>
+
+        @php
+            $defaultJenis = old('jenis_tindakan', (! $pemeriksaan && $apar->isExpiringSoonOrExpired()) ? 'pengisian_ulang' : '');
+            $defaultPrioritas = old('prioritas', (! $pemeriksaan && $apar->isExpiringSoonOrExpired()) ? 'tinggi' : 'sedang');
+            $defaultUraian = old('uraian_tindakan', (! $pemeriksaan && $apar->isExpiringSoonOrExpired()) ? 'Pengisian ulang media pemadam dan pembaruan masa berlaku APAR yang mendekati batas kadaluarsa.' : '');
+        @endphp
 
         <!-- 3. Form Input Tindak Lanjut -->
         <form action="{{ route('tindak-lanjut.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="apar_id" value="{{ $apar->id }}">
-            <input type="hidden" name="pemeriksaan_id" value="{{ $pemeriksaan->id }}">
+            <input type="hidden" name="pemeriksaan_id" value="{{ $pemeriksaan?->id }}">
             @if($detail)
                 <input type="hidden" name="pemeriksaan_detail_id" value="{{ $detail->id }}">
             @endif
@@ -162,12 +225,12 @@
                             <select id="jenis_tindakan" name="jenis_tindakan" required
                                     class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-900 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 min-h-[44px]">
                                 <option value="">-- Pilih Jenis Tindakan --</option>
-                                <option value="perbaikan" {{ old('jenis_tindakan') === 'perbaikan' ? 'selected' : '' }}>Perbaikan</option>
-                                <option value="pengisian_ulang" {{ old('jenis_tindakan') === 'pengisian_ulang' ? 'selected' : '' }}>Pengisian Ulang</option>
-                                <option value="pembersihan" {{ old('jenis_tindakan') === 'pembersihan' ? 'selected' : '' }}>Pembersihan</option>
-                                <option value="penggantian_komponen" {{ old('jenis_tindakan') === 'penggantian_komponen' ? 'selected' : '' }}>Penggantian Komponen</option>
-                                <option value="pemeriksaan_ulang" {{ old('jenis_tindakan') === 'pemeriksaan_ulang' ? 'selected' : '' }}>Pemeriksaan Ulang</option>
-                                <option value="lainnya" {{ old('jenis_tindakan') === 'lainnya' ? 'selected' : '' }}>Tindakan Lainnya</option>
+                                <option value="perbaikan" {{ $defaultJenis === 'perbaikan' ? 'selected' : '' }}>Perbaikan</option>
+                                <option value="pengisian_ulang" {{ $defaultJenis === 'pengisian_ulang' ? 'selected' : '' }}>Pengisian Ulang</option>
+                                <option value="pembersihan" {{ $defaultJenis === 'pembersihan' ? 'selected' : '' }}>Pembersihan</option>
+                                <option value="penggantian_komponen" {{ $defaultJenis === 'penggantian_komponen' ? 'selected' : '' }}>Penggantian Komponen</option>
+                                <option value="pemeriksaan_ulang" {{ $defaultJenis === 'pemeriksaan_ulang' ? 'selected' : '' }}>Pemeriksaan Ulang</option>
+                                <option value="lainnya" {{ $defaultJenis === 'lainnya' ? 'selected' : '' }}>Tindakan Lainnya</option>
                             </select>
                             <span class="text-[11px] text-gray-400 mt-1 block">Tentukan jenis penanganan yang diperlukan pada unit APAR.</span>
                         </div>
@@ -178,9 +241,9 @@
                             </label>
                             <select id="prioritas" name="prioritas" required
                                     class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-900 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 min-h-[44px]">
-                                <option value="sedang" {{ old('prioritas', 'sedang') === 'sedang' ? 'selected' : '' }}>Sedang (Standar)</option>
-                                <option value="tinggi" {{ old('prioritas') === 'tinggi' ? 'selected' : '' }}>Tinggi (Mendesak / Segera)</option>
-                                <option value="rendah" {{ old('prioritas') === 'rendah' ? 'selected' : '' }}>Rendah (Rutin)</option>
+                                <option value="sedang" {{ $defaultPrioritas === 'sedang' ? 'selected' : '' }}>Sedang (Standar)</option>
+                                <option value="tinggi" {{ $defaultPrioritas === 'tinggi' ? 'selected' : '' }}>Tinggi (Mendesak / Segera)</option>
+                                <option value="rendah" {{ $defaultPrioritas === 'rendah' ? 'selected' : '' }}>Rendah (Rutin)</option>
                             </select>
                             <span class="text-[11px] text-gray-400 mt-1 block">Tingkat urgensi penanganan masalah APAR.</span>
                         </div>
@@ -193,7 +256,7 @@
                         </label>
                         <textarea id="uraian_tindakan" name="uraian_tindakan" rows="3" required
                                   placeholder="Contoh: Selang diganti karena terdapat keretakan pada bagian sambungan nozzle."
-                                  class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-900 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 leading-relaxed">{{ old('uraian_tindakan') }}</textarea>
+                                  class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-900 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 leading-relaxed">{{ $defaultUraian }}</textarea>
                         <span class="text-[11px] text-gray-400 mt-1 block">Jelaskan secara spesifik tindakan pemeliharaan yang direncanakan atau telah dikerjakan.</span>
                     </div>
 
@@ -282,7 +345,7 @@
 
                 <!-- Form Action Buttons -->
                 <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
-                    <a href="{{ route('pemeriksaan.show', $pemeriksaan->id) }}"
+                    <a href="{{ $pemeriksaan ? route('pemeriksaan.show', $pemeriksaan->id) : route('apar.show', $apar->id) }}"
                        class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-xs transition min-h-[44px] w-full sm:w-auto">
                         Batal
                     </a>

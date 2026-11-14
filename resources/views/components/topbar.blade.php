@@ -1,4 +1,5 @@
 @php
+    \App\Models\Apar::syncExpiredStatus();
     $now = \Carbon\Carbon::now();
     $notifAparPerhatian = \App\Models\Apar::whereIn('status', [\App\Models\Apar::STATUS_PERHATIAN, \App\Models\Apar::STATUS_RUSAK])->count();
     $notifTlPending = \App\Models\TindakLanjut::whereNotIn('status', [\App\Models\TindakLanjut::STATUS_SELESAI, \App\Models\TindakLanjut::STATUS_DIBATALKAN])->count();

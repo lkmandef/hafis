@@ -115,7 +115,7 @@
             <a href="{{ route('apar.index', ['status' => 'perhatian']) }}"
                class="group p-3.5 rounded-xl {{ $summaryStats['apar_perhatian'] > 0 ? 'bg-amber-50/40 border-amber-300' : 'bg-gray-50/30 border-gray-200' }} border-l-[3.5px] border-l-amber-500 hover:bg-amber-50/60 hover:border-amber-300 transition-all flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 shadow-2xs min-h-[110px]">
                 <div class="flex items-center justify-between gap-1">
-                    <span class="text-xs font-bold text-gray-800 group-hover:text-amber-950">Mendekati Expired</span>
+                    <span class="text-xs font-bold text-gray-800 group-hover:text-amber-950">Perlu Perhatian</span>
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold font-mono {{ $summaryStats['apar_perhatian'] > 0 ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-gray-100 text-gray-600 border border-gray-200' }}">
                         {{ $kondisiPersen['perhatian'] }}%
                     </span>
@@ -126,7 +126,7 @@
                     </span>
                     <span class="text-xs text-gray-500 font-semibold font-sans">unit</span>
                 </div>
-                <span class="text-[11px] text-gray-500 mt-1 block">Perlu isi ulang media tabung</span>
+                <span class="text-[11px] text-gray-500 mt-1 block">Mendekati kedaluwarsa atau temuan inspeksi</span>
             </a>
 
             <!-- 3. Kondisi Rusak (Rose Semantic) -->

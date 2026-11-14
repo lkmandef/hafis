@@ -21,6 +21,9 @@ class DashboardController extends Controller
     {
         $now = Carbon::now();
 
+        // Sinkronisasi status APAR yang seminggu sebelum expired (H-7) atau sudah kadaluarsa
+        Apar::syncExpiredStatus();
+
         // 1. Ringkasan Utama Dashboard & Status APAR Terkonsolidasi (1 Kueri)
         $aparStatusCounts = Apar::selectRaw('status, count(*) as count')
             ->groupBy('status')

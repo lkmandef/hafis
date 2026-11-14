@@ -75,6 +75,73 @@ class Apar extends Model
     ];
 
     /**
+     * Helper: Cek apakah APAR mendekati masa kadaluarsa (H-7 / seminggu sebelum) atau sudah kadaluarsa
+     */
+    public function isExpiringSoonOrExpired(): bool
+    {
+        if (! $this->tanggal_kadaluarsa) {
+            return false;
+        }
+
+        return Carbon::parse($this->tanggal_kadaluarsa)->startOfDay()
+            ->lessThanOrEqualTo(Carbon::now()->addDays(7)->endOfDay());
+    }
+
+    /**
+     * Helper: Cek apakah APAR sudah melewati tanggal kadaluarsa
+     */
+    public function isExpired(): bool
+    {
+        if (! $this->tanggal_kadaluarsa) {
+            return false;
+        }
+
+        return Carbon::parse($this->tanggal_kadaluarsa)->endOfDay()->isPast();
+    }
+
+    /**
+     * Helper: Cek apakah APAR berada dalam masa mendekati kadaluarsa (H-7)
+     */
+    public function isExpiringSoon(): bool
+    {
+        if (! $this->tanggal_kadaluarsa) {
+            return false;
+        }
+
+        $kadaluarsa = Carbon::parse($this->tanggal_kadaluarsa)->endOfDay();
+
+        return ! $kadaluarsa->isPast() && $kadaluarsa->lessThanOrEqualTo(Carbon::now()->addDays(7)->endOfDay());
+    }
+
+    /**
+     * Scope: Filter APAR yang seminggu sebelum expired (H-7) atau sudah kadaluarsa
+     */
+    public function scopeExpiringSoonOrExpired($query)
+    {
+        $threshold = Carbon::now()->addDays(7)->endOfDay()->toDateString();
+
+        return $query->whereNotNull('tanggal_kadaluarsa')
+            ->whereDate('tanggal_kadaluarsa', '<=', $threshold);
+    }
+
+    /**
+     * Sinkronisasi status APAR: unit berstatus 'baik' yang seminggu sebelum expired
+     * atau sudah kadaluarsa otomatis diperbarui statusnya menjadi 'perhatian' (Perlu Perhatian).
+     */
+    public static function syncExpiredStatus(): int
+    {
+        $threshold = Carbon::now()->addDays(7)->endOfDay()->toDateString();
+
+        return static::where('status', self::STATUS_BAIK)
+            ->whereNotNull('tanggal_kadaluarsa')
+            ->whereDate('tanggal_kadaluarsa', '<=', $threshold)
+            ->update([
+                'status' => self::STATUS_PERHATIAN,
+                'updated_at' => Carbon::now(),
+            ]);
+    }
+
+    /**
      * Helper: Cek apakah APAR sudah memiliki titik koordinat pada denah
      */
     public function getHasTitikAttribute(): bool
@@ -158,7 +225,7 @@ class Apar extends Model
                     ->whereNotIn('status', [TindakLanjut::STATUS_SELESAI, TindakLanjut::STATUS_DIBATALKAN])
                     ->exists();
 
-                if (! $hasOpenFollowUps) {
+                if (! $hasOpenFollowUps && ! $this->isExpiringSoonOrExpired()) {
                     $this->status = self::STATUS_BAIK;
                 }
             }

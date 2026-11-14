@@ -57,7 +57,7 @@ class TindakLanjutController extends Controller
     }
 
     /**
-     * Tampilkan formulir pembuatan tindak lanjut berdasarkan hasil pemeriksaan/temuan
+     * Tampilkan formulir pembuatan tindak lanjut berdasarkan hasil pemeriksaan/temuan atau kebutuhan pemeliharaan APAR
      */
     public function create(Request $request)
     {
@@ -82,22 +82,27 @@ class TindakLanjutController extends Controller
             }
         }
 
-        if (empty($pemeriksaanId)) {
-            return redirect()->route('apar.index')
-                ->with('warning', 'Pilih pemeriksaan fisik sumber terlebih dahulu untuk membuat tindak lanjut.');
+        $pemeriksaan = null;
+        $apar = null;
+
+        if (! empty($pemeriksaanId)) {
+            $pemeriksaan = Pemeriksaan::with(['apar.ruangan.lantai.gedung', 'details'])->find($pemeriksaanId);
+            $apar = $pemeriksaan?->apar;
         }
 
-        $pemeriksaan = Pemeriksaan::with(['apar.ruangan.lantai.gedung', 'details'])->find($pemeriksaanId);
-        if (! $pemeriksaan) {
-            return redirect()->route('apar.index')
-                ->with('error', 'Data pemeriksaan fisik sumber tidak ditemukan.');
+        // Fallback: Jika tidak ada pemeriksaan namun ada apar_id (misal: APAR mendekati kadaluarsa / pemeliharaan mandiri)
+        if (! $apar && ! empty($aparId)) {
+            $apar = Apar::with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung'])->find($aparId);
         }
 
-        $apar = $pemeriksaan->apar;
+        if (! $apar) {
+            return redirect()->route('apar.index')
+                ->with('warning', 'Pilih unit APAR atau pemeriksaan fisik sumber terlebih dahulu untuk membuat tindak lanjut.');
+        }
 
         // Cek detail temuan jika diberikan
         $detail = null;
-        if (! empty($detailId)) {
+        if (! empty($detailId) && $pemeriksaan) {
             $detail = $pemeriksaan->details->firstWhere('id', (int) $detailId);
 
             if (! $detail) {
@@ -126,7 +131,11 @@ class TindakLanjutController extends Controller
     {
         $validated = $request->validate([
             'apar_id' => ['required', 'exists:apars,id'],
-            'pemeriksaan_id' => ['required', 'exists:pemeriksaans,id'],
+            'pemeriksaan_id' => [
+                Rule::requiredIf(fn () => empty($request->input('apar_id')) || $request->filled('pemeriksaan_detail_id')),
+                'nullable',
+                'exists:pemeriksaans,id',
+            ],
             'pemeriksaan_detail_id' => ['nullable', 'exists:pemeriksaan_details,id'],
             'jenis_tindakan' => [
                 'required',
@@ -165,18 +174,22 @@ class TindakLanjutController extends Controller
 
         // Verifikasi integritas relasi: APAR -> Pemeriksaan -> Detail (Section 15)
         $apar = Apar::findOrFail($validated['apar_id']);
-        $pemeriksaan = Pemeriksaan::where('id', $validated['pemeriksaan_id'])
-            ->where('apar_id', $apar->id)
-            ->first();
+        $pemeriksaan = null;
 
-        if (! $pemeriksaan) {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['pemeriksaan_id' => 'Data pemeriksaan sumber tidak cocok dengan unit APAR terkait.']);
+        if (! empty($validated['pemeriksaan_id'])) {
+            $pemeriksaan = Pemeriksaan::where('id', $validated['pemeriksaan_id'])
+                ->where('apar_id', $apar->id)
+                ->first();
+
+            if (! $pemeriksaan) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['pemeriksaan_id' => 'Data pemeriksaan sumber tidak cocok dengan unit APAR terkait.']);
+            }
         }
 
         $deskripsiTemuan = null;
-        if (! empty($validated['pemeriksaan_detail_id'])) {
+        if (! empty($validated['pemeriksaan_detail_id']) && $pemeriksaan) {
             $detail = PemeriksaanDetail::where('id', $validated['pemeriksaan_detail_id'])
                 ->where('pemeriksaan_id', $pemeriksaan->id)
                 ->first();
@@ -196,7 +209,11 @@ class TindakLanjutController extends Controller
 
             $deskripsiTemuan = $detail->item_nama.($detail->catatan ? ': '.$detail->catatan : '');
         } else {
-            $deskripsiTemuan = $pemeriksaan->catatan ?: 'Temuan hasil inspeksi fisik unit APAR';
+            $deskripsiTemuan = $pemeriksaan
+                ? ($pemeriksaan->catatan ?: 'Temuan hasil inspeksi fisik unit APAR')
+                : ($apar->isExpiringSoonOrExpired()
+                    ? 'Tabung mendekati batas waktu kadaluarsa (H-7) atau telah kadaluarsa.'
+                    : 'Pemeliharaan mandiri unit APAR');
         }
 
         // Upload foto opsional (Section 14)
@@ -216,7 +233,7 @@ class TindakLanjutController extends Controller
         $tindakLanjut = DB::transaction(function () use ($apar, $pemeriksaan, $validated, $petugasPelaksana, $deskripsiTemuan, $fotoPath, $tanggalSelesai) {
             $tl = TindakLanjut::create([
                 'apar_id' => $apar->id,
-                'pemeriksaan_id' => $pemeriksaan->id,
+                'pemeriksaan_id' => $pemeriksaan?->id,
                 'pemeriksaan_detail_id' => $validated['pemeriksaan_detail_id'] ?? null,
                 'user_id' => auth()->id(),
                 'deskripsi_temuan' => $deskripsiTemuan,
@@ -234,8 +251,10 @@ class TindakLanjutController extends Controller
             // Pembaruan kondisi unit APAR secara manual/terkontrol jika diminta (Section 8)
             if (! empty($validated['update_kondisi_apar']) && $validated['status'] === TindakLanjut::STATUS_SELESAI) {
                 if ($apar->status === Apar::STATUS_PERHATIAN || $apar->status === Apar::STATUS_RUSAK) {
-                    $apar->status = Apar::STATUS_BAIK;
-                    $apar->save();
+                    if (! $apar->isExpiringSoonOrExpired()) {
+                        $apar->status = Apar::STATUS_BAIK;
+                        $apar->save();
+                    }
                 }
             }
 
@@ -356,8 +375,10 @@ class TindakLanjutController extends Controller
             if (! empty($validated['update_kondisi_apar']) && $validated['status'] === TindakLanjut::STATUS_SELESAI) {
                 $apar = $tindakLanjut->apar;
                 if ($apar && ($apar->status === Apar::STATUS_PERHATIAN || $apar->status === Apar::STATUS_RUSAK)) {
-                    $apar->status = Apar::STATUS_BAIK;
-                    $apar->save();
+                    if (! $apar->isExpiringSoonOrExpired()) {
+                        $apar->status = Apar::STATUS_BAIK;
+                        $apar->save();
+                    }
                 }
             }
         });
@@ -405,8 +426,10 @@ class TindakLanjutController extends Controller
             if (! empty($validated['update_kondisi_apar']) && $statusBaru === TindakLanjut::STATUS_SELESAI) {
                 $apar = $tindakLanjut->apar;
                 if ($apar && ($apar->status === Apar::STATUS_PERHATIAN || $apar->status === Apar::STATUS_RUSAK)) {
-                    $apar->status = Apar::STATUS_BAIK;
-                    $apar->save();
+                    if (! $apar->isExpiringSoonOrExpired()) {
+                        $apar->status = Apar::STATUS_BAIK;
+                        $apar->save();
+                    }
                 }
             }
         });
