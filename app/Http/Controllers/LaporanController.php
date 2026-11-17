@@ -11,6 +11,7 @@ use App\Models\Pemeriksaan;
 use App\Models\PemeriksaanDetail;
 use App\Models\PenggantianApar;
 use App\Models\TindakLanjut;
+use App\Services\KartuPemeliharaanService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -730,6 +731,288 @@ class LaporanController extends Controller
     }
 
     /**
+     * LAPORAN 6: Kartu Ceklist Pemeliharaan APAR Tahunan (Section 8)
+     */
+    public function kartuPemeliharaan(Request $request, KartuPemeliharaanService $kartuService)
+    {
+        $currentYear = (int) now()->timezone('Asia/Makassar')->format('Y');
+        $tahun = (int) $request->input('tahun', $currentYear);
+        if ($tahun < 2000 || $tahun > 2100) {
+            $tahun = $currentYear;
+        }
+
+        // 1. Opsi filter dropdown APAR (hanya unit aktif dan terpasang yang muncul di daftar pilihan)
+        $dropdownQuery = Apar::where('status', '!=', Apar::STATUS_TIDAK_AKTIF)
+            ->where(function ($q) {
+                $q->whereDoesntHave('lokasi')
+                    ->orWhereHas('lokasi', fn ($lq) => $lq->where('status', '!=', Lokasi::STATUS_STOK));
+            });
+
+        if ($request->filled('gedung_id')) {
+            $dropdownQuery->diGedung($request->gedung_id);
+            if ($request->filled('lantai_id')) {
+                $dropdownQuery->diLantai($request->lantai_id);
+            }
+        }
+        $aparsDropdown = $dropdownQuery->orderBy('kode')->get();
+
+        // 2. Tentukan APAR yang dipilih (gunakan withTrashed agar APAR soft-deleted tetap bisa dibuka via URL)
+        $selectedApar = null;
+        if ($request->filled('apar_id')) {
+            $selectedApar = Apar::withTrashed()
+                ->with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung', 'aparPengganti', 'penggantianKeluar.aparBaru'])
+                ->find($request->apar_id);
+        }
+
+        if (! $selectedApar) {
+            $selectedApar = $aparsDropdown->first();
+        }
+
+        if (! $selectedApar) {
+            $selectedApar = Apar::withTrashed()
+                ->with(['lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung', 'aparPengganti', 'penggantianKeluar.aparBaru'])
+                ->first();
+        }
+
+        // Mode Cetak Massal atau Ekspor CSV Massal
+        $isBatch = $request->input('mode') === 'batch'
+            || (! $request->filled('apar_id') && ($request->filled('gedung_id') || $request->filled('lantai_id')));
+
+        // Format CSV Export
+        if ($request->input('format') === 'csv') {
+            if ($isBatch) {
+                $batchQuery = Apar::query()->with([
+                    'lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung',
+                    'aparPengganti', 'penggantianKeluar.aparBaru',
+                    'pemeriksaans' => function ($q) use ($tahun) {
+                        $q->where('periode_tahun', $tahun)
+                            ->whereNotIn('status', ['dibatalkan', 'draft'])
+                            ->with('details');
+                    },
+                ]);
+
+                if ($request->filled('gedung_id')) {
+                    $batchQuery->diGedung($request->gedung_id);
+                    if ($request->filled('lantai_id')) {
+                        $batchQuery->diLantai($request->lantai_id);
+                    }
+                }
+
+                $batchCount = (clone $batchQuery)->count();
+                if ($batchCount > KartuPemeliharaanService::MAX_BATCH_PRINT) {
+                    return redirect()->route('laporan.kartu-pemeliharaan', $request->except(['format', 'mode']))
+                        ->with('warning', "Jumlah APAR yang terfilter ({$batchCount} unit) melebihi batas maksimal (".KartuPemeliharaanService::MAX_BATCH_PRINT.' unit). Silakan pilih filter gedung atau lantai yang lebih spesifik.');
+                }
+
+                $apars = $batchQuery->orderBy('kode')->get();
+                $columns = $kartuService->getChecklistColumns($tahun, $apars);
+
+                return $kartuService->exportCsvBatch($apars, $tahun, $columns);
+            }
+
+            if (! $selectedApar) {
+                return redirect()->route('laporan.kartu-pemeliharaan')->with('error', 'Tidak ada data APAR yang dapat diekspor.');
+            }
+
+            $selectedApar->load([
+                'pemeriksaans' => function ($q) use ($tahun) {
+                    $q->where('periode_tahun', $tahun)
+                        ->whereNotIn('status', ['dibatalkan', 'draft'])
+                        ->with('details');
+                },
+            ]);
+            $columns = $kartuService->getChecklistColumns($tahun, $selectedApar);
+            $matrix = $kartuService->buildAparYearMatrix($selectedApar, $tahun, $columns);
+
+            return $kartuService->exportCsvSingle($selectedApar, $tahun, $columns, $matrix);
+        }
+
+        // Format Print View
+        if ($request->input('format') === 'print') {
+            if ($isBatch) {
+                $batchQuery = Apar::query()->with([
+                    'lokasi.gedung', 'lokasi.lantai', 'ruangan.lantai.gedung',
+                    'aparPengganti', 'penggantianKeluar.aparBaru',
+                    'pemeriksaans' => function ($q) use ($tahun) {
+                        $q->where('periode_tahun', $tahun)
+                            ->whereNotIn('status', ['dibatalkan', 'draft'])
+                            ->with('details');
+                    },
+                ]);
+
+                if ($request->filled('gedung_id')) {
+                    $batchQuery->diGedung($request->gedung_id);
+                    if ($request->filled('lantai_id')) {
+                        $batchQuery->diLantai($request->lantai_id);
+                    }
+                }
+
+                $batchCount = (clone $batchQuery)->count();
+                if ($batchCount > KartuPemeliharaanService::MAX_BATCH_PRINT) {
+                    return redirect()->route('laporan.kartu-pemeliharaan', $request->except(['format', 'mode']))
+                        ->with('warning', "Jumlah APAR yang terfilter ({$batchCount} unit) melebihi batas maksimal cetak massal (".KartuPemeliharaanService::MAX_BATCH_PRINT.' unit). Silakan pilih filter gedung atau lantai yang lebih spesifik.');
+                }
+
+                $apars = $batchQuery->orderBy('kode')->get();
+                $columns = $kartuService->getChecklistColumns($tahun, $apars);
+
+                $cardsData = [];
+                foreach ($apars as $aparItem) {
+                    $cardsData[] = [
+                        'apar' => $aparItem,
+                        'meta' => $kartuService->getAparCardMeta($aparItem, $tahun),
+                        'matrix' => $kartuService->buildAparYearMatrix($aparItem, $tahun, $columns),
+                    ];
+                }
+
+                $orientation = KartuPemeliharaanService::determinePrintOrientation($columns);
+                $filtersSummary = $this->buildFilterSummary($request);
+                $filtersSummary['Tahun'] = (string) $tahun;
+
+                return view('laporan.kartu-pemeliharaan', [
+                    'isPrint' => true,
+                    'isBatch' => true,
+                    'orientation' => $orientation,
+                    'tahun' => $tahun,
+                    'columns' => $columns,
+                    'cardsData' => $cardsData,
+                    'filtersSummary' => $filtersSummary,
+                    'symbols' => KartuPemeliharaanService::getSymbols(),
+                    'selectedApar' => null,
+                    'aparsDropdown' => collect(),
+                    'gedungs' => collect(),
+                    'lantais' => collect(),
+                    'rekapTahunan' => null,
+                ]);
+            }
+
+            if (! $selectedApar) {
+                return redirect()->route('laporan.kartu-pemeliharaan')->with('error', 'Tidak ada data APAR yang dipilih.');
+            }
+
+            $selectedApar->load([
+                'pemeriksaans' => function ($q) use ($tahun) {
+                    $q->where('periode_tahun', $tahun)
+                        ->whereNotIn('status', ['dibatalkan', 'draft'])
+                        ->with('details');
+                },
+            ]);
+            $columns = $kartuService->getChecklistColumns($tahun, $selectedApar);
+            $matrix = $kartuService->buildAparYearMatrix($selectedApar, $tahun, $columns);
+            $meta = $kartuService->getAparCardMeta($selectedApar, $tahun);
+            $orientation = KartuPemeliharaanService::determinePrintOrientation($columns);
+
+            $filtersSummary = $this->buildFilterSummary($request);
+            $filtersSummary['Tahun'] = (string) $tahun;
+            $filtersSummary['Unit APAR'] = $selectedApar->kode;
+
+            return view('laporan.kartu-pemeliharaan', [
+                'isPrint' => true,
+                'isBatch' => false,
+                'orientation' => $orientation,
+                'tahun' => $tahun,
+                'columns' => $columns,
+                'cardsData' => [
+                    [
+                        'apar' => $selectedApar,
+                        'meta' => $meta,
+                        'matrix' => $matrix,
+                    ],
+                ],
+                'filtersSummary' => $filtersSummary,
+                'symbols' => KartuPemeliharaanService::getSymbols(),
+                'selectedApar' => $selectedApar,
+                'aparsDropdown' => collect(),
+                'gedungs' => collect(),
+                'lantais' => collect(),
+                'rekapTahunan' => null,
+            ]);
+        }
+
+        // Web View (Interaktif)
+        $cardsData = [];
+        $columns = [];
+        $rekapTahunan = null;
+
+        if ($selectedApar) {
+            $selectedApar->load([
+                'pemeriksaans' => function ($q) use ($tahun) {
+                    $q->where('periode_tahun', $tahun)
+                        ->whereNotIn('status', ['dibatalkan', 'draft'])
+                        ->with('details');
+                },
+            ]);
+            $columns = $kartuService->getChecklistColumns($tahun, $selectedApar);
+            $matrix = $kartuService->buildAparYearMatrix($selectedApar, $tahun, $columns);
+            $meta = $kartuService->getAparCardMeta($selectedApar, $tahun);
+
+            // Hitung rekap bulanan untuk kartu statistik ringkas
+            $bulanTerinspeksi = 0;
+            $bulanBaik = 0;
+            $bulanPerluTindakan = 0;
+
+            foreach ($matrix as $mRow) {
+                if ($mRow['has_pemeriksaan']) {
+                    $bulanTerinspeksi++;
+                    $adaTemuan = false;
+                    foreach ($columns as $c) {
+                        if (($mRow['cells'][$c['key']]['hasil'] ?? null) === PemeriksaanDetail::HASIL_TIDAK_BAIK) {
+                            $adaTemuan = true;
+                            break;
+                        }
+                    }
+                    if ($adaTemuan) {
+                        $bulanPerluTindakan++;
+                    } else {
+                        $bulanBaik++;
+                    }
+                }
+            }
+
+            $rekapTahunan = [
+                'terinspeksi' => $bulanTerinspeksi,
+                'baik' => $bulanBaik,
+                'perlu_tindakan' => $bulanPerluTindakan,
+                'belum_inspeksi' => max(0, 12 - $bulanTerinspeksi),
+            ];
+
+            $cardsData[] = [
+                'apar' => $selectedApar,
+                'meta' => $meta,
+                'matrix' => $matrix,
+            ];
+        }
+
+        $gedungs = Gedung::orderBy('nama', 'asc')->get();
+        $lantais = $request->filled('gedung_id')
+            ? Lantai::where('gedung_id', $request->gedung_id)->orderBy('nomor_lantai', 'asc')->get()
+            : collect();
+
+        // Daftar tahun yang tersedia untuk filter (dari operational_start_year sampai current year + 1)
+        $startYear = (int) config('hafis.operational_start_year', 2026);
+        $minYear = min($startYear - 1, $tahun);
+        $maxYear = max($currentYear + 1, $tahun);
+        $tahunList = range($maxYear, $minYear);
+
+        return view('laporan.kartu-pemeliharaan', [
+            'isPrint' => false,
+            'isBatch' => false,
+            'orientation' => KartuPemeliharaanService::determinePrintOrientation($columns),
+            'tahun' => $tahun,
+            'tahunList' => $tahunList,
+            'columns' => $columns,
+            'cardsData' => $cardsData,
+            'selectedApar' => $selectedApar,
+            'aparsDropdown' => $aparsDropdown,
+            'gedungs' => $gedungs,
+            'lantais' => $lantais,
+            'symbols' => KartuPemeliharaanService::getSymbols(),
+            'rekapTahunan' => $rekapTahunan,
+            'filtersSummary' => [],
+        ]);
+    }
+
+    /**
      * Helper stream CSV download tanpa dependency eksternal
      */
     private function exportCsv(string $filename, array $headers, iterable $rows): StreamedResponse
@@ -835,6 +1118,17 @@ class LaporanController extends Controller
 
         if ($request->filled('alasan')) {
             $summary['Alasan'] = ucfirst(str_replace('_', ' ', $request->alasan));
+        }
+
+        if ($request->filled('tahun')) {
+            $summary['Tahun'] = $request->tahun;
+        }
+
+        if ($request->filled('apar_id')) {
+            $a = Apar::withTrashed()->find($request->apar_id);
+            if ($a) {
+                $summary['Unit APAR'] = $a->kode;
+            }
         }
 
         return $summary;

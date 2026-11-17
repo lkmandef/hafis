@@ -126,6 +126,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tindak-lanjut', [LaporanController::class, 'tindakLanjut'])->name('tindak_lanjut');
         Route::get('/tindak-lanjut-alias', [LaporanController::class, 'tindakLanjut'])->name('tindak-lanjut');
         Route::get('/penggantian', [LaporanController::class, 'penggantian'])->name('penggantian');
+        Route::get('/kartu-pemeliharaan', [LaporanController::class, 'kartuPemeliharaan'])->name('kartu-pemeliharaan');
     });
 
     // Kompatibilitas link lama /riwayat -> /laporan

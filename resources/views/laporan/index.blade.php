@@ -5,12 +5,12 @@
         description="Dokumentasi dan rekapitulasi data keselamatan proteksi kebakaran rumah sakit berbasis data real-time.">
         <x-slot:actions>
             <x-badge variant="neutral" size="md">
-                5 Modul Laporan Aktif
+                6 Modul Laporan Aktif
             </x-badge>
         </x-slot:actions>
     </x-page-header>
 
-    <!-- 2. Document Hub: Direktori 5 Modul Laporan Resmi HAFIS -->
+    <!-- 2. Document Hub: Direktori 6 Modul Laporan Resmi HAFIS -->
     <div class="space-y-4">
         <div>
             <h2 class="text-sm sm:text-base font-bold text-slate-900 tracking-tight mb-1">
@@ -164,7 +164,7 @@
             </div>
 
             <!-- DOKUMEN 5: Laporan Penggantian APAR -->
-            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors flex flex-col justify-between shadow-2xs group md:col-span-2 lg:col-span-1">
+            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors flex flex-col justify-between shadow-2xs group">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
@@ -191,6 +191,41 @@
                     <a href="{{ route('laporan.penggantian') }}" 
                        class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
                         <span>Buka Laporan</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- DOKUMEN 6: Ceklist Pemeliharaan APAR (Kartu Tahunan) -->
+            <div class="p-5 bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors flex flex-col justify-between shadow-2xs group">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
+                            06
+                        </span>
+                        <span class="text-[11px] font-medium text-slate-500 bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded">
+                            Kartu Riwayat Tahunan
+                        </span>
+                    </div>
+
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-slate-900 transition-colors">
+                        Ceklist Pemeliharaan APAR
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Kartu kendali pemeliharaan tahunan digital per tabung APAR: matriks inspeksi 12 bulan kalender, evaluasi parameter checklist K3RS, riwayat paraf petugas, dan masa berlaku tabung.
+                    </p>
+                </div>
+
+                <div class="mt-5 pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <span class="text-[11px] text-slate-500 font-medium">
+                        Format: <span class="text-slate-700 font-semibold">Cetak A4, CSV</span>
+                    </span>
+
+                    <a href="{{ route('laporan.kartu-pemeliharaan') }}" 
+                       class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition duration-150 ease-in-out shadow-2xs min-h-[42px] focus:outline-none focus:ring-2 focus:ring-slate-900/20">
+                        <span>Buka Kartu</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                         </svg>
